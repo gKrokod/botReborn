@@ -42,6 +42,9 @@ library:
   source-dirs: src
   dependencies:
   - text
+  - containers
+  - bytestring
+  - configurator
 
 executables:
   botReborn-exe:

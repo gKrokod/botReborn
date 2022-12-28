@@ -1,24 +1,37 @@
 module Main (main) where
 
-import Lib
 import Types
-import qualified Bot
-import Handlers.Bot
+import qualified ConsoleBot
+import qualified Handlers.Bot
+import qualified Base
+import qualified Handlers.Base
+import qualified Config (loadConfig)
+
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 
 main :: IO ()
 main = do
-  let m = Message { mData = Query 333332, mID = 1, mUser = 12345 }
-  case mData m of
-     Msg a -> TIO.putStrLn (a)
-     Query a -> print a 
+  -- load config and make handles
+  base <- Base.newBase
+  cfg <- Config.loadConfig
+  let baseHandle = Handlers.Base.BaseHandle
+                   {  Handlers.Base.defaultRepeatCount = cRepeatCount cfg
+		   ,  Handlers.Base.findUser = Base.findUser base
+		   ,  Handlers.Base.updateUser = Base.updateUser base
+		   }
+  
   let handle = Handlers.Bot.Handle 
-               { getMessage = Bot.getMessage
-	       , sendMessage = Bot.sendMessage
-	       , defaultRepeatCount = Bot.defaultRepeatCount
-	       , findUser = Bot.findUser
-	       , updateUser = Bot.updateUser}
-  msg <- getMessage handle
-  makeReaction handle msg
-  return ()
+               { Handlers.Bot.getMessage = ConsoleBot.getMessage
+	       , Handlers.Bot.sendMessage = ConsoleBot.sendMessage
+	       , Handlers.Bot.base = baseHandle
+	       , Handlers.Bot.helpMessage = cTextMenuHelp cfg
+	       , Handlers.Bot.repeatMessage = cTextMenuRepeat cfg}
+  -- do logic
+  loop handle
+
+loop :: Handlers.Bot.Handle IO -> IO ()
+loop h = do
+  msg <- Handlers.Bot.getMessage h
+  Handlers.Bot.makeReaction h msg
+  loop h
