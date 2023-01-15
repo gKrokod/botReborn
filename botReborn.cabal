@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.35.0.
+-- This file has been generated from package.yaml by hpack version 0.35.1.
 --
 -- see: https://github.com/sol/hpack
 
@@ -30,7 +30,6 @@ library
       ConsoleBot
       Handlers.Base
       Handlers.Bot
-      Lib
       Types
   other-modules:
       Paths_botReborn
@@ -47,6 +46,7 @@ library
     , configurator
     , containers
     , text
+    , time
   default-language: Haskell2010
 
 executable botReborn-exe
@@ -63,6 +63,7 @@ executable botReborn-exe
   build-depends:
       base >=4.7 && <5
     , botReborn
+    , text
   default-language: Haskell2010
 
 test-suite botReborn-test

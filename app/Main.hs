@@ -33,5 +33,6 @@ main = do
 loop :: Handlers.Bot.Handle IO -> IO ()
 loop h = do
   msg <- Handlers.Bot.getMessage h
+  print $ mID msg
   Handlers.Bot.makeReaction h msg
   loop h

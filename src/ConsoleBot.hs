@@ -4,12 +4,14 @@ import qualified Handlers.Bot as Handler
 import Types
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
+import qualified Data.Time.Clock.System as Time
 
 
 getMessage :: IO (Message)
 getMessage = do
   m <- getLine
-  let msg = Message { mID = 1, mUser = 1}
+  time <- Time.getSystemTime
+  let msg = Message { mID = fromIntegral $ Time.systemSeconds time, mUser = 1}
   case m of
     "/help"   -> pure $ msg {mData = Command "/help"}
     "/repeat" -> pure $ msg {mData = Command "/repeat"}

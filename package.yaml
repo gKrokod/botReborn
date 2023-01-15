@@ -45,6 +45,7 @@ library:
   - containers
   - bytestring
   - configurator
+  - time
 
 executables:
   botReborn-exe:
@@ -56,6 +57,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - botReborn
+    - text
 
 tests:
   botReborn-test:
