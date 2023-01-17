@@ -1,7 +1,7 @@
 module Main (main) where
 
 import Types
-import qualified ConsoleBot
+import qualified ClientConsole
 import qualified Handlers.Bot
 import qualified Base
 import qualified Handlers.Base
@@ -22,8 +22,8 @@ main = do
 		   }
   
   let handle = Handlers.Bot.Handle 
-               { Handlers.Bot.getMessage = ConsoleBot.getMessage
-	       , Handlers.Bot.sendMessage = ConsoleBot.sendMessage
+               { Handlers.Bot.getMessage = ClientConsole.fetch
+	       , Handlers.Bot.sendMessage = ClientConsole.carryAway
 	       , Handlers.Bot.base = baseHandle
 	       , Handlers.Bot.helpMessage = cTextMenuHelp cfg
 	       , Handlers.Bot.repeatMessage = cTextMenuRepeat cfg}
