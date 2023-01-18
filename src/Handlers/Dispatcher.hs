@@ -1,9 +1,32 @@
 module Handlers.Dispatcher where
---
-a1 :: Int
-a1 = 10
--- data Handle m = Handle
---   { pullMessage :: IDLastMessage -> m (Message)
---   , makeFork :: Mvar -> User -> m ()
---   , lastMessage :: Maybe Message
---   }
+import qualified Handlers.Base
+import qualified Handlers.Client
+import Types
+
+data Handle m = Handle
+  { readMessage :: m (Maybe Message, Maybe LastMessage)
+  , saveMessage :: Message -> m ()
+  , eraseMessage :: Message -> m ()
+  , client :: Handlers.Client.Handle m
+  , base :: Handlers.Base.Handle m
+  }
+
+
+getMessage :: (Monad m) => Handle m -> m (Message)
+getMessage h = undefined
+
+-- (stack, lastMsg) <- readMessage
+-- case stack of
+--   Nothing -> do
+--     msg <- Handlers.Client.fetch lastMsg
+--     case msg of
+--       Nothing -> (do error "can't fetch"; getMessage)
+--       Just msg -> do
+--         saveMessage msg
+-- 	pure msg
+
+
+makeForkForUser :: (Monad m) => Handle m -> m (Message)
+makeForkForUser = undefined
+
+

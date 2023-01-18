@@ -7,15 +7,23 @@ import qualified Data.Text.IO as TIO
 import qualified Data.Time.Clock.System as Time
 
 
-fetch :: IO (Maybe Message)
-fetch = do
+fetch :: Maybe LastMessage -> IO (Maybe Message)
+fetch lm = do
   m <- getLine
   time <- Time.getSystemTime
   let msg = Message { mID = fromIntegral $ Time.systemSeconds time, mUser = 1}
-  case m of
-    "/help"   -> pure $ Just $ msg {mData = Command "/help"}
-    "/repeat" -> pure $ Just $ msg {mData = Command "/repeat"}
-    otherwise -> pure $ Just $ msg {mData = Msg $ T.pack m}
+  case lm of
+    Nothing -> makeMessage m msg
+    Just lm -> if mID lm == mID msg
+               then pure Nothing
+	       else makeMessage m msg
+
+makeMessage :: String -> Message -> IO (Maybe Message)
+makeMessage t msg = case t of
+  "/help"   -> pure $ Just $ msg {mData = Command "/help"}
+  "/repeat" -> pure $ Just $ msg {mData = Command "/repeat"}
+  otherwise -> pure $ Just $ msg {mData = Msg $ T.pack t}
+
 
 carryAway :: Message -> IO ()
 carryAway msg = case mData msg of

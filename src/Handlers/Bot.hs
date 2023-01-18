@@ -8,7 +8,7 @@ import qualified Data.Text as T (Text, pack, unpack, null, all)
 data Handle m = Handle
   {  getMessage :: m (Message)
   ,  sendMessage :: Message -> m ()
-  ,  base :: Handlers.Base.BaseHandle m
+  ,  base :: Handlers.Base.Handle m
   ,  helpMessage :: T.Text
   ,  repeatMessage :: T.Text
   }

@@ -3,7 +3,7 @@ module Handlers.Client where
 import Types
 
 data Handle m = Handle
-  { fetch :: m (Maybe Message)
+  { fetch :: Maybe LastMessage -> m (Maybe Message)
   , carryAway :: Message -> m ()
   }
 

@@ -1,14 +1,14 @@
 module Handlers.Base where
 import Types (RepeatCount, User)
 
-data BaseHandle m = BaseHandle 
+data Handle m = Handle 
   {  defaultRepeatCount :: RepeatCount
   ,  findUser :: User -> m (Maybe RepeatCount)
   ,  updateUser :: User -> RepeatCount -> m ()
   }
 
 
-giveRepeatCountFromBase :: (Monad m) => BaseHandle m -> User -> m (RepeatCount)
+giveRepeatCountFromBase :: (Monad m) => Handle m -> User -> m (RepeatCount)
 giveRepeatCountFromBase h user = do
   existUser <- findUser h user
   case existUser of

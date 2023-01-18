@@ -6,6 +6,7 @@ type User = Int
 type RepeatCount = Int
 type ID = Int
 type DataFromButton = Int
+type LastMessage = Message
 
 data Data t i = Msg t | Gif t | Command t | KeyboardMenu | Query i deriving Show
 
