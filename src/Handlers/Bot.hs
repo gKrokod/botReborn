@@ -12,7 +12,8 @@ data Handle m = Handle
   ,  helpMessage :: T.Text
   ,  repeatMessage :: T.Text
   }
- 
+
+
 makeReaction :: (Monad m) => Handle m -> Message -> m ()
 makeReaction h msg = case dataMsg of
 		      Msg _ -> do

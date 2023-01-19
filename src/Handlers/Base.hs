@@ -1,8 +1,11 @@
 module Handlers.Base where
-import Types (RepeatCount, User)
+import Types (RepeatCount, User, Message, LastMessage)
 
 data Handle m = Handle 
   {  defaultRepeatCount :: RepeatCount
+  ,  readStackMessage :: m (Maybe Message, Maybe LastMessage)
+  ,  saveMessage :: Message -> m ()
+  ,  eraseMessage :: Message -> m ()
   ,  findUser :: User -> m (Maybe RepeatCount)
   ,  updateUser :: User -> RepeatCount -> m ()
   }

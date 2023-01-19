@@ -8,14 +8,14 @@ type ID = Int
 type DataFromButton = Int
 type LastMessage = Message
 
-data Data t i = Msg t | Gif t | Command t | KeyboardMenu | Query i deriving Show
+data Data t i = Msg t | Gif t | Command t | KeyboardMenu | Query i deriving (Show, Eq)
 
 data Message = Message 
   {
     mData :: Data T.Text DataFromButton 
   , mID :: ID
   , mUser :: User
-  }
+  } deriving Eq
 
 data Config = Config
  {
