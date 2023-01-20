@@ -13,6 +13,14 @@ data Handle m = Handle
   ,  repeatMessage :: T.Text
   }
 
+doWork :: (Monad m) => Handle m -> m ()
+doWork h = do
+  message <- getMessage h
+  makeReaction h message
+  -- error (show $ succ $ mUser message)
+  -- existUser <- Handlers.Base.findUser (base h) (mUser message)
+  -- error (show $ existUser)
+
 
 makeReaction :: (Monad m) => Handle m -> Message -> m ()
 makeReaction h msg = case dataMsg of
@@ -36,7 +44,8 @@ makeReaction h msg = case dataMsg of
 changeRepeatCountForUser :: (Monad m) => Handle m -> User -> m ()
 changeRepeatCountForUser h user = do
   count <- Handlers.Base.giveRepeatCountFromBase (base h) user
-  let msg = Message {mUser = user}
+  -- let msg = Message {mUser = user, mData = KeyboardMenu, mID = 0}
+  let msg = Message {mUser = user} --когда команда /repeat, почему-то стало вылетать здесь
   sendMessage h (msg {mData = Msg $ (repeatMessage h) <> T.pack (show count) }) 
   sendMessage h (msg {mData = KeyboardMenu}) 
   answer <- getMessage h

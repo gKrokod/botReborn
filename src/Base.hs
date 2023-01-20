@@ -5,6 +5,9 @@ import Types (User, RepeatCount, Message, LastMessage)
 import Control.Concurrent
 import qualified Data.Map.Strict as Map
 
+mks :: Int
+mks = 1 -- for function readStackMessage
+
 type UserDB = Map.Map User RepeatCount
 newtype UserDataBase = UserDataBase (MVar UserDB)
 
@@ -37,6 +40,7 @@ findUser (UserDataBase m) user = do
 -- просто считываем первое - пока не взятое в обработку сообщение и второе, сообщение на которое мы уже запустили реакцию.
 readStackMessage :: MessageDataBase -> IO MessageDB
 readStackMessage (MessageDataBase m) = do
+  threadDelay (mks) -- for Wathcer in Dispatcher and another loop
   a <- takeMVar m
   putMVar m a
   return a

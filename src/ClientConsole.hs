@@ -9,6 +9,7 @@ import qualified Data.Time.Clock.System as Time
 
 fetch :: Maybe LastMessage -> IO (Maybe Message)
 fetch lm = do
+  -- Опционально добавь сюда заддержку threadDelay
   m <- getLine
   time <- Time.getSystemTime
   let msg = Message { mID = fromIntegral $ Time.systemSeconds time, mUser = 1}
@@ -28,6 +29,9 @@ makeMessage t msg = case t of
 carryAway :: Message -> IO ()
 carryAway msg = case mData msg of
                     Query i      -> print i
-		    Msg t        -> TIO.putStrLn t
+		    Msg t        -> do 
+		                      TIO.putStrLn t
+				      -- TIO.putStrLn (T.pack $ show $ mID msg) -- тогда надо АЙД задаватьлоЖц
+				      -- лол
 		    KeyboardMenu -> TIO.putStrLn ("Type a new repeat count [1..5]: ")
 		    otherwise    -> pure ()
