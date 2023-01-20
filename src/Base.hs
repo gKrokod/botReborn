@@ -6,7 +6,7 @@ import Control.Concurrent
 import qualified Data.Map.Strict as Map
 
 mks :: Int
-mks = 1 -- for function readStackMessage
+mks = 10 -- for function readStackMessage
 
 type UserDB = Map.Map User RepeatCount
 newtype UserDataBase = UserDataBase (MVar UserDB)

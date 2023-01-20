@@ -34,7 +34,29 @@ getMessage h user = do
                 else getMessage h user
     Nothing -> getMessage h user 
 
---
+-- watcherForNewMessage :: (Monad m) => Handle m -> m ()
+-- watcherForNewMessage h = do
+--   (stack, lastMsg) <- Handlers.Base.readStackMessage (Handlers.Bot.base $ bot h)
+--   case stack of
+--     Just _ -> pure ()
+--     Nothing -> loop
+--       where loop = do
+--               fetchedMessage <- Handlers.Client.fetch (client h) lastMsg
+-- 	      case fetchedMessage of
+-- 	        Nothing -> loop
+-- 		Just msg -> do
+-- 		  Handlers.Base.saveMessage (Handlers.Bot.base $ bot h) msg
+-- 		  let botHandle = bot h
+--                   Handlers.Bot.doWork (botHandle {Handlers.Bot.getMessage = getMessage h (mUser msg)})
+		  -- existUser <- Handlers.Base.findUser (Handlers.Bot.base $ bot h) (mUser msg) 
+		  -- case existUser of
+		  --   Just _ -> pure ()
+		  --   Nothing -> do
+		  --     let botHandle = bot h
+                      -- forkForUser h (Handlers.Bot.doWork (botHandle {Handlers.Bot.getMessage = getMessage h (mUser msg)}))
+		      -- pure ()
+
+-- рабочий вотчер, если не создавать новых потоков
 -- Если стэк с сообщениями пустой, то получает у клиента еще одно
 watcherForNewMessage :: (Monad m) => Handle m -> m ()
 watcherForNewMessage h = do

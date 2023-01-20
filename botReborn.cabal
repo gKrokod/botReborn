@@ -28,7 +28,7 @@ library
       Base
       ClientConsole
       Config
-      ConsoleBot
+      Dispatcher
       Handlers.Base
       Handlers.Bot
       Handlers.Client

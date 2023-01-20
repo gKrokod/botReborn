@@ -3,27 +3,19 @@ import Control.Monad
 import Control.Concurrent
 import Types
 import qualified Handlers.Bot
-import qualified ConsoleBot
+-- import qualified ConsoleBot
 import qualified Handlers.Base
 import qualified Base
 import qualified Handlers.Client
 import qualified ClientConsole
 import qualified Handlers.Dispatcher
+import qualified Dispatcher
 import qualified Config (loadConfig)
-import qualified Data.Text as T
-import qualified Data.Text.IO as TIO
+import System.IO
+-- import qualified Data.Text as T
+-- import qualified Data.Text.IO as TIO
 
 
--- data Handle m = Handle
---   { client :: Handlers.Client.Handle m
---   , base :: Handlers.Base.Handle m
---   }
-
--- data Handle m = Handle
---   { fetch :: Maybe LastMessage -> m (Maybe Message)
---   , carryAway :: Message -> m ()
---   }
---
 main :: IO ()
 main = do
   -- load config and make handles
@@ -45,34 +37,71 @@ main = do
 		     , Handlers.Client.carryAway = ClientConsole.carryAway
 	             }
 
-
-  let dispatcherHandle = Handlers.Dispatcher.Handle
-                   { Handlers.Dispatcher.client = clientHandle
-		   , Handlers.Dispatcher.base = baseHandle
-		   }
-
-  let handle = Handlers.Bot.Handle 
-               { Handlers.Bot.getMessage = Handlers.Dispatcher.getMessage dispatcherHandle 1
+  let botHandle = Handlers.Bot.Handle 
+               { Handlers.Bot.getMessage = undefined --Handlers.Dispatcher.getMessage dispatcherHandle 1
 	       , Handlers.Bot.sendMessage = ClientConsole.carryAway
 	       , Handlers.Bot.base = baseHandle
 	       , Handlers.Bot.helpMessage = cTextMenuHelp cfg
 	       , Handlers.Bot.repeatMessage = cTextMenuRepeat cfg}
--- Запускаем смотрителя за новыми сообщениями в отдельном потоке
-  forkIO $ forever $ Handlers.Dispatcher.watcherForNewMessage dispatcherHandle
--- ЗАпускаем считывание сообщений для пользователя один и ответы на них, тут бы потоки создавать конечно
--- ну и бардак с хендлирами у меня
-  forever $ do
-   -- Handlers.Dispatcher.watcherForNewMessage dispatcherHandle
-   msg <- Handlers.Bot.getMessage handle
-   print $ mID msg
-   Handlers.Bot.makeReaction handle msg
 
-  -- do logic
-  -- loop handle
-
-loop :: Handlers.Bot.Handle IO -> IO ()
-loop h = do
-  msg <- Handlers.Bot.getMessage h
-  print $ mID msg
-  Handlers.Bot.makeReaction h msg
-  loop h
+  let handle = Handlers.Dispatcher.Handle
+                   { Handlers.Dispatcher.client = clientHandle
+		   , Handlers.Dispatcher.bot = botHandle
+		   , Handlers.Dispatcher.forkForUser = Dispatcher.forkForUser
+		   }
+  hSetBuffering stdout NoBuffering
+  forkIO $ forever ( do  
+    Handlers.Dispatcher.watcherForNewMessage handle
+    threadDelay (100))
+  print "nice"
+  forever $ reaction handle 
+--работает, но не выходит чего-то
+reaction :: Handlers.Dispatcher.Handle IO -> IO ()
+reaction h = do
+  (stack, lastMsg) <- Handlers.Base.readStackMessage (Handlers.Bot.base $ Handlers.Dispatcher.bot h)
+  case stack of
+    Nothing -> reaction h
+    Just msg -> do
+      let h' = Handlers.Dispatcher.bot h
+      let user = mUser msg
+      -- when (mData msg == Msg _) (error "exita ne bydet")
+      existUser <- Handlers.Base.findUser (Handlers.Bot.base h') (user) 
+      case existUser of
+          Just _ -> pure ()
+	  Nothing -> do
+            forkIO $ forever $ Handlers.Bot.doWork (h' {Handlers.Bot.getMessage = Handlers.Dispatcher.getMessage h user})
+            print ("potok for user " <> show user)
+-- данный вариант тоже работает
+--   forkIO $ forever ( do  
+--     Handlers.Dispatcher.watcherForNewMessage handle
+--     threadDelay (100))
+--   print "nice"
+--   forever $ reaction handle 
+-- reaction :: Handlers.Dispatcher.Handle IO -> IO ()
+-- reaction h = do
+--   (stack, lastMsg) <- Handlers.Base.readStackMessage (Handlers.Bot.base $ Handlers.Dispatcher.bot h)
+--   case stack of
+--     Nothing -> reaction h
+--     Just msg -> do
+--       let h' = Handlers.Dispatcher.bot h
+--       let user = mUser msg
+--       msg <- Handlers.Bot.getMessage (h' {Handlers.Bot.getMessage = Handlers.Dispatcher.getMessage h user})
+--       print $ mID msg
+--       Handlers.Bot.makeReaction (h' {Handlers.Bot.getMessage = Handlers.Dispatcher.getMessage h user}) msg
+--
+-- вот этот код работает со старым вотчером
+		   
+--   let handlebot = botHandle {Handlers.Bot.getMessage = Handlers.Dispatcher.getMessage handle 1} 
+-- -- Запускаем смотрителя за новыми сообщениями в отдельном потоке
+--   forkIO $ forever $ Handlers.Dispatcher.watcherForNewMessage handle
+-- -- ЗАпускаем считывание сообщений для пользователя один и ответы на них, тут бы потоки создавать конечно
+-- -- ну и бардак с хендлирами у меня
+--   forever $ do
+--     Handlers.Bot.doWork handlebot
+--
+-- loop :: Handlers.Bot.Handle IO -> IO ()
+-- loop h = do
+--   msg <- Handlers.Bot.getMessage h
+--   print $ mID msg
+--   Handlers.Bot.makeReaction h msg
+--   loop h
