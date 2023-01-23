@@ -18,6 +18,7 @@ import System.IO
 
 main :: IO ()
 main = do
+--bracn good try
   hGetBuffering stdin >>= print 
   hGetBuffering stdout >>= print
   hSetBuffering stdin LineBuffering -- чтобы логи нормально выводились с потоками.
