@@ -12,19 +12,23 @@ data Handle m = Handle
 
 dispatcher :: (Monad m) => Handle m -> m ()
 dispatcher h = do
-  (stack, lastMsg) <- Handlers.Base.readStackMessage (Handlers.Bot.base $ bot h)
+  let botHandle = bot h
+  let baseHandle = Handlers.Bot.base botHandle
+  (stack, lastMsg) <- Handlers.Base.readStackMessage baseHandle
   case stack of
     Nothing -> pure ()
     Just msg -> do
       let user = mUser msg
-      existUser <- Handlers.Base.findUser (Handlers.Bot.base $ bot h) user
+      existUser <- Handlers.Base.findUser baseHandle user
       case existUser of
         Just _ -> pure ()
         Nothing -> do
-	  let botHandle = bot h
-	  forkForUser h (Handlers.Bot.doWork (botHandle {Handlers.Bot.getMessage = getMessage h user}))
+	 -- если в базе пользователя нет, то сохрани его в базе с дефолтными настройкам и создай для него поток
+          Handlers.Base.updateUser baseHandle user (Handlers.Base.defaultRepeatCount baseHandle)
+	  forkForUser h 
+	    (Handlers.Bot.doWork (botHandle {Handlers.Bot.getMessage = getMessage h user}))
 	 
-
+------------------------------------------------------------------------------------------------------------------
 getMessage :: (Monad m) => Handle m -> User -> m (Message)
 getMessage h user = do
   (stack, lastMsg) <- Handlers.Base.readStackMessage (Handlers.Bot.base $ bot h)
@@ -34,40 +38,21 @@ getMessage h user = do
                 else getMessage h user
     Nothing -> getMessage h user 
 
--- watcherForNewMessage :: (Monad m) => Handle m -> m ()
--- watcherForNewMessage h = do
---   (stack, lastMsg) <- Handlers.Base.readStackMessage (Handlers.Bot.base $ bot h)
---   case stack of
---     Just _ -> pure ()
---     Nothing -> loop
---       where loop = do
---               fetchedMessage <- Handlers.Client.fetch (client h) lastMsg
--- 	      case fetchedMessage of
--- 	        Nothing -> loop
--- 		Just msg -> do
--- 		  Handlers.Base.saveMessage (Handlers.Bot.base $ bot h) msg
--- 		  let botHandle = bot h
---                   Handlers.Bot.doWork (botHandle {Handlers.Bot.getMessage = getMessage h (mUser msg)})
-		  -- existUser <- Handlers.Base.findUser (Handlers.Bot.base $ bot h) (mUser msg) 
-		  -- case existUser of
-		  --   Just _ -> pure ()
-		  --   Nothing -> do
-		  --     let botHandle = bot h
-                      -- forkForUser h (Handlers.Bot.doWork (botHandle {Handlers.Bot.getMessage = getMessage h (mUser msg)}))
-		      -- pure ()
 
 -- рабочий вотчер, если не создавать новых потоков
 -- Если стэк с сообщениями пустой, то получает у клиента еще одно
 watcherForNewMessage :: (Monad m) => Handle m -> m ()
 watcherForNewMessage h = do
-  (stack, lastMsg) <- Handlers.Base.readStackMessage (Handlers.Bot.base $ bot h)
+  let baseHandle = Handlers.Bot.base (bot h)
+  let clientHandle = client h
+  (stack, lastMsg) <- Handlers.Base.readStackMessage baseHandle
   case stack of
     Just _ -> pure ()
     Nothing -> loop
       where loop = do
-              fetchedMessage <- Handlers.Client.fetch (client h) lastMsg
+              fetchedMessage <- Handlers.Client.fetch clientHandle lastMsg
 	      case fetchedMessage of
 	        Nothing -> loop
-		Just msg -> Handlers.Base.saveMessage (Handlers.Bot.base $ bot h) msg
+		Just msg -> Handlers.Base.saveMessage baseHandle msg
 
 

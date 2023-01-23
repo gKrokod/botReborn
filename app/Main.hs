@@ -18,7 +18,7 @@ import System.IO
 
 main :: IO ()
 main = do
---bracn good try
+--bracn good 
   hGetBuffering stdin >>= print 
   hGetBuffering stdout >>= print
   hSetBuffering stdin LineBuffering -- чтобы логи нормально выводились с потоками.
@@ -26,6 +26,7 @@ main = do
   -- hGetBuffering stdin >>= print 
   -- hGetBuffering stdout >>= print
   -- load config and make handles
+-------------------------------------------------------------------------------------------------
   stackMessage <- Base.newBaseMessage
   base <- Base.newBaseUser
   cfg <- Config.loadConfig
@@ -56,72 +57,9 @@ main = do
 		   , Handlers.Dispatcher.bot = botHandle
 		   , Handlers.Dispatcher.forkForUser = Dispatcher.forkForUser
 		   }
-  -- hSetBuffering stdout NoBuffering
-  forkIO $ forever ( do  
-    Handlers.Dispatcher.watcherForNewMessage handle
-    threadDelay (100))
-  print "nice"
-  forever $ reaction handle 
---работает, но не выходит чего-то из ghci, при запуске exe все норм
-reaction :: Handlers.Dispatcher.Handle IO -> IO ()
-reaction h = do
-  (stack, lastMsg) <- Handlers.Base.readStackMessage (Handlers.Bot.base $ Handlers.Dispatcher.bot h)
-  case stack of
-    Nothing -> reaction h
-    Just msg -> do
-      let h' = Handlers.Dispatcher.bot h
-      let user = mUser msg
-      -- when (mData msg == Msg _) (error "exita ne bydet")
-      existUser <- Handlers.Base.findUser (Handlers.Bot.base h') (user) 
-      case existUser of
-          Just _ -> pure ()
-	  Nothing -> do
-            Handlers.Base.updateUser (Handlers.Bot.base h') (user) (Handlers.Base.defaultRepeatCount (Handlers.Bot.base h'))
-            forkIO $ do
-              print ("Make FORK for user: " <> show user)
-	      forever $ Handlers.Bot.doWork (h' {Handlers.Bot.getMessage = Handlers.Dispatcher.getMessage h user})
-            print ("potok for user " <> show user)
+  forkIO $ forever (do Handlers.Dispatcher.watcherForNewMessage handle; threadDelay (100))
+  print "Watcher is running"
+  print "Dispatcher is running"
+  forever 
+    $ Handlers.Dispatcher.dispatcher handle 
 
-
--- giveRepeatCountFromBase :: (Monad m) => Handle m -> User -> m (RepeatCount)
--- giveRepeatCountFromBase h user = do
---   existUser <- findUser h user
---   case existUser of
---     Nothing -> do
---       updateUser h user (defaultRepeatCount h)
---       giveRepeatCountFromBase h user
---     Just repeatCount -> pure repeatCount
--- данный вариант тоже работает
---   forkIO $ forever ( do  
---     Handlers.Dispatcher.watcherForNewMessage handle
---     threadDelay (100))
---   print "nice"
---   forever $ reaction handle 
--- reaction :: Handlers.Dispatcher.Handle IO -> IO ()
--- reaction h = do
---   (stack, lastMsg) <- Handlers.Base.readStackMessage (Handlers.Bot.base $ Handlers.Dispatcher.bot h)
---   case stack of
---     Nothing -> reaction h
---     Just msg -> do
---       let h' = Handlers.Dispatcher.bot h
---       let user = mUser msg
---       msg <- Handlers.Bot.getMessage (h' {Handlers.Bot.getMessage = Handlers.Dispatcher.getMessage h user})
---       print $ mID msg
---       Handlers.Bot.makeReaction (h' {Handlers.Bot.getMessage = Handlers.Dispatcher.getMessage h user}) msg
---
--- вот этот код работает со старым вотчером
-		   
---   let handlebot = botHandle {Handlers.Bot.getMessage = Handlers.Dispatcher.getMessage handle 1} 
--- -- Запускаем смотрителя за новыми сообщениями в отдельном потоке
---   forkIO $ forever $ Handlers.Dispatcher.watcherForNewMessage handle
--- -- ЗАпускаем считывание сообщений для пользователя один и ответы на них, тут бы потоки создавать конечно
--- -- ну и бардак с хендлирами у меня
---   forever $ do
---     Handlers.Bot.doWork handlebot
---
--- loop :: Handlers.Bot.Handle IO -> IO ()
--- loop h = do
---   msg <- Handlers.Bot.getMessage h
---   print $ mID msg
---   Handlers.Bot.makeReaction h msg
---   loop h

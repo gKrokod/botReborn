@@ -17,11 +17,8 @@ doWork :: (Monad m) => Handle m -> m ()
 doWork h = do
   message <- getMessage h
   makeReaction h message
-  -- error (show $ succ $ mUser message)
-  -- existUser <- Handlers.Base.findUser (base h) (mUser message)
-  -- error (show $ existUser)
 
-
+---------------------------------------------------------------------------------------------------------
 makeReaction :: (Monad m) => Handle m -> Message -> m ()
 makeReaction h msg = case dataMsg of
 		      Msg _ -> do
