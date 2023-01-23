@@ -18,6 +18,12 @@ import System.IO
 
 main :: IO ()
 main = do
+  hGetBuffering stdin >>= print 
+  hGetBuffering stdout >>= print
+  hSetBuffering stdin LineBuffering -- чтобы логи нормально выводились с потоками.
+  hSetBuffering stdout LineBuffering
+  -- hGetBuffering stdin >>= print 
+  -- hGetBuffering stdout >>= print
   -- load config and make handles
   stackMessage <- Base.newBaseMessage
   base <- Base.newBaseUser
@@ -49,13 +55,13 @@ main = do
 		   , Handlers.Dispatcher.bot = botHandle
 		   , Handlers.Dispatcher.forkForUser = Dispatcher.forkForUser
 		   }
-  hSetBuffering stdout NoBuffering
+  -- hSetBuffering stdout NoBuffering
   forkIO $ forever ( do  
     Handlers.Dispatcher.watcherForNewMessage handle
     threadDelay (100))
   print "nice"
   forever $ reaction handle 
---работает, но не выходит чего-то
+--работает, но не выходит чего-то из ghci, при запуске exe все норм
 reaction :: Handlers.Dispatcher.Handle IO -> IO ()
 reaction h = do
   (stack, lastMsg) <- Handlers.Base.readStackMessage (Handlers.Bot.base $ Handlers.Dispatcher.bot h)
@@ -69,8 +75,21 @@ reaction h = do
       case existUser of
           Just _ -> pure ()
 	  Nothing -> do
-            forkIO $ forever $ Handlers.Bot.doWork (h' {Handlers.Bot.getMessage = Handlers.Dispatcher.getMessage h user})
+            Handlers.Base.updateUser (Handlers.Bot.base h') (user) (Handlers.Base.defaultRepeatCount (Handlers.Bot.base h'))
+            forkIO $ do
+              print ("Make FORK for user: " <> show user)
+	      forever $ Handlers.Bot.doWork (h' {Handlers.Bot.getMessage = Handlers.Dispatcher.getMessage h user})
             print ("potok for user " <> show user)
+
+
+-- giveRepeatCountFromBase :: (Monad m) => Handle m -> User -> m (RepeatCount)
+-- giveRepeatCountFromBase h user = do
+--   existUser <- findUser h user
+--   case existUser of
+--     Nothing -> do
+--       updateUser h user (defaultRepeatCount h)
+--       giveRepeatCountFromBase h user
+--     Just repeatCount -> pure repeatCount
 -- данный вариант тоже работает
 --   forkIO $ forever ( do  
 --     Handlers.Dispatcher.watcherForNewMessage handle
