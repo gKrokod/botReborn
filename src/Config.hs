@@ -1,9 +1,10 @@
 module Config (loadConfig) where
-import Types (Config (..), Mode (ConsoleBot, TelegramBot), RepeatCount)
+import Types (Config (..), Mode (ConsoleBot, TelegramBot), RepeatCount, Log(..))
 import qualified Data.Configurator as C (load, lookupDefault, Worth (Required))
-import Data.Text as T (unpack, Text)
+import Data.Text as T (unpack, Text, toLower)
 import qualified Data.Text.Encoding as E (encodeUtf8)
 import Data.Bool (bool)
+
 
 loadConfig :: IO Config
 loadConfig = do
@@ -20,6 +21,7 @@ loadConfig = do
   method <- C.lookupDefault "NotFoundMethod.cfg" conf ("config.url.method")
   secure <- C.lookupDefault False conf ("config.url.secure") -- сделать здесь строку вида "False" для единообразия?
   mode <- C.lookupDefault False conf ("config.telegrammode") -- сделать здесь строку вида "False" для единообразия
+  lvlLog <- C.lookupDefault "DEBUG" conf ("config.lvlLog") -- сделать здесь строку вида "False" для единообразия
   return   Config { 
                     cRepeatCount = read $ T.unpack rcount 
                   , cTextMenuHelp = helpmenu
@@ -33,4 +35,13 @@ loadConfig = do
                   , cMethod = E.encodeUtf8 method
                   , cSecure = secure
 		  , cMode = bool ConsoleBot TelegramBot mode
+		  , cLvlLog = lvlLogFromText lvlLog
 		  }
+ 
+lvlLogFromText :: T.Text -> Log
+lvlLogFromText t = case (T.toLower t) of
+   "debug" -> Debug
+   "warning" -> Warning
+   "error" -> Error
+   "fatal" -> Fatal
+   _ -> error "config file"
