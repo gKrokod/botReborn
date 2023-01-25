@@ -71,3 +71,5 @@ tests:
     - botReborn
     - hspec
     - QuickCheck
+    - text
+    - mtl
