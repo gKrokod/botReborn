@@ -33,6 +33,8 @@ library
       Handlers.Bot
       Handlers.Client
       Handlers.Dispatcher
+      Handlers.Logger
+      Logger
       Types
   other-modules:
       Paths_botReborn
@@ -82,6 +84,8 @@ test-suite botReborn-test
       LambdaCase
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      QuickCheck
+    , base >=4.7 && <5
     , botReborn
+    , hspec
   default-language: Haskell2010

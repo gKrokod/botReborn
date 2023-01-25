@@ -69,3 +69,5 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - botReborn
+    - hspec
+    - QuickCheck
