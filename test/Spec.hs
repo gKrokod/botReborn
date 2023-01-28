@@ -11,6 +11,7 @@ import qualified Handlers.Base
 import qualified Handlers.Bot
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
+import qualified Data.Map.Strict as Map
 
 
 
@@ -27,7 +28,7 @@ main = hspec $ do
         runIdentity (Handlers.Base.giveRepeatCountFromBase bHandle (1 :: User)) == count
 
   describe "Bot logic" $ modifyMaxSuccess (const 10) $ do
-    context "User can change repeat counts only in range [1..5]" $ do
+    context "User can change repeat count only in range [1..5]" $ do
       it "Input: Int" $ do
 	property $ \answer -> do
 	  let msg = Message {mData = Query answer, mID = 1, mUser = 2}
@@ -103,28 +104,35 @@ main = hspec $ do
           execState (Handlers.Bot.makeReaction bHandleS testMessage) "" `shouldBe` (mconcat $ replicate (cRepeatCount testConfig) (T.pack textMessage))
 	  let testMessage = Message {mData = Gif (T.pack textMessage), mID = 2, mUser = 3}
           execState (Handlers.Bot.makeReaction bHandleS testMessage) "" `shouldBe` (mconcat $ replicate (cRepeatCount testConfig) (T.pack textMessage))
-      it "User can change repeat count" $ do
-        property $ \repeatMessage -> do
-  	  let lHandleS = Handlers.Logger.Handle
-	       { Handlers.Logger.levelLogger = Debug
-	       , Handlers.Logger.writeLog = \_ -> pure ()
-	       } :: Handlers.Logger.Handle (State T.Text)
-          let bsHandleS = Handlers.Base.Handle
-	        {  Handlers.Base.findUser = \user -> pure $ Just (5 :: RepeatCount)
-	        ,  Handlers.Base.updateUser = \user repeatCount -> pure ()
-	        }
-          let bHandleS = Handlers.Bot.Handle
-		{ Handlers.Bot.sendMessage = \(Message {mData = msg}) -> case msg of
-									    Msg text -> put text >> pure ()
-									    _ -> pure ()
-		, Handlers.Bot.repeatMessage = T.pack repeatMessage
-		, Handlers.Bot.getMessage = pure (Message {mData = Msg "1", mID = 1, mUser = 2})
-		, Handlers.Bot.logger = lHandleS
-		, Handlers.Bot.base = bsHandleS
-		}
-	  let testMessage = Message {mData = Command "/repeat", mID = 1, mUser = 2}
-          execState (Handlers.Bot.makeReaction bHandleS testMessage) "no repeat menu" `shouldBe` (T.pack repeatMessage <> "5")
-          --
+    
+    -- context "User can change repeat count only in range [1..5]" $ do
+    it "Changed repeat count for user will save" $ do
+      let newRepeatCount = 5 :: RepeatCount
+      let oldRepeatCount = 4 :: RepeatCount
+      let lHandleS = Handlers.Logger.Handle
+                     { Handlers.Logger.levelLogger = Debug
+                     , Handlers.Logger.writeLog = \_ -> pure ()
+                     } :: Handlers.Logger.Handle (State (Map.Map User RepeatCount))
+      let bsHandleS = Handlers.Base.Handle
+	              {  Handlers.Base.findUser = \user -> get >>= \base -> pure $ Map.lookup user base
+	              ,  Handlers.Base.updateUser = \user count -> modify (Map.insert user count) >> pure () 
+	              ,  Handlers.Base.logger = lHandleS
+	              }
+      let bHandleS = Handlers.Bot.Handle
+	             { Handlers.Bot.sendMessage = \(Message {mData = msg}) -> case msg of
+		  							        Msg text -> pure () 
+									        Gif text -> pure () 
+									        _ -> pure ()
+		     , Handlers.Bot.getMessage = pure (Message {mData = Query newRepeatCount, mID = 1, mUser = 1})
+		     , Handlers.Bot.repeatMessage = cTextMenuRepeat testConfig
+	             , Handlers.Bot.helpMessage = cTextMenuHelp testConfig
+	             , Handlers.Bot.logger = lHandleS
+		     , Handlers.Bot.base = bsHandleS
+	             }
+      let testBase = Map.fromList [(1,oldRepeatCount)]
+      evalState (Handlers.Bot.changeRepeatCountForUser bHandleS 1 >>
+		 Handlers.Base.giveRepeatCountFromBase bsHandleS 1 ) testBase `shouldBe` newRepeatCount
+      
 -- data Handle m = Handle 
 --   {  defaultRepeatCount :: RepeatCount
 --   ,  readStackMessage :: m (Maybe Message, Maybe LastMessage)

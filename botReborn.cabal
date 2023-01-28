@@ -87,6 +87,7 @@ test-suite botReborn-test
       QuickCheck
     , base >=4.7 && <5
     , botReborn
+    , containers
     , hspec
     , mtl
     , text
