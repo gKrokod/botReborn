@@ -46,18 +46,52 @@ main = hspec $ do
   describe "Client logic" $ do
     it "No logic, no test" $ do
       Debug `shouldBe` Debug
-  --
-  -- describe "Dispatcher logic" $ do
-  --   it "returns the first element of a list" $ do
-  --     head [23 ..] `shouldBe` (23 :: Int)
 
   describe "Logger logic" $ do
-    let lHandleS' = logHandleS testConfig
-    it "Logger show message (Debug) if set lvl (Debug)" $ do
+    context "Logger write log message if its lvl >= lvl log from Config" $ do
+      let lHandleS' = logHandleS testConfig
       let lHandleS = lHandleS' {Handlers.Logger.levelLogger = Debug}
-      execState (Handlers.Logger.logMessage lHandleS Debug "New log") "Old log" `shouldBe` "[Debug] New log"
+      it "Debug    vs  Debug" $ do
+        execState (Handlers.Logger.logMessage lHandleS Debug "New log") "Old log" `shouldBe` "[Debug] New log"
+      it "Waring   vs  Debug" $ do
+        execState (Handlers.Logger.logMessage lHandleS Warning "New log") "Old log" `shouldBe` "[Warning] New log"
+      it "Error    vs  Debug" $ do
+        execState (Handlers.Logger.logMessage lHandleS Error "New log") "Old log" `shouldBe` "[Error] New log"
+      it "Fatal    vs  Debug" $ do
+        execState (Handlers.Logger.logMessage lHandleS Fatal "New log") "Old log" `shouldBe` "[Fatal] New log"
+      let lHandleS = lHandleS' {Handlers.Logger.levelLogger = Warning}
+      it "Warning  vs  Warning" $ do
+        execState (Handlers.Logger.logMessage lHandleS Warning "New log") "Old log" `shouldBe` "[Warning] New log"
+      it "Error    vs  Warning" $ do
+        execState (Handlers.Logger.logMessage lHandleS Error "New log") "Old log" `shouldBe` "[Error] New log"
+      it "Fatal    vs  Warning" $ do
+        execState (Handlers.Logger.logMessage lHandleS Fatal "New log") "Old log" `shouldBe` "[Fatal] New log"
+      let lHandleS = lHandleS' {Handlers.Logger.levelLogger = Error}
+      it "Error    vs  Error" $ do
+        execState (Handlers.Logger.logMessage lHandleS Error "New log") "Old log" `shouldBe` "[Error] New log"
+      it "Fatal    vs  Error" $ do
+        execState (Handlers.Logger.logMessage lHandleS Fatal "New log") "Old log" `shouldBe` "[Fatal] New log"
+      let lHandleS = lHandleS' {Handlers.Logger.levelLogger = Fatal}
+      it "Fatal    vs  Fatal" $ do
+        execState (Handlers.Logger.logMessage lHandleS Fatal "New log") "Old log" `shouldBe` "[Fatal] New log"
 
-
+    context "Logger don't write log message if its lvl < lvl log from Config" $ do
+      let lHandleS' = logHandleS testConfig
+      let lHandleS = lHandleS' {Handlers.Logger.levelLogger = Warning}
+      it "Debug    vs  Warning" $ do
+        execState (Handlers.Logger.logMessage lHandleS Debug "New log") "Old log" `shouldNotBe` "[Debug] New log"
+      let lHandleS = lHandleS' {Handlers.Logger.levelLogger = Error}
+      it "Debug    vs  Error" $ do
+        execState (Handlers.Logger.logMessage lHandleS Debug "New log") "Old log" `shouldNotBe` "[Debug] New log"
+      it "Warning  vs  Error" $ do
+        execState (Handlers.Logger.logMessage lHandleS Warning "New log") "Old log" `shouldNotBe` "[Warning] New log"
+      let lHandleS = lHandleS' {Handlers.Logger.levelLogger = Fatal}
+      it "Debug    vs  Fatal" $ do
+        execState (Handlers.Logger.logMessage lHandleS Debug "New log") "Old log" `shouldNotBe` "[Debug] New log"
+      it "Warning  vs  Fatal" $ do
+        execState (Handlers.Logger.logMessage lHandleS Warning "New log") "Old log" `shouldNotBe` "[Warning] New log"
+      it "Error    vs  Fatal" $ do
+        execState (Handlers.Logger.logMessage lHandleS Error "New log") "Old log" `shouldNotBe` "[Error] New log"
 -- logMessage :: (Monad m) => Handle m -> Log -> T.Text -> m ()
 -- logMessage h lvl msg 
 --   | lvl >= (levelLogger h) = writeLog h (mconcat["[",T.pack $ show lvl,"] ", msg])
@@ -80,7 +114,7 @@ logHandleI cfg = Handlers.Logger.Handle
 logHandleS :: Config -> Handlers.Logger.Handle (State T.Text)
 logHandleS cfg = Handlers.Logger.Handle
 	       { Handlers.Logger.levelLogger = cLvlLog cfg
-	       , Handlers.Logger.writeLog = \text -> (do put text; pure ())
+	       , Handlers.Logger.writeLog = \text -> put text >> pure ()
 	       }
 
 baseHandleI :: Config -> Handlers.Base.Handle Identity
@@ -104,11 +138,3 @@ botHandleI cfg = Handlers.Bot.Handle
 		, Handlers.Bot.logger = logHandleI cfg
 		}
 
--- data Handle m = Handle
---   {  getMessage :: m (Message)
---   ,  sendMessage :: Message -> m ()
---   ,  base :: Handlers.Base.Handle m
---   ,  helpMessage :: T.Text
---   ,  repeatMessage :: T.Text
---   ,  logger :: HL.Handle m  
---   }
