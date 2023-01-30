@@ -15,7 +15,7 @@ data Message = Message
     mData :: Data T.Text DataFromButton 
   , mID :: ID
   , mUser :: User
-  } deriving Eq
+  } deriving (Eq, Show) --show for test dispatcher
 
 data Config = Config
  {

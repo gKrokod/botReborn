@@ -9,6 +9,9 @@ import Data.Char (isDigit)
 import qualified Handlers.Logger
 import qualified Handlers.Base
 import qualified Handlers.Bot
+import qualified Handlers.Client
+import qualified Handlers.Dispatcher
+
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import qualified Data.Map.Strict as Map
@@ -18,121 +21,164 @@ import qualified Data.Map.Strict as Map
 main :: IO ()
 main = hspec $ do
   describe "Base logic" $ do
-    let bHandle = baseHandleI testConfig
+    let baseHandle = baseHandleI testConfig
     it "returns the default repeat count from Config for new users" $
-      property $ \user -> runIdentity (Handlers.Base.giveRepeatCountFromBase bHandle user) == cRepeatCount testConfig
+      property $ \user -> runIdentity (Handlers.Base.giveRepeatCountFromBase baseHandle user)
+                            `shouldBe` cRepeatCount testConfig
 
     it "returns default repeat counts from Config for the new user" $
       property $ \count -> do
-        let bHandle = baseHandleI (testConfig {cRepeatCount = count})
-        runIdentity (Handlers.Base.giveRepeatCountFromBase bHandle (1 :: User)) == count
+        let baseHandle = baseHandleI $ testConfig {cRepeatCount = count}
+        runIdentity (Handlers.Base.giveRepeatCountFromBase baseHandle (1 :: User)) 
+	  `shouldBe` count
 
   describe "Bot logic" $ modifyMaxSuccess (const 10) $ do
+    it "User can change his repeat count" $ do
+      let oldRepeatCount = 4 :: RepeatCount
+      let newRepeatCount = 5 :: RepeatCount
+      let testUser = 111 :: User
+      let testBase = Map.fromList [(testUser,oldRepeatCount)]
+
+      let loggerHandle = Handlers.Logger.Handle
+                     { Handlers.Logger.levelLogger = Debug
+                     , Handlers.Logger.writeLog = \_ -> pure ()
+                     } :: Handlers.Logger.Handle (State (Map.Map User RepeatCount))
+      let baseHandle = Handlers.Base.Handle
+	              {  Handlers.Base.findUser = \user -> get >>= \base -> pure $ Map.lookup user base
+	              ,  Handlers.Base.updateUser = \user count -> modify (Map.insert user count) >> pure () 
+	              ,  Handlers.Base.logger = loggerHandle
+	              }
+      let botHandle = Handlers.Bot.Handle
+	             { Handlers.Bot.sendMessage = \_ -> pure () 
+		     , Handlers.Bot.getMessage = pure (Message {mData = Query newRepeatCount, mID = 1, mUser = testUser})
+		     , Handlers.Bot.repeatMessage = cTextMenuRepeat testConfig
+	             , Handlers.Bot.helpMessage = cTextMenuHelp testConfig
+	             , Handlers.Bot.logger = loggerHandle
+		     , Handlers.Bot.base = baseHandle
+	             }
+      
+      evalState (Handlers.Base.giveRepeatCountFromBase baseHandle testUser ) testBase 
+        `shouldBe` oldRepeatCount
+      evalState (Handlers.Bot.changeRepeatCountForUser botHandle testUser >>
+		 Handlers.Base.giveRepeatCountFromBase baseHandle testUser ) testBase 
+        `shouldBe` newRepeatCount
+
     context "User can change repeat count only in range [1..5]" $ do
       it "Input: Int" $ do
 	property $ \answer -> do
 	  let msg = Message {mData = Query answer, mID = 1, mUser = 2}
-	  Handlers.Bot.isCorrectRepeatCount msg == (1 <= answer && answer <= 5)
+	  Handlers.Bot.isCorrectRepeatCount msg 
+	    `shouldBe` 1 <= answer && answer <= 5
 
       it "Input: Text" $ do
 	property $ \answer -> do
 	  let numberMessage = if length answer /= 1 then 0
 	                      else maybe 0 id (readMaybe answer :: Maybe Int)
 	  let msg = Message {mData = Msg (T.pack answer), mID = 1, mUser = 2}	 
-	  Handlers.Bot.isCorrectRepeatCount msg == (1 <= numberMessage && (numberMessage <= 5))
+	  Handlers.Bot.isCorrectRepeatCount msg 
+	    `shouldBe` 1 <= numberMessage && numberMessage <= 5
     
     context "Correct text in answer on:" $ do
       it "/help" $ do
         property $ \helpMessage -> do
-  	  let lHandleS = Handlers.Logger.Handle
+  	  let logHandle = Handlers.Logger.Handle
 	       { Handlers.Logger.levelLogger = Debug
 	       , Handlers.Logger.writeLog = \_ -> pure ()
 	       } :: Handlers.Logger.Handle (State T.Text)
-          let bHandleS = Handlers.Bot.Handle
+          let botHandle = Handlers.Bot.Handle
 		{ Handlers.Bot.sendMessage = \(Message {mData = msg}) -> case msg of
 									    Msg text -> put text >> pure ()
 									    _ -> pure ()
 		, Handlers.Bot.helpMessage = T.pack helpMessage
-		, Handlers.Bot.logger = lHandleS
+		, Handlers.Bot.logger = logHandle
 		}
 	  let testMessage = Message {mData = Command "/help", mID = 1, mUser = 2}
-          execState (Handlers.Bot.makeReaction bHandleS testMessage) "no help menu" `shouldBe` (T.pack helpMessage)
+          execState (Handlers.Bot.makeReaction botHandle testMessage) "no help menu"
+	    `shouldBe` T.pack helpMessage
 
       it "/repeat" $ do
         property $ \repeatMessage -> do
-  	  let lHandleS = Handlers.Logger.Handle
+	  let testUser = 2 :: User
+	  let testMessage = Message {mData = Command "/repeat", mID = 1, mUser = testUser}
+	  let repeatCount = 5 :: RepeatCount
+	  
+  	  let logHandle = Handlers.Logger.Handle
 	       { Handlers.Logger.levelLogger = Debug
 	       , Handlers.Logger.writeLog = \_ -> pure ()
 	       } :: Handlers.Logger.Handle (State T.Text)
-          let bsHandleS = Handlers.Base.Handle
-	        {  Handlers.Base.findUser = \user -> pure $ Just (5 :: RepeatCount)
+          let baseHandle = Handlers.Base.Handle
+	        {  Handlers.Base.findUser = \user -> pure $ Just repeatCount
 	        ,  Handlers.Base.updateUser = \user repeatCount -> pure ()
 	        }
-          let bHandleS = Handlers.Bot.Handle
+          let botHandle = Handlers.Bot.Handle
 		{ Handlers.Bot.sendMessage = \(Message {mData = msg}) -> case msg of
 									    Msg text -> put text >> pure ()
 									    _ -> pure ()
 		, Handlers.Bot.repeatMessage = T.pack repeatMessage
-		, Handlers.Bot.getMessage = pure (Message {mData = Msg "1", mID = 1, mUser = 2})
-		, Handlers.Bot.logger = lHandleS
-		, Handlers.Bot.base = bsHandleS
+		, Handlers.Bot.getMessage = pure (Message {mData = Msg "1", mID = 1, mUser = testUser})
+		, Handlers.Bot.logger = logHandle
+		, Handlers.Bot.base = baseHandle
 		}
-	  let testMessage = Message {mData = Command "/repeat", mID = 1, mUser = 2}
-          execState (Handlers.Bot.makeReaction bHandleS testMessage) "no repeat menu" `shouldBe` (T.pack repeatMessage <> "5")
+          execState (Handlers.Bot.makeReaction botHandle testMessage) "no repeat menu" 
+	    `shouldBe` (T.pack (repeatMessage <> show repeatCount))
 
       it "text message and gif message" $ do
         property $ \textMessage -> do
-  	  let lHandleS = Handlers.Logger.Handle
+	  let testUser = 2 :: User
+	  let testMessage = Message {mData = Msg (T.pack textMessage), mID = 1, mUser = testUser}
+	  let testUser2 = 3 :: User
+	  let testMessage2 = Message {mData = Gif (T.pack textMessage), mID = 2, mUser = testUser2}
+
+  	  let logHandle = Handlers.Logger.Handle
 	       { Handlers.Logger.levelLogger = Debug
 	       , Handlers.Logger.writeLog = \_ -> pure ()
 	       } :: Handlers.Logger.Handle (State T.Text)
-          let bsHandleS = Handlers.Base.Handle
+          let baseHandle = Handlers.Base.Handle
 	        {  Handlers.Base.findUser = \user -> pure $ Just (cRepeatCount testConfig)
-	        ,  Handlers.Base.logger = lHandleS
+	        ,  Handlers.Base.logger = logHandle
 	        }
-          let bHandleS = Handlers.Bot.Handle
+          let botHandle = Handlers.Bot.Handle
 		{ Handlers.Bot.sendMessage = \(Message {mData = msg}) -> case msg of
 									    Msg text -> modify (<> text) >> pure ()
 									    Gif text -> modify (<> text) >> pure ()
 									    _ -> pure ()
 		, Handlers.Bot.repeatMessage = cTextMenuRepeat testConfig
 		, Handlers.Bot.helpMessage = cTextMenuHelp testConfig
-		, Handlers.Bot.logger = lHandleS
-		, Handlers.Bot.base = bsHandleS
+		, Handlers.Bot.logger = logHandle
+		, Handlers.Bot.base = baseHandle
 		}
-	  let testMessage = Message {mData = Msg (T.pack textMessage), mID = 1, mUser = 2}
-          execState (Handlers.Bot.makeReaction bHandleS testMessage) "" `shouldBe` (mconcat $ replicate (cRepeatCount testConfig) (T.pack textMessage))
-	  let testMessage = Message {mData = Gif (T.pack textMessage), mID = 2, mUser = 3}
-          execState (Handlers.Bot.makeReaction bHandleS testMessage) "" `shouldBe` (mconcat $ replicate (cRepeatCount testConfig) (T.pack textMessage))
+	  
+          execState (Handlers.Bot.makeReaction botHandle testMessage) ""
+	    `shouldBe` (mconcat $ replicate (cRepeatCount testConfig) (T.pack textMessage))
+          execState (Handlers.Bot.makeReaction botHandle testMessage2) ""
+	    `shouldBe` (mconcat $ replicate (cRepeatCount testConfig) (T.pack textMessage))
     
-    -- context "User can change repeat count only in range [1..5]" $ do
-    it "Changed repeat count for user will save" $ do
-      let newRepeatCount = 5 :: RepeatCount
-      let oldRepeatCount = 4 :: RepeatCount
-      let lHandleS = Handlers.Logger.Handle
-                     { Handlers.Logger.levelLogger = Debug
-                     , Handlers.Logger.writeLog = \_ -> pure ()
-                     } :: Handlers.Logger.Handle (State (Map.Map User RepeatCount))
-      let bsHandleS = Handlers.Base.Handle
-	              {  Handlers.Base.findUser = \user -> get >>= \base -> pure $ Map.lookup user base
-	              ,  Handlers.Base.updateUser = \user count -> modify (Map.insert user count) >> pure () 
-	              ,  Handlers.Base.logger = lHandleS
-	              }
-      let bHandleS = Handlers.Bot.Handle
-	             { Handlers.Bot.sendMessage = \(Message {mData = msg}) -> case msg of
-		  							        Msg text -> pure () 
-									        Gif text -> pure () 
-									        _ -> pure ()
-		     , Handlers.Bot.getMessage = pure (Message {mData = Query newRepeatCount, mID = 1, mUser = 1})
-		     , Handlers.Bot.repeatMessage = cTextMenuRepeat testConfig
-	             , Handlers.Bot.helpMessage = cTextMenuHelp testConfig
-	             , Handlers.Bot.logger = lHandleS
-		     , Handlers.Bot.base = bsHandleS
-	             }
-      let testBase = Map.fromList [(1,oldRepeatCount)]
-      evalState (Handlers.Bot.changeRepeatCountForUser bHandleS 1 >>
-		 Handlers.Base.giveRepeatCountFromBase bsHandleS 1 ) testBase `shouldBe` newRepeatCount
       
+-- dispatcher :: (Monad m) => Handle m -> m ()
+-- dispatcher h = do
+--   let logHandle = logger h
+--   let botHandle = bot h
+--   let baseHandle = Handlers.Bot.base botHandle
+--   (stack, lastMsg) <- Handlers.Base.readStackMessage baseHandle
+--   -- HL.logMessage logHandle Debug "ReadStackMessage from Dispatcher"
+--   case stack of
+--     Nothing -> do 
+--       -- HL.logMessage logHandle Debug "Нет новых сообщений для обработки"
+--       pure ()
+--     Just msg -> do
+--       let user = mUser msg
+--       existUser <- Handlers.Base.findUser baseHandle user
+--       case existUser of
+--         Just _ -> pure ()
+--         Nothing -> do
+-- 	 -- если в базе пользователя нет, то сохрани его в базе с дефолтными настройкам и создай для него поток
+--           HL.logMessage logHandle Debug (mconcat ["Пользователь ", T.pack $ show user," не найден"])
+--           Handlers.Base.updateUser baseHandle user (Handlers.Base.defaultRepeatCount baseHandle)
+--           HL.logMessage logHandle Debug (mconcat ["Пользователь ", T.pack $ show user," сохранен в базе (диспетчер)"])
+-- 	  forkForUser h 
+-- 	    (Handlers.Bot.doWork (botHandle {Handlers.Bot.getMessage = getMessage h user}))
+--           HL.logMessage logHandle Debug (mconcat ["Запустили новый поток для пользователя: ", T.pack $ show user])
+-- 	 
 -- data Handle m = Handle 
 --   {  defaultRepeatCount :: RepeatCount
 --   ,  readStackMessage :: m (Maybe Message, Maybe LastMessage)
@@ -151,115 +197,229 @@ main = hspec $ do
 --   ,  repeatMessage :: T.Text
 --   ,  logger :: HL.Handle m  
 --   }
--- makeReaction :: (Monad m) => Handle m -> Message -> m ()
--- makeReaction h msg = do
---   let logHandle = logger h
---   HL.logMessage logHandle Debug "бот рассматривает поступивщее сообщение"
---   case dataMsg of
---     Msg _ -> do
---       HL.logMessage logHandle Debug "Боту было передано текстовое сообщение"
---       count <- Handlers.Base.giveRepeatCountFromBase (base h) user 
---       mapM_ (sendMessage h) (replicate count msg)
---     Gif _ -> do
---       HL.logMessage logHandle Debug "Боту было передано gif сообщение"
---       count <- Handlers.Base.giveRepeatCountFromBase (base h) user 
---       mapM_ (sendMessage h) (replicate count msg)
---     Command t -> do
---       HL.logMessage logHandle Debug "Боту было передана команда"
---       case t of
---         "/help" -> sendMessage h (msg {mData = Msg $ helpMessage h})
---         "/repeat" -> changeRepeatCountForUser h user
---         _ -> error "unknow command"
---     Query i -> do 
---       HL.logMessage logHandle Debug "Боту было передан ответ на запрос о количестве повторений"
---       Handlers.Base.updateUser (base h) user i
---     KeyboardMenu -> pure ()
---     otherwise -> do
---       HL.logMessage logHandle Error "Пришло неизвестное сообщение"
---       error "unknow mData Message"
---     where dataMsg = mData msg
---           id = mID msg
---           user = mUser msg
--- changeRepeatCountForUser :: (Monad m) => Handle m -> User -> m ()
--- changeRepeatCountForUser h user = do
---   let logHandle = logger h
---   HL.logMessage logHandle Debug "запрашиваем количество повторений в базе для пользователя"
---   count <- Handlers.Base.giveRepeatCountFromBase (base h) user
---   let msg = Message {mUser = user} --когда команда /repeat, почему-то стало вылетать здесь
---   sendMessage h (msg {mData = Msg $ (repeatMessage h) <> T.pack (show count) }) 
---   sendMessage h (msg {mData = KeyboardMenu}) 
---   answer <- getMessage h
---   if not (isCorrectRepeatCount answer)
---   then do
---     HL.logMessage logHandle Warning "Пользователь вводит некорректное значение количества повторов"
---     changeRepeatCountForUser h user
---   else do
---     case mData answer of
---       Msg t -> do
---         let query' = read $ T.unpack t :: DataFromButton
--- 	makeReaction h (msg {mData = Query query', mUser = mUser answer})
---       Query i -> makeReaction h (msg {mData = Query i, mUser = mUser answer})
---       otherwise -> do
---         HL.logMessage logHandle Error "Пришло неизвестное сообщение"
---         error "answer uncorrect"
+-- data Handle m = Handle
+--   { client :: Handlers.Client.Handle m
+--   , bot :: Handlers.Bot.Handle m
+--   , logger :: HL.Handle m  
+--   , forkForUser :: m () -> m ()
+--   }
   describe "Client logic" $ do
     it "No logic, no test" $ do
       Debug `shouldBe` Debug
   
   describe "Dispatcher logic" $ do
-    it "No logic, no test" $ do
-      Debug `shouldBe` Debug
+    it "Get message for only one user" $ do
+      property $ \testUser -> do
+        let testText = "Disptacher logic"
+	let testMessage = Message {mData = Msg testText, mID = 1, mUser = testUser}
 
-  describe "Logger logic" $ do
-    context "Logger write log message if its lvl >= lvl log from Config" $ do
-      let lHandleS' = logHandleS testConfig
-      let lHandleS = lHandleS' {Handlers.Logger.levelLogger = Debug}
-      it "Debug    vs  Debug" $ do
-        execState (Handlers.Logger.logMessage lHandleS Debug "New log") "Old log" `shouldBe` "[Debug] New log"
-	
-      it "Waring   vs  Debug" $ do
-        execState (Handlers.Logger.logMessage lHandleS Warning "New log") "Old log" `shouldBe` "[Warning] New log"
-      it "Error    vs  Debug" $ do
-        execState (Handlers.Logger.logMessage lHandleS Error "New log") "Old log" `shouldBe` "[Error] New log"
-      it "Fatal    vs  Debug" $ do
-        execState (Handlers.Logger.logMessage lHandleS Fatal "New log") "Old log" `shouldBe` "[Fatal] New log"
-      let lHandleS = lHandleS' {Handlers.Logger.levelLogger = Warning}
-      it "Warning  vs  Warning" $ do
-        execState (Handlers.Logger.logMessage lHandleS Warning "New log") "Old log" `shouldBe` "[Warning] New log"
-      it "Error    vs  Warning" $ do
-        execState (Handlers.Logger.logMessage lHandleS Error "New log") "Old log" `shouldBe` "[Error] New log"
-      it "Fatal    vs  Warning" $ do
-        execState (Handlers.Logger.logMessage lHandleS Fatal "New log") "Old log" `shouldBe` "[Fatal] New log"
-      let lHandleS = lHandleS' {Handlers.Logger.levelLogger = Error}
-      it "Error    vs  Error" $ do
-        execState (Handlers.Logger.logMessage lHandleS Error "New log") "Old log" `shouldBe` "[Error] New log"
-      it "Fatal    vs  Error" $ do
-        execState (Handlers.Logger.logMessage lHandleS Fatal "New log") "Old log" `shouldBe` "[Fatal] New log"
-      let lHandleS = lHandleS' {Handlers.Logger.levelLogger = Fatal}
-      it "Fatal    vs  Fatal" $ do
-        execState (Handlers.Logger.logMessage lHandleS Fatal "New log") "Old log" `shouldBe` "[Fatal] New log"
+	let logerHandle = Handlers.Logger.Handle
+		       { Handlers.Logger.levelLogger = Debug
+		       , Handlers.Logger.writeLog = \_ -> pure ()
+		       } :: Handlers.Logger.Handle (State (Maybe Message, Maybe LastMessage))
+	let baseHandle = Handlers.Base.Handle
+			{  Handlers.Base.readStackMessage = pure (Just testMessage, Nothing)
+			,  Handlers.Base.eraseMessage = \message -> pure () 
+			,  Handlers.Base.logger = logerHandle
+			}
+	let botHandle = Handlers.Bot.Handle
+		       { Handlers.Bot.base = baseHandle
+		       , Handlers.Bot.logger = logerHandle
+		       }
+	let clientHandle = Handlers.Client.Handle
+			{  Handlers.Client.fetch = \message -> pure message
+			,  Handlers.Client.carryAway = \message -> pure ()
+			,  Handlers.Client.logger = logerHandle
+			}
+	let dispatcherHandle = Handlers.Dispatcher.Handle
+		       { Handlers.Dispatcher.client = clientHandle
+		       , Handlers.Dispatcher.bot = botHandle
+		       , Handlers.Dispatcher.logger = logerHandle
+		       }
+        evalState (Handlers.Dispatcher.getMessage dispatcherHandle testUser) (Just testMessage, Nothing)
+	  `shouldBe` testMessage
 
-    context "Logger don't write log message if its lvl < lvl log from Config" $ do
-      let lHandleS' = logHandleS testConfig
-      let lHandleS = lHandleS' {Handlers.Logger.levelLogger = Warning}
-      it "Debug    vs  Warning" $ do
-        execState (Handlers.Logger.logMessage lHandleS Debug "New log") "Old log" `shouldNotBe` "[Debug] New log"
-      let lHandleS = lHandleS' {Handlers.Logger.levelLogger = Error}
-      it "Debug    vs  Error" $ do
-        execState (Handlers.Logger.logMessage lHandleS Debug "New log") "Old log" `shouldNotBe` "[Debug] New log"
-      it "Warning  vs  Error" $ do
-        execState (Handlers.Logger.logMessage lHandleS Warning "New log") "Old log" `shouldNotBe` "[Warning] New log"
-      let lHandleS = lHandleS' {Handlers.Logger.levelLogger = Fatal}
-      it "Debug    vs  Fatal" $ do
-        execState (Handlers.Logger.logMessage lHandleS Debug "New log") "Old log" `shouldNotBe` "[Debug] New log"
-      it "Warning  vs  Fatal" $ do
-        execState (Handlers.Logger.logMessage lHandleS Warning "New log") "Old log" `shouldNotBe` "[Warning] New log"
-      it "Error    vs  Fatal" $ do
-        execState (Handlers.Logger.logMessage lHandleS Error "New log") "Old log" `shouldNotBe` "[Error] New log"
--- logMessage :: (Monad m) => Handle m -> Log -> T.Text -> m ()
--- logMessage h lvl msg 
---   | lvl >= (levelLogger h) = writeLog h (mconcat["[",T.pack $ show lvl,"] ", msg])
---   | otherwise = pure ()
+    it "Take message from client if stackMessages haven't message" $ do
+        let testUser = 341 :: User 
+	let testText = "some message"
+	let testMessage = Message {mData = Msg testText, mID = 1, mUser = testUser}
+	let testStack = (Nothing, Nothing) :: (Maybe Message, Maybe LastMessage)
+
+	let logerHandle = Handlers.Logger.Handle
+		       { Handlers.Logger.levelLogger = Debug
+		       , Handlers.Logger.writeLog = \_ -> pure ()
+		       } :: Handlers.Logger.Handle (State (Maybe Message, Maybe LastMessage))
+	let baseHandle = Handlers.Base.Handle
+			{  Handlers.Base.readStackMessage = get >>= pure
+			,  Handlers.Base.saveMessage = \message -> put (Just message, Nothing) >> pure ()
+			,  Handlers.Base.logger = logerHandle
+			}
+	let botHandle = Handlers.Bot.Handle
+		       { Handlers.Bot.base = baseHandle
+		       , Handlers.Bot.logger = logerHandle
+		       }
+	let clientHandle = Handlers.Client.Handle
+			{  Handlers.Client.fetch = \lastMessage -> pure $ Just testMessage 
+			,  Handlers.Client.carryAway = \message -> pure ()
+			,  Handlers.Client.logger = logerHandle
+			}
+	let dispatcherHandle = Handlers.Dispatcher.Handle
+		       { Handlers.Dispatcher.client = clientHandle
+		       , Handlers.Dispatcher.bot = botHandle
+		       , Handlers.Dispatcher.logger = logerHandle
+		       }
+        evalState (Handlers.Dispatcher.watcherForNewMessage dispatcherHandle >>
+                   Handlers.Dispatcher.getMessage dispatcherHandle testUser) testStack
+	  `shouldBe` testMessage
+
+    it "Save new user in Base" $ do
+        let testUser = 341 :: User 
+	let testText = "some message"
+	let testMessage = Message {mData = Msg testText, mID = 1, mUser = testUser}
+	let testStack = (Nothing, Nothing) :: (Maybe Message, Maybe LastMessage)
+
+	let logerHandle = Handlers.Logger.Handle
+		       { Handlers.Logger.levelLogger = Debug
+		       , Handlers.Logger.writeLog = \_ -> pure ()
+		       } :: Handlers.Logger.Handle (State (Maybe Message, Maybe LastMessage))
+	let baseHandle = Handlers.Base.Handle
+			{  Handlers.Base.readStackMessage = get >>= pure
+			,  Handlers.Base.saveMessage = \message -> put (Just message, Nothing) >> pure ()
+			,  Handlers.Base.logger = logerHandle
+			}
+	let botHandle = Handlers.Bot.Handle
+		       { Handlers.Bot.base = baseHandle
+		       , Handlers.Bot.logger = logerHandle
+		       }
+	let clientHandle = Handlers.Client.Handle
+			{  Handlers.Client.fetch = \lastMessage -> pure $ Just testMessage 
+			,  Handlers.Client.carryAway = \message -> pure ()
+			,  Handlers.Client.logger = logerHandle
+			}
+	let dispatcherHandle = Handlers.Dispatcher.Handle
+		       { Handlers.Dispatcher.client = clientHandle
+		       , Handlers.Dispatcher.bot = botHandle
+		       , Handlers.Dispatcher.logger = logerHandle
+		       }
+        evalState (Handlers.Dispatcher.watcherForNewMessage dispatcherHandle >>
+                   Handlers.Dispatcher.getMessage dispatcherHandle testUser) testStack
+	  `shouldBe` testMessage
+-- dispatcher :: (Monad m) => Handle m -> m ()
+-- dispatcher h = do
+--   let logHandle = logger h
+--   let botHandle = bot h
+--   let baseHandle = Handlers.Bot.base botHandle
+--   (stack, lastMsg) <- Handlers.Base.readStackMessage baseHandle
+--   -- HL.logMessage logHandle Debug "ReadStackMessage from Dispatcher"
+--   case stack of
+--     Nothing -> do 
+--       -- HL.logMessage logHandle Debug "Нет новых сообщений для обработки"
+--       pure ()
+--     Just msg -> do
+--       let user = mUser msg
+--       existUser <- Handlers.Base.findUser baseHandle user
+--       case existUser of
+--         Just _ -> pure ()
+--         Nothing -> do
+-- 	 -- если в базе пользователя нет, то сохрани его в базе с дефолтными настройкам и создай для него поток
+--           HL.logMessage logHandle Debug (mconcat ["Пользователь ", T.pack $ show user," не найден"])
+--           Handlers.Base.updateUser baseHandle user (Handlers.Base.defaultRepeatCount baseHandle)
+--           HL.logMessage logHandle Debug (mconcat ["Пользователь ", T.pack $ show user," сохранен в базе (диспетчер)"])
+-- 	  forkForUser h 
+-- 	    (Handlers.Bot.doWork (botHandle {Handlers.Bot.getMessage = getMessage h user}))
+--           HL.logMessage logHandle Debug (mconcat ["Запустили новый поток для пользователя: ", T.pack $ show user])
+-- 	 
+-- watcherForNewMessage :: (Monad m) => Handle m -> m ()
+-- watcherForNewMessage h = do
+--   let logHandle = logger h
+--   let baseHandle = Handlers.Bot.base (bot h)
+--   let clientHandle = client h
+--   (stack, lastMsg) <- Handlers.Base.readStackMessage baseHandle
+--   case stack of
+--     Just _ -> pure ()
+--     Nothing -> do
+--       HL.logMessage logHandle Debug "Нет новых необработанных сообщений от клиента, начинаем постоянный запрос"
+--       loop
+--       where loop = do
+-- 	      fetchedMessage <- Handlers.Client.fetch clientHandle lastMsg
+-- 	      case fetchedMessage of
+-- 	        Nothing -> loop
+-- 	        Just msg -> Handlers.Base.saveMessage baseHandle msg
+-- getMessage :: (Monad m) => Handle m -> User -> m (Message)
+-- getMessage h user = do
+--   let logHandle = logger h
+--   (stack, lastMsg) <- Handlers.Base.readStackMessage (Handlers.Bot.base $ bot h)
+--   case stack of
+--     Just msg -> if mUser msg == user
+--                 then do
+-- 		  Handlers.Base.eraseMessage (Handlers.Bot.base $ bot h) msg
+--                   HL.logMessage logHandle Debug (mconcat ["Получено сообщение для пользователя ", T.pack $ show user, " из базы данных"])
+-- 		  pure msg
+--                 else getMessage h user
+--     Nothing -> getMessage h user 
+  describe "Logger logic" $ do -- describe "new" $ do 
+    -- context "Logger write log message if level log message >=  level from Config:" $ do
+    it "Logger write log message if level log message >=  level from Config" $ do
+      let logHandle' = logHandleS testConfig
+      let logHandle = logHandle' {Handlers.Logger.levelLogger = Debug}
+      -- it "Debug    vs  Debug" $ do
+      execState (Handlers.Logger.logMessage logHandle Debug "New log") "Old log"
+        `shouldBe` "[Debug] New log"
+      
+    -- it "Waring   vs  Debug" $ do
+      execState (Handlers.Logger.logMessage logHandle Warning "New log") "Old log"
+        `shouldBe` "[Warning] New log"
+    -- it "Error    vs  Debug" $ do
+      execState (Handlers.Logger.logMessage logHandle Error "New log") "Old log" 
+        `shouldBe` "[Error] New log"
+    -- it "Fatal    vs  Debug" $ do
+      execState (Handlers.Logger.logMessage logHandle Fatal "New log") "Old log" 
+        `shouldBe` "[Fatal] New log"
+      let logHandle = logHandle' {Handlers.Logger.levelLogger = Warning}
+    -- it "Warning  vs  Warning" $ do
+      execState (Handlers.Logger.logMessage logHandle Warning "New log") "Old log" 
+        `shouldBe` "[Warning] New log"
+    -- it "Error    vs  Warning" $ do
+      execState (Handlers.Logger.logMessage logHandle Error "New log") "Old log" 
+        `shouldBe` "[Error] New log"
+    -- it "Fatal    vs  Warning" $ do
+      execState (Handlers.Logger.logMessage logHandle Fatal "New log") "Old log" 
+        `shouldBe` "[Fatal] New log"
+      let logHandle = logHandle' {Handlers.Logger.levelLogger = Error}
+    -- it "Error    vs  Error" $ do
+      execState (Handlers.Logger.logMessage logHandle Error "New log") "Old log" 
+        `shouldBe` "[Error] New log"
+    -- it "Fatal    vs  Error" $ do
+      execState (Handlers.Logger.logMessage logHandle Fatal "New log") "Old log" 
+        `shouldBe` "[Fatal] New log"
+      let logHandle = logHandle' {Handlers.Logger.levelLogger = Fatal}
+    -- it "Fatal    vs  Fatal" $ do
+      execState (Handlers.Logger.logMessage logHandle Fatal "New log") "Old log" 
+        `shouldBe` "[Fatal] New log"
+
+    it "Logger don't write log message if level log message < level from Config" $ do
+      let logHandle' = logHandleS testConfig
+      let logHandle = logHandle' {Handlers.Logger.levelLogger = Warning}
+      -- it "Debug    vs  Warning" $ do
+      execState (Handlers.Logger.logMessage logHandle Debug "New log") "Old log" 
+        `shouldNotBe` "[Debug] New log"
+      let logHandle = logHandle' {Handlers.Logger.levelLogger = Error}
+    -- it "Debug    vs  Error" $ do
+      execState (Handlers.Logger.logMessage logHandle Debug "New log") "Old log" 
+        `shouldNotBe` "[Debug] New log"
+    -- it "Warning  vs  Error" $ do
+      execState (Handlers.Logger.logMessage logHandle Warning "New log") "Old log" 
+        `shouldNotBe` "[Warning] New log"
+      let logHandle = logHandle' {Handlers.Logger.levelLogger = Fatal}
+    -- it "Debug    vs  Fatal" $ do
+      execState (Handlers.Logger.logMessage logHandle Debug "New log") "Old log" 
+        `shouldNotBe` "[Debug] New log"
+    -- it "Warning  vs  Fatal" $ do
+      execState (Handlers.Logger.logMessage logHandle Warning "New log") "Old log" 
+        `shouldNotBe` "[Warning] New log"
+    -- it "Error    vs  Fatal" $ do
+      execState (Handlers.Logger.logMessage logHandle Error "New log") "Old log" 
+        `shouldNotBe` "[Error] New log"
 
 testConfig :: Config 
 testConfig = Config
