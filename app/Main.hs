@@ -14,6 +14,7 @@ import qualified Handlers.Logger
 import qualified Logger
 import qualified Config (loadConfig)
 import System.IO
+import Data.Bool (bool)
 -- import qualified Data.Text as T
 -- import qualified Data.Text.IO as TIO
 
@@ -35,44 +36,48 @@ main = do
 
   let logHandle = Handlers.Logger.Handle
                   { Handlers.Logger.levelLogger = cLvlLog cfg -- Fatal
-		  , Handlers.Logger.writeLog = Logger.writeLog
-		  }
+                  , Handlers.Logger.writeLog = Logger.writeLog
+                  }
 
   let baseHandle = Handlers.Base.Handle
                    {  Handlers.Base.defaultRepeatCount = cRepeatCount cfg
-		   ,  Handlers.Base.readStackMessage = Base.readStackMessage stackMessage
-		   ,  Handlers.Base.saveMessage = Base.saveMessage stackMessage
-		   ,  Handlers.Base.eraseMessage = Base.eraseMessage stackMessage
-		   ,  Handlers.Base.findUser = Base.findUser base
-		   ,  Handlers.Base.updateUser = Base.updateUser base
-		   ,  Handlers.Base.logger = logHandle
-		   }
-  
+                   ,  Handlers.Base.readStackMessage = Base.readStackMessage stackMessage
+                   ,  Handlers.Base.saveMessage = Base.saveMessage stackMessage
+                   ,  Handlers.Base.eraseMessage = Base.eraseMessage stackMessage
+                   ,  Handlers.Base.findUser = Base.findUser base
+                   ,  Handlers.Base.updateUser = Base.updateUser base
+                   ,  Handlers.Base.logger = logHandle
+                   }
+   
   let clientHandle = Handlers.Client.Handle
-                     { Handlers.Client.fetch = ClientConsole.fetch
-		     , Handlers.Client.carryAway = ClientConsole.carryAway
-		     , Handlers.Client.logger = logHandle
-	             }
+                     { Handlers.Client.fetch = bool ClientConsole.fetch
+                                                    ClientConsole.fetch 
+                                                    (ConsoleBot == cMode cfg)
+                     , Handlers.Client.carryAway = bool ClientConsole.carryAway
+                                                        ClientConsole.carryAway 
+                                                        (ConsoleBot == cMode cfg) 
+                     , Handlers.Client.logger = logHandle
+                     }
 
   let botHandle = Handlers.Bot.Handle 
-		  { Handlers.Bot.getMessage = undefined --Handlers.Dispatcher.getMessage dispatcherHandle 1
-		  , Handlers.Bot.sendMessage = ClientConsole.carryAway
-		  , Handlers.Bot.base = baseHandle
-		  , Handlers.Bot.helpMessage = cTextMenuHelp cfg
-		  , Handlers.Bot.repeatMessage = cTextMenuRepeat cfg
-		  , Handlers.Bot.logger = logHandle
-		  }
+                  { Handlers.Bot.getMessage = undefined --Handlers.Dispatcher.getMessage dispatcherHandle 1
+                  , Handlers.Bot.sendMessage = ClientConsole.carryAway
+                  , Handlers.Bot.base = baseHandle
+                  , Handlers.Bot.helpMessage = cTextMenuHelp cfg
+                  , Handlers.Bot.repeatMessage = cTextMenuRepeat cfg
+                  , Handlers.Bot.logger = logHandle
+                  }
 
   let handle = Handlers.Dispatcher.Handle
-	       { Handlers.Dispatcher.client = clientHandle
-	       , Handlers.Dispatcher.bot = botHandle
-	       , Handlers.Dispatcher.forkForUser = Dispatcher.forkForUser
-	       , Handlers.Dispatcher.logger = logHandle
-	       }
-
-  forkIO $ forever (do Handlers.Dispatcher.watcherForNewMessage handle; threadDelay (100))
-  print "Watcher is running"
-  print "Dispatcher is running"
+               { Handlers.Dispatcher.client = clientHandle
+               , Handlers.Dispatcher.bot = botHandle
+               , Handlers.Dispatcher.forkForUser = Dispatcher.forkForUser
+               , Handlers.Dispatcher.logger = logHandle
+               }
+-- start watcher for new message
+  _ <- forkIO 
+    $ forever $ Handlers.Dispatcher.watcherForNewMessage handle
+-- start main logic
   forever 
     $ Handlers.Dispatcher.dispatcher handle 
 
