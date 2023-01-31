@@ -46,6 +46,8 @@ library:
   - bytestring
   - configurator
   - time
+  - aeson
+  - http-conduit
 
 executables:
   botReborn-exe:
@@ -58,6 +60,9 @@ executables:
     dependencies:
     - botReborn
     - text
+    - bytestring
+    - aeson
+    - http-conduit
 
 tests:
   botReborn-test:
