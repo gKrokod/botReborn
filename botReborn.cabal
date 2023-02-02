@@ -29,9 +29,7 @@ library
       ClientConsole
       ClientVK
       ClientVK.HttpMessage
-      ClientVK.Main
       ClientVK.Parse
-      ClientVK.TData
       Config
       Dispatcher
       Handlers.Base

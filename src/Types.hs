@@ -46,24 +46,6 @@ data Log = Debug | Warning | Error | Fatal deriving (Eq, Ord, Show)
     -- Error — типичная ошибка.
     --
     -- Fatal — тотальный сбой работоспособности, когда нет доступа к базе данных или сети, сервису не хватает места на жестком диске.
---
--- data TParse = TParse
---  {
---     tUpdateID :: UpdateID
---  ,  tChatID :: ChatID
---  ,  tMessage :: Either Message Gif
---  ,  keyboardMenu :: Maybe BC.ByteString
---  ,  isCommand :: Bool
---  } deriving Show
---
--- data TParseQuery = TParseQuery 
---  {
---    qUpdateID :: UpdateID
---  , qChatID :: ChatID
---  , qQueryID :: QueryID
---  , qDataFromButton :: DataFromButton
---  } deriving Show
---
 data Keyboard = Keyboard {
                   inline_keyboard :: [[Button]]
                 } deriving (Show, Generic)

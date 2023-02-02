@@ -1,5 +1,6 @@
 module Main (main) where
 import Control.Monad
+import Data.Aeson 
 import Control.Concurrent
 import Types
 import qualified Handlers.Bot
@@ -35,26 +36,34 @@ main = do
   stackMessage <- Base.newBaseMessage
   base <- Base.newBaseUser
   cfg <- Config.loadConfig
-  print "hihi"
+  print "Start Programm"
 
+  let logHandle = Handlers.Logger.Handle
+                  { Handlers.Logger.levelLogger = cLvlLog cfg -- Fatal
+                  , Handlers.Logger.writeLog = Logger.writeLog
+                  }
+
+  print $ buildGetRequest (cfg)
   response <- httpLBS $ buildGetRequest (cfg)
-  putStrLn $ "Get . The status code was: " <> 
-       show (getResponseStatusCode response)
-  print $ getResponseHeader "Content-Type" response
-  print $ getResponseBody response
-  -- let jsonBody = getResponseBody (repsonse)
+  let status = getResponseStatusCode response
+  case status of
+    404 -> Handlers.Logger.logMessage logHandle Fatal "Bot Server not found"
+    301 -> Handlers.Logger.logMessage logHandle Fatal "Bot Server Moved Permanently"
+    200 -> do  
+      Handlers.Logger.logMessage logHandle Debug "Bot Server give us response"
+      print $ getResponseHeader "Content-Type" response
+      print $ getResponseBody response
+      let jsonBody = getResponseBody (response)
+      let mbMessage = decode jsonBody :: Maybe Message
+      case mbMessage of
+        Just m -> do
+	  Handlers.Logger.logMessage logHandle Debug "Get message"
+	  print m
+	Nothing -> do 
+	  print "nothing"
+          let mbMessage = eitherDecode jsonBody :: Either String Message
+	  print $ mbMessage
 
---   let jsonBody = getResponseBody (response)
---   let mbMessage = decode jsonBody :: Maybe TParse
---   case mbMessage of -- Maybe there is a message?
---     Nothing -> do
---        let mbQuery = decode jsonBody :: Maybe TParseQuery
---        case mbQuery of -- Maybe there is a query (from Button)?
---          Nothing -> do
---            putStrLn "JSON is uncorrect"
---            LC.putStrLn $ jsonBody
---            L.writeFile "log/data.json" jsonBody
---            loop handle cfg updateID
 --   
 --   let logHandle = Handlers.Logger.Handle
 --                   { Handlers.Logger.levelLogger = cLvlLog cfg -- Fatal
