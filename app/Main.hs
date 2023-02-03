@@ -9,6 +9,7 @@ import qualified Handlers.Base
 import qualified Base
 import qualified Handlers.Client
 import qualified ClientConsole
+import qualified ClientVK
 import qualified Handlers.Dispatcher
 import qualified Dispatcher
 import qualified Handlers.Logger
@@ -20,6 +21,7 @@ import Data.Bool (bool)
 -- import qualified Data.Text.IO as TIO
 import ClientVK.HttpMessage
 import Network.HTTP.Simple --(parseRequest, Request, httpLBS, getResponseBody, getResponseStatusCode, getResponseHeader)
+import qualified Data.ByteString.Lazy as L
 
 
 main :: IO ()
@@ -43,6 +45,10 @@ main = do
                   , Handlers.Logger.writeLog = Logger.writeLog
                   }
 
+  result <- ClientVK.fetch cfg (Just $ Message {mData = Msg "1'", mID = 240950513, mUser = 5746210503})
+  print "result fetch"
+  print $ result
+  print "another"
   print $ buildGetRequest (cfg)
   response <- httpLBS $ buildGetRequest (cfg)
   let status = getResponseStatusCode response
@@ -59,6 +65,8 @@ main = do
         Just m -> do
 	  Handlers.Logger.logMessage logHandle Debug "Get message"
 	  print m
+          -- LC.putStrLn jsonBody
+          L.writeFile "data.json" jsonBody
 	Nothing -> do 
 	  print "nothing"
           let mbMessage = eitherDecode jsonBody :: Either String Message

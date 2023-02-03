@@ -13,10 +13,12 @@ buildGetRequest cfg =
   $ setRequestMethod (cfg & cMethod) 
   $ setRequestSecure (cfg & cSecure)
   $ setRequestQueryString ([("offset", Just $ cfg & cOffset), ("timeout", Just $ cfg & cTimeOut)])
-  -- $ setRequestQueryString ([("offset", Just (E.encodeUtf8 "240950452")), ("timeout", Just $ cfg & cTimeOut)])
+  -- $ setRequestQueryString ([("offset", Just (E.encodeUtf8 "240950490")), ("timeout", Just $ cfg & cTimeOut)])
   $ setRequestPath (mconcat[cfg & cApiPath, cfg & cToken, "/getUpdates"])
   $ setRequestPort (cfg & cPort)
   $ defaultRequest
+
+
 --
 -- buildSendRequest :: Config -> Message -> Request
 -- buildSendRequest cfg (Message msg) =

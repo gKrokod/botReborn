@@ -1,6 +1,6 @@
 module Handlers.Client where
 -- тут реализация консольной версии
-import Types (LastMessage, Message)
+import Types (LastMessage, Message, Config)
 import qualified Handlers.Logger
 
 data Handle m = Handle

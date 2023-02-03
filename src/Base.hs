@@ -5,6 +5,10 @@ import Types (User, RepeatCount, Message, LastMessage)
 import Control.Concurrent
 import qualified Data.Map.Strict as Map
 
+import qualified Data.ByteString.Lazy.Char8 as LC
+import qualified Data.ByteString.Lazy as L
+import Data.Map.Internal.Debug
+
 mks :: Int
 mks = 10 -- for function readStackMessage
 
@@ -30,6 +34,7 @@ updateUser (UserDataBase m) user count = do
   base <- takeMVar m
   let base' = Map.insert user count base
   putMVar m base'
+  L.writeFile "base.txt" (LC.pack (showTree base'))
   seq base' (return ())
     
 findUser :: UserDataBase -> User -> IO (Maybe RepeatCount)

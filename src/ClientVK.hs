@@ -1,4 +1,3 @@
-
 module ClientVK where
 
 -- module Handlers.Client where
@@ -18,14 +17,54 @@ import Types
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import qualified Data.Time.Clock.System as Time
+import ClientVK.HttpMessage
+import Network.HTTP.Simple --(parseRequest, Request, httpLBS, getResponseBody, getResponseStatusCode, getResponseHeader)
+import qualified Data.Text.Encoding as E (encodeUtf8)
+import qualified Data.ByteString.Char8 as BC (pack)
+import Data.Aeson 
 
 
+fetch :: Config -> Maybe LastMessage -> IO (Maybe Message)
+fetch c lm = do
+  let cfg = c {cOffset = maybe "-1" (BC.pack . show . succ . mID) lm } 
+  response <- httpLBS $ buildGetRequest cfg
+  -- let status = getResponseStatusCode response
+  -- case status of
+  --   404 -> Handlers.Logger.logMessage logHandle Fatal "Bot Server not found"
+  --   301 -> Handlers.Logger.logMessage logHandle Fatal "Bot Server Moved Permanently"
+  --   200 -> do  
+  --     Handlers.Logger.logMessage logHandle Debug "Bot Server give us response"
+  --     print $ getResponseHeader "Content-Type" response
+  --     print $ getResponseBody response
+  let jsonBody = getResponseBody response
+  let mbMessage = decode jsonBody :: Maybe Message
+  pure mbMessage
 
-fetch :: Maybe LastMessage -> IO (Maybe Message)
-fetch lm = undefined
-
-carryAway :: Message -> IO ()
+carryAway :: Config -> Message -> IO ()
 carryAway = undefined
+
+  -- print $ buildGetRequest (cfg)
+  -- response <- httpLBS $ buildGetRequest (cfg)
+  -- let status = getResponseStatusCode response
+  -- case status of
+  --   404 -> Handlers.Logger.logMessage logHandle Fatal "Bot Server not found"
+  --   301 -> Handlers.Logger.logMessage logHandle Fatal "Bot Server Moved Permanently"
+  --   200 -> do  
+  --     Handlers.Logger.logMessage logHandle Debug "Bot Server give us response"
+  --     print $ getResponseHeader "Content-Type" response
+  --     print $ getResponseBody response
+  --     let jsonBody = getResponseBody (response)
+  --     let mbMessage = decode jsonBody :: Maybe Message
+  --     case mbMessage of
+  --       Just m -> do
+	--   Handlers.Logger.logMessage logHandle Debug "Get message"
+	--   print m
+  --         -- LC.putStrLn jsonBody
+  --         L.writeFile "data.json" jsonBody
+	-- Nothing -> do 
+	--   print "nothing"
+  --         let mbMessage = eitherDecode jsonBody :: Either String Message
+	--   print $ mbMessage
 
 -- fetch :: Maybe LastMessage -> IO (Maybe Message)
 -- fetch lm = do
