@@ -8,34 +8,68 @@ import Types (Message(..), Keyboard(..), Button(..), Data(..))
 
 instance FromJSON Message where
   parseJSON (Object v) = do
+    -- updateId <- v .: "result" 
+    --               >>= \m -> Prelude.head m .: "update_id" 
     updateId <- v .: "result" 
-                  >>= \m -> Prelude.head m .: "update_id" 
+                  >>= \case
+			[] -> v .: "emptyListMakeNothing" 
+		        (h : hs) -> h .: "update_id" 
+    
+    -- chatId  <- v .: "result"
+    --               >>= \m -> Prelude.head m .:? "message" 
+    --               >>= \case
+    --                     Just t -> t .: "chat"
+    --                               >>= (.: "id")
+    --                     Nothing -> Prelude.head m .: "callback_query" 
+    --                                >>= (.: "message")
+    --                                >>= (.: "chat")
+    --                                >>= (.: "id")
     chatId  <- v .: "result"
-                  >>= \m -> Prelude.head m .:? "message" 
                   >>= \case
-                        Just t -> t .: "chat"
-                                  >>= (.: "id")
-                        Nothing -> Prelude.head m .: "callback_query" 
-                                   >>= (.: "message")
-                                   >>= (.: "chat")
-                                   >>= (.: "id")
-    message  <- v .: "result"
-                  >>= \m -> Prelude.head m .:? "message" 
-                  >>= \case
-                        Just t -> t .:? "text"
-                                  >>= \case 
-                                        Just message -> pure $ Msg message
-                                        Nothing -> t .: "animation"
-                                                   >>= (.: "file_id") 
-                                                   >>= pure . Gif
-                        Nothing -> Prelude.head m .: "callback_query" 
-                                   >>= (.: "data")
-                                   >>= pure . Query . read . T.unpack 
+			[] -> v .: "emptyListMakeNothing" 
+		        (h : hs) -> h .:? "message"
+			  >>= \case
+				Just t -> t .: "chat"
+					  >>= (.: "id")
+				Nothing -> h .: "callback_query" 
+					   >>= (.: "message")
+					   >>= (.: "chat")
+					   >>= (.: "id")
  
-    return   Message { mID = updateId
-                     , mUser   = chatId 
-                     , mData = message 
-                     }
+    message <- v .: "result"
+                  >>= \case
+			[] -> v .: "emptyListMakeNothing" >>= pure . Gif 
+		        (h : hs) -> h .:? "message"
+			  >>= \case
+				Just t -> t .:? "text"
+				  	  >>= \case 
+						Just message -> pure $ Msg message
+						Nothing -> t .: "animation"
+							   >>= (.: "file_id") 
+							   >>= pure . Gif
+				Nothing -> h .: "callback_query" 
+					   >>= (.: "data")
+					   >>= pure . Query . read . T.unpack 
+    -- message  <- v .: "result"
+    --               >>= \m -> Prelude.head m .:? "message" 
+    --               >>= \case
+    --                     Just t -> t .:? "text"
+    --                               >>= \case 
+    --                                     Just message -> pure $ Msg message
+    --                                     Nothing -> t .: "animation"
+    --                                                >>= (.: "file_id") 
+    --                                                >>= pure . Gif
+    --                     Nothing -> Prelude.head m .: "callback_query" 
+    --                                >>= (.: "data")
+    --                                >>= pure . Query . read . T.unpack 
+    return  Message { mID = updateId
+                    , mUser   = chatId 
+                    , mData = message 
+                    }
+headMaybe :: [a] -> Maybe a
+headMaybe [] = Nothing
+headMaybe (x : xs) = Just x
+
 
 instance ToJSON Keyboard
 instance ToJSON Button

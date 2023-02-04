@@ -18,8 +18,6 @@ buildGetRequest cfg =
   $ setRequestPort (cfg & cPort)
   $ defaultRequest
 
-
---
 -- buildSendRequest :: Config -> Message -> Request
 -- buildSendRequest cfg (Message msg) =
 --     setRequestHost (cfg & cBotHost)
@@ -31,6 +29,14 @@ buildGetRequest cfg =
 --   $ defaultRequest
 --     where queryMsg (Left msg1) = ("text", Just $ E.encodeUtf8 msg)
 --           queryMsg (Right msg2) = ("animation", Just $ E.encodeUtf8 msg)
+
+buildDefaultSendRequest :: Config -> Request
+buildDefaultSendRequest cfg =
+    setRequestHost (cfg & cBotHost)
+  $ setRequestMethod (cfg & cMethod)
+  $ setRequestSecure (cfg & cSecure)
+  $ setRequestPort (cfg & cPort)
+  $ defaultRequest
 
 -- makeResponse :: Config -> TParse -> TParse
 -- makeResponse cfg user = case user & tMessage of

@@ -40,83 +40,86 @@ main = do
   cfg <- Config.loadConfig
   print "Start Programm"
 
+  -- let logHandle = Handlers.Logger.Handle
+  --                 { Handlers.Logger.levelLogger = cLvlLog cfg -- Fatal
+  --                 , Handlers.Logger.writeLog = Logger.writeLog
+  --                 }
+  --
+  -- result <- ClientVK.fetch cfg (Just $ Message {mData = Msg "1'", mID = 240950523, mUser = 5746210503})
+  -- print "result fetch"
+  -- print $ result
+  -- print "another"
+  -- -- ClientVK.carryAway cfg (Message {mData = Msg "Carry Away", mUser = 5746210503})
+  -- print $ buildGetRequest (cfg)
+  -- response <- httpLBS $ buildGetRequest (cfg)
+  -- let status = getResponseStatusCode response
+  -- case status of
+  --   404 -> Handlers.Logger.logMessage logHandle Fatal "Bot Server not found"
+  --   301 -> Handlers.Logger.logMessage logHandle Fatal "Bot Server Moved Permanently"
+  --   200 -> do  
+  --     Handlers.Logger.logMessage logHandle Debug "Bot Server give us response"
+  --     print $ getResponseHeader "Content-Type" response
+  --     print $ getResponseBody response
+  --     let jsonBody = getResponseBody (response)
+  --     let mbMessage = decode jsonBody :: Maybe Message
+  --     case mbMessage of
+  --       Just m -> do
+	--   Handlers.Logger.logMessage logHandle Debug "Get message"
+	--   print m
+  --         -- LC.putStrLn jsonBody
+  --         L.writeFile "data.json" jsonBody
+ 	-- Nothing -> do 
+	--   print "nothingm Ne smogli rashifrovat"
+  --         let mbMessage = eitherDecode jsonBody :: Either String Message
+	--   print $ mbMessage
+  --
+-- --   
   let logHandle = Handlers.Logger.Handle
                   { Handlers.Logger.levelLogger = cLvlLog cfg -- Fatal
                   , Handlers.Logger.writeLog = Logger.writeLog
                   }
 
-  result <- ClientVK.fetch cfg (Just $ Message {mData = Msg "1'", mID = 240950513, mUser = 5746210503})
-  print "result fetch"
-  print $ result
-  print "another"
-  print $ buildGetRequest (cfg)
-  response <- httpLBS $ buildGetRequest (cfg)
-  let status = getResponseStatusCode response
-  case status of
-    404 -> Handlers.Logger.logMessage logHandle Fatal "Bot Server not found"
-    301 -> Handlers.Logger.logMessage logHandle Fatal "Bot Server Moved Permanently"
-    200 -> do  
-      Handlers.Logger.logMessage logHandle Debug "Bot Server give us response"
-      print $ getResponseHeader "Content-Type" response
-      print $ getResponseBody response
-      let jsonBody = getResponseBody (response)
-      let mbMessage = decode jsonBody :: Maybe Message
-      case mbMessage of
-        Just m -> do
-	  Handlers.Logger.logMessage logHandle Debug "Get message"
-	  print m
-          -- LC.putStrLn jsonBody
-          L.writeFile "data.json" jsonBody
-	Nothing -> do 
-	  print "nothing"
-          let mbMessage = eitherDecode jsonBody :: Either String Message
-	  print $ mbMessage
+  let baseHandle = Handlers.Base.Handle
+                   {  Handlers.Base.defaultRepeatCount = cRepeatCount cfg
+                   ,  Handlers.Base.readStackMessage = Base.readStackMessage stackMessage
+                   ,  Handlers.Base.saveMessage = Base.saveMessage stackMessage
+                   ,  Handlers.Base.eraseMessage = Base.eraseMessage stackMessage
+                   ,  Handlers.Base.findUser = Base.findUser base
+                   ,  Handlers.Base.updateUser = Base.updateUser base
+                   ,  Handlers.Base.logger = logHandle
+                   }
 
---   
---   let logHandle = Handlers.Logger.Handle
---                   { Handlers.Logger.levelLogger = cLvlLog cfg -- Fatal
---                   , Handlers.Logger.writeLog = Logger.writeLog
---                   }
---
---   let baseHandle = Handlers.Base.Handle
---                    {  Handlers.Base.defaultRepeatCount = cRepeatCount cfg
---                    ,  Handlers.Base.readStackMessage = Base.readStackMessage stackMessage
---                    ,  Handlers.Base.saveMessage = Base.saveMessage stackMessage
---                    ,  Handlers.Base.eraseMessage = Base.eraseMessage stackMessage
---                    ,  Handlers.Base.findUser = Base.findUser base
---                    ,  Handlers.Base.updateUser = Base.updateUser base
---                    ,  Handlers.Base.logger = logHandle
---                    }
---    
---   let clientHandle = Handlers.Client.Handle
---                      { Handlers.Client.fetch = bool ClientConsole.fetch
---                                                     ClientConsole.fetch 
---                                                     (ConsoleBot == cMode cfg)
---                      , Handlers.Client.carryAway = bool ClientConsole.carryAway
---                                                         ClientConsole.carryAway 
---                                                         (ConsoleBot == cMode cfg) 
---                      , Handlers.Client.logger = logHandle
---                      }
---
---   let botHandle = Handlers.Bot.Handle 
---                   { Handlers.Bot.getMessage = undefined --Handlers.Dispatcher.getMessage dispatcherHandle 1
---                   , Handlers.Bot.sendMessage = ClientConsole.carryAway
---                   , Handlers.Bot.base = baseHandle
---                   , Handlers.Bot.helpMessage = cTextMenuHelp cfg
---                   , Handlers.Bot.repeatMessage = cTextMenuRepeat cfg
---                   , Handlers.Bot.logger = logHandle
---                   }
---
---   let handle = Handlers.Dispatcher.Handle
---                { Handlers.Dispatcher.client = clientHandle
---                , Handlers.Dispatcher.bot = botHandle
---                , Handlers.Dispatcher.forkForUser = Dispatcher.forkForUser
---                , Handlers.Dispatcher.logger = logHandle
---                }
--- -- start watcher for new message
---   _ <- forkIO 
---     $ forever $ Handlers.Dispatcher.watcherForNewMessage handle
--- -- start main logic
---   forever 
---     $ Handlers.Dispatcher.dispatcher handle 
+  let clientHandle = Handlers.Client.Handle
+                     -- { Handlers.Client.fetch = bool (ClientVK.fetch cfg)
+                     --                                ClientConsole.fetch
+                     --                                (ConsoleBot == cMode cfg)
+                     { Handlers.Client.fetch = ClientVK.fetch cfg
+                     , Handlers.Client.carryAway = ClientVK.carryAway cfg
+                     -- , Handlers.Client.carryAway = bool (ClientVK.carryAway cfg)
+                     --                                    ClientConsole.carryAway 
+                     --                                    (ConsoleBot == cMode cfg) 
+                     , Handlers.Client.logger = logHandle
+                     }
+
+  let botHandle = Handlers.Bot.Handle 
+                  { Handlers.Bot.getMessage = undefined --Handlers.Dispatcher.getMessage dispatcherHandle 1
+                  , Handlers.Bot.sendMessage = ClientVK.carryAway cfg--ClientConsole.carryAway
+                  , Handlers.Bot.base = baseHandle
+                  , Handlers.Bot.helpMessage = cTextMenuHelp cfg
+                  , Handlers.Bot.repeatMessage = cTextMenuRepeat cfg
+                  , Handlers.Bot.logger = logHandle
+                  }
+
+  let handle = Handlers.Dispatcher.Handle
+               { Handlers.Dispatcher.client = clientHandle
+               , Handlers.Dispatcher.bot = botHandle
+               , Handlers.Dispatcher.forkForUser = Dispatcher.forkForUser
+               , Handlers.Dispatcher.logger = logHandle
+               }
+-- start watcher for new message
+  _ <- forkIO 
+    $ forever $ Handlers.Dispatcher.watcherForNewMessage handle
+-- start main logic
+  forever 
+    $ Handlers.Dispatcher.dispatcher handle 
 --

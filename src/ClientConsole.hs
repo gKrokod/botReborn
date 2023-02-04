@@ -13,16 +13,16 @@ fetch lm = do
   time <- Time.getSystemTime
   let msg = Message {mID = fromIntegral $ Time.systemSeconds time, mUser = 1}
   case lm of
-    Nothing -> pure $ makeMessage m msg
+    Nothing -> pure $ Just $ makeMessage m msg
     Just lm -> if mID lm == mID msg
                then pure Nothing
-	       else pure $ makeMessage m msg
+	       else pure $ Just $ makeMessage m msg
 
-makeMessage :: String -> Message -> Maybe Message
+makeMessage :: String -> Message -> Message
 makeMessage t msg = case t of
-  "/help"   -> Just $ msg {mData = Command "/help"}
-  "/repeat" -> Just $ msg {mData = Command "/repeat"}
-  otherwise -> Just $ msg {mData = Msg $ T.pack t}
+  "/help"   -> msg {mData = Command "/help"}
+  "/repeat" -> msg {mData = Command "/repeat"}
+  otherwise -> msg {mData = Msg $ T.pack t}
 
 
 carryAway :: Message -> IO ()
