@@ -19,6 +19,7 @@ dispatcher h = do
   let logHandle = logger h
   let botHandle = bot h
   let baseHandle = Handlers.Bot.base botHandle
+  let clientHandle = client h
   (stack, _) <- Handlers.Base.readStackMessage baseHandle
   -- Handlers.Logger.logMessage logHandle Debug "ReadStackMessage from Dispatcher"
   case stack of
@@ -36,7 +37,7 @@ dispatcher h = do
           Handlers.Base.updateUser baseHandle user (Handlers.Base.defaultRepeatCount baseHandle)
           Handlers.Logger.logMessage logHandle Debug (mconcat ["Пользователь ", T.pack $ show user," сохранен в базе (диспетчер)"])
 	  forkForUser h 
-	    (Handlers.Bot.doWork (botHandle {Handlers.Bot.getMessage = getMessage h user}))
+	    (Handlers.Bot.doWork (botHandle {Handlers.Bot.getMessage = getMessage h user, Handlers.Bot.sendMessage = Handlers.Client.carryAway clientHandle }))
           Handlers.Logger.logMessage logHandle Debug (mconcat ["Запустили новый поток для пользователя: ", T.pack $ show user])
 	 
 ------------------------------------------------------------------------------------------------------------------

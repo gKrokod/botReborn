@@ -90,20 +90,18 @@ main = do
                    }
 
   let clientHandle = Handlers.Client.Handle
-                     -- { Handlers.Client.fetch = bool (ClientVK.fetch cfg)
-                     --                                ClientConsole.fetch
-                     --                                (ConsoleBot == cMode cfg)
-                     { Handlers.Client.fetch = ClientVK.fetch cfg
-                     , Handlers.Client.carryAway = ClientVK.carryAway cfg
-                     -- , Handlers.Client.carryAway = bool (ClientVK.carryAway cfg)
-                     --                                    ClientConsole.carryAway 
-                     --                                    (ConsoleBot == cMode cfg) 
+                     { Handlers.Client.fetch = bool (ClientVK.fetch cfg)
+                                                    ClientConsole.fetch
+                                                    (ConsoleBot == cMode cfg)
+                     , Handlers.Client.carryAway = bool (ClientVK.carryAway cfg)
+                                                        ClientConsole.carryAway 
+                                                        (ConsoleBot == cMode cfg) 
                      , Handlers.Client.logger = logHandle
                      }
 
   let botHandle = Handlers.Bot.Handle 
-                  { Handlers.Bot.getMessage = undefined --Handlers.Dispatcher.getMessage dispatcherHandle 1
-                  , Handlers.Bot.sendMessage = ClientVK.carryAway cfg--ClientConsole.carryAway
+                  { Handlers.Bot.getMessage = undefined 
+                  , Handlers.Bot.sendMessage = undefined 
                   , Handlers.Bot.base = baseHandle
                   , Handlers.Bot.helpMessage = cTextMenuHelp cfg
                   , Handlers.Bot.repeatMessage = cTextMenuRepeat cfg
