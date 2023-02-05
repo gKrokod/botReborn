@@ -5,7 +5,7 @@ import GHC.Generics
 import Data.Text as T (Text, unpack)
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy as L (toStrict)
-import Types (Message(..), Data(..))
+import Types (Message(..), Data(..), UnknownMessage(..))
 
 data Keyboard = Keyboard {
                   inline_keyboard :: [[Button]]
@@ -30,6 +30,14 @@ menuForRepeatCount = Keyboard { inline_keyboard = [[Button {text = "1", callback
 
 instance ToJSON Keyboard
 instance ToJSON Button
+instance FromJSON UnknownMessage where
+  parseJSON (Object v) = do
+    updateId <- v .: "result" 
+                  >>= \case
+			[] -> v .: "emptyListMakeNothing" 
+		        (h : _) -> h .: "update_id" 
+    return  UnknownMessage { uID = updateId }
+
 instance FromJSON Message where
   parseJSON (Object v) = do
     updateId <- v .: "result" 

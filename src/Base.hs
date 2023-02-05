@@ -34,7 +34,7 @@ updateUser (UserDataBase m) user count = do
   base <- takeMVar m
   let base' = Map.insert user count base
   putMVar m base'
-  L.writeFile "config/base.db" (LC.pack $ showTree base')
+  -- L.writeFile "config/base.db" (LC.pack $ showTree base')
   seq base' (return ())
     
 findUser :: UserDataBase -> User -> IO (Maybe RepeatCount)

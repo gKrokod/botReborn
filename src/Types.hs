@@ -11,6 +11,9 @@ type LastMessage = Message
 
 data Data t i = Msg t | Gif t | Command t | KeyboardMenu | Query i deriving (Show, Eq)
 
+data UnknownMessage = UnknownMessage
+  { uID :: ID }
+
 data Message = Message 
   {
     mData :: Data T.Text DataFromButton 

@@ -22,7 +22,14 @@ fetch c lm = do
   else do
     let msg = decode $ getResponseBody $ response
     case msg of
-      Nothing -> pure Nothing
+      Nothing -> do 
+        print "nothing decode" --когда приходит не текст, не ответ от клавиатуры, не гиф
+	let umsg = decode $ getResponseBody $ response
+        case umsg of
+          Nothing -> print "nothing bul" >> pure Nothing -- вроде не падает
+          Just um -> case lm of 
+	               Nothing -> pure Nothing 
+		       Just m' -> fetch c (Just $ m' {mID = uID um}) 
       Just m -> pure $ Just $ makeMessage (mData m) m
   
 makeMessage :: Data T.Text DataFromButton -> Message -> Message
