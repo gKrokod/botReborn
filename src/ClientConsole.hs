@@ -6,7 +6,6 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import qualified Data.Time.Clock.System as Time
 
-
 fetch :: Maybe LastMessage -> IO (Maybe Message)
 fetch lm = do
   m <- getLine

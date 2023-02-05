@@ -1,78 +1,20 @@
 module ClientVK.Parse where
 
-import Data.Aeson 
-import Data.Text as T (unpack)
+import Data.Aeson
+import GHC.Generics
+import Data.Text as T (Text, unpack)
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy as L (toStrict)
-import Types (Message(..), Keyboard(..), Button(..), Data(..))
+import Types (Message(..), Data(..))
 
-instance FromJSON Message where
-  parseJSON (Object v) = do
-    -- updateId <- v .: "result" 
-    --               >>= \m -> Prelude.head m .: "update_id" 
-    updateId <- v .: "result" 
-                  >>= \case
-			[] -> v .: "emptyListMakeNothing" 
-		        (h : hs) -> h .: "update_id" 
-    
-    -- chatId  <- v .: "result"
-    --               >>= \m -> Prelude.head m .:? "message" 
-    --               >>= \case
-    --                     Just t -> t .: "chat"
-    --                               >>= (.: "id")
-    --                     Nothing -> Prelude.head m .: "callback_query" 
-    --                                >>= (.: "message")
-    --                                >>= (.: "chat")
-    --                                >>= (.: "id")
-    chatId  <- v .: "result"
-                  >>= \case
-			[] -> v .: "emptyListMakeNothing" 
-		        (h : hs) -> h .:? "message"
-			  >>= \case
-				Just t -> t .: "chat"
-					  >>= (.: "id")
-				Nothing -> h .: "callback_query" 
-					   >>= (.: "message")
-					   >>= (.: "chat")
-					   >>= (.: "id")
- 
-    message <- v .: "result"
-                  >>= \case
-			[] -> v .: "emptyListMakeNothing" >>= pure . Gif 
-		        (h : hs) -> h .:? "message"
-			  >>= \case
-				Just t -> t .:? "text"
-				  	  >>= \case 
-						Just message -> pure $ Msg message
-						Nothing -> t .: "animation"
-							   >>= (.: "file_id") 
-							   >>= pure . Gif
-				Nothing -> h .: "callback_query" 
-					   >>= (.: "data")
-					   >>= pure . Query . read . T.unpack 
-    -- message  <- v .: "result"
-    --               >>= \m -> Prelude.head m .:? "message" 
-    --               >>= \case
-    --                     Just t -> t .:? "text"
-    --                               >>= \case 
-    --                                     Just message -> pure $ Msg message
-    --                                     Nothing -> t .: "animation"
-    --                                                >>= (.: "file_id") 
-    --                                                >>= pure . Gif
-    --                     Nothing -> Prelude.head m .: "callback_query" 
-    --                                >>= (.: "data")
-    --                                >>= pure . Query . read . T.unpack 
-    return  Message { mID = updateId
-                    , mUser   = chatId 
-                    , mData = message 
-                    }
-headMaybe :: [a] -> Maybe a
-headMaybe [] = Nothing
-headMaybe (x : xs) = Just x
+data Keyboard = Keyboard {
+                  inline_keyboard :: [[Button]]
+                } deriving (Show, Generic)
 
-
-instance ToJSON Keyboard
-instance ToJSON Button
+data Button = Button {
+                text :: T.Text
+	      , callback_data :: T.Text	
+              } deriving (Show, Generic)
 
 justKeyBoard :: Maybe BC.ByteString
 justKeyBoard = Just $ L.toStrict $ encode menuForRepeatCount 
@@ -85,3 +27,42 @@ menuForRepeatCount = Keyboard { inline_keyboard = [[Button {text = "1", callback
                               , Button {text = "5", callback_data = "5"}
                                ]]
 	                      }
+
+instance ToJSON Keyboard
+instance ToJSON Button
+instance FromJSON Message where
+  parseJSON (Object v) = do
+    updateId <- v .: "result" 
+                  >>= \case
+			[] -> v .: "emptyListMakeNothing" 
+		        (h : _) -> h .: "update_id" 
+    chatId  <- v .: "result"
+                  >>= \case
+			[] -> v .: "emptyListMakeNothing" 
+		        (h : _) -> h .:? "message"
+			  >>= \case
+				Just t -> t .: "chat"
+					  >>= (.: "id")
+				Nothing -> h .: "callback_query" 
+					   >>= (.: "message")
+					   >>= (.: "chat")
+					   >>= (.: "id")
+    message <- v .: "result"
+                  >>= \case
+			[] -> v .: "emptyListMakeNothing" >>= pure . Gif 
+		        (h : _) -> h .:? "message"
+			  >>= \case
+				Just t -> t .:? "text"
+				  	  >>= \case 
+						Just message -> pure $ Msg message
+						Nothing -> t .: "animation"
+							   >>= (.: "file_id") 
+							   >>= pure . Gif
+				Nothing -> h .: "callback_query" 
+					   >>= (.: "data")
+					   >>= pure . Query . read . T.unpack 
+    return  Message { mID = updateId
+                    , mUser   = chatId 
+                    , mData = message 
+                    }
+
