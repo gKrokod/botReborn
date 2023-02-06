@@ -1,7 +1,7 @@
 module ClientConsole where
 
 -- тут реализация консольной версии
-import Types
+import Types (LastMessage, Message(..), Data(..))
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import qualified Data.Time.Clock.System as Time

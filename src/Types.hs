@@ -1,5 +1,4 @@
 module Types where
-import GHC.Generics
 import qualified Data.Text as T
 import qualified Data.ByteString.Char8 as BC 
 
@@ -23,8 +22,8 @@ data Message = Message
 data Config = Config
  {
     cRepeatCount :: RepeatCount
- ,  cTextMenuHelp :: T.Text  -- check for Russian words
- ,  cTextMenuRepeat :: T.Text -- check for Russian words
+ ,  cTextMenuHelp :: T.Text  
+ ,  cTextMenuRepeat :: T.Text 
  ,  cApiPath :: BC.ByteString
  ,  cBotHost :: BC.ByteString
  ,  cTimeOut :: BC.ByteString

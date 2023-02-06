@@ -1,7 +1,7 @@
 module ClientVK (fetch, carryAway) where
 
 -- тут реализация vk версии
-import Types 
+import Types (Message(..), Data(..), LastMessage, Config (..), DataFromButton, UnknownMessage(..))
 import qualified Data.Text as T (Text) 
 import ClientVK.HttpMessage ( buildGetRequest
                             , buildTextSendRequest
@@ -12,25 +12,19 @@ import Network.HTTP.Simple ( httpLBS
 			   , getResponseStatusCode)
 import qualified Data.ByteString.Char8 as BC (pack)
 import Data.Aeson (decode)
+import Control.Monad (when)
 
 fetch :: Config -> Maybe LastMessage -> IO (Maybe Message)
-fetch c lm = do
-  let cfg = c {cOffset = maybe "-1" (BC.pack . show . succ . mID) lm } 
-  response <- httpLBS $ buildGetRequest cfg
+fetch cfg lm = do
+  response <- httpLBS $ buildGetRequest (cfg {cOffset = maybe "-1" (BC.pack . show . succ . mID) lm})
   let status = getResponseStatusCode response
-  if (404 == status || status == 301) then print "Bot Server 404 or 301" >> pure Nothing
-  else do
-    let msg = decode $ getResponseBody $ response
-    case msg of
-      Nothing -> do 
-        print "nothing decode" --когда приходит не текст, не ответ от клавиатуры, не гиф
-	let umsg = decode $ getResponseBody $ response
-        case umsg of
-          Nothing -> print "nothing bul" >> pure Nothing -- вроде не падает
-          Just um -> case lm of 
-	               Nothing -> pure Nothing 
-		       Just m' -> fetch c (Just $ m' {mID = uID um}) 
-      Just m -> pure $ Just $ makeMessage (mData m) m
+  when (404 == status || status == 301) (print "Error! Bot Server 404 or 301")
+  let msg = decode $ getResponseBody $ response -- messages : text, gif
+  let umsg = decode $ getResponseBody $ response -- another messages
+  case (msg, umsg) of
+    (Just m, _) -> pure $ Just $ makeMessage (mData m) m
+    (_, Just m) -> fetch cfg (Just Message {mID = uID m})
+    _   -> pure Nothing
   
 makeMessage :: Data T.Text DataFromButton -> Message -> Message
 makeMessage (Msg t) msg = case t of
@@ -43,7 +37,7 @@ makeMessage _ msg = msg
 carryAway :: Config -> Message -> IO ()
 carryAway cfg msg = case mData msg of
                       Msg t -> httpLBS (buildTextSendRequest cfg msg) >> pure ()
-		      Gif t -> httpLBS (buildGifSendRequest cfg msg) >> pure ()
-		      KeyboardMenu -> httpLBS (buildKeyboardSendRequest cfg msg) >> pure ()
-		      otherwise -> print "carryAway wrong message" >> pure ()
+                      Gif t -> httpLBS (buildGifSendRequest cfg msg) >> pure ()
+                      KeyboardMenu -> httpLBS (buildKeyboardSendRequest cfg msg) >> pure ()
+                      otherwise -> print "carryAway wrong message" >> pure ()
 

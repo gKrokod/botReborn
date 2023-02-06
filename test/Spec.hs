@@ -1,9 +1,9 @@
-import Test.Hspec
+import Test.Hspec (shouldNotBe, shouldBe, it, describe, context, hspec)
 import Test.Hspec.QuickCheck (modifyMaxSuccess)
-import Test.QuickCheck
+import Test.QuickCheck (property)
 import Text.Read (readMaybe)
-import Types
-import Control.Monad.State
+import Types (User, RepeatCount, Log(..), Config(..), LastMessage, Message(..), Data(..))
+import Control.Monad.State (State(..), execState, put, get, evalState, modify)
 import Data.Char (isDigit)
 import qualified Handlers.Base (Handle(..), giveRepeatCountFromBase)
 import qualified Handlers.Bot (Handle(..), changeRepeatCountForUser, makeReaction, isCorrectRepeatCount)

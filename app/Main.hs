@@ -1,8 +1,8 @@
 module Main (main) where
 import Control.Monad (forever)
 import Control.Concurrent (forkIO)
-import System.IO
-import Types
+import System.IO (hSetBuffering, stdout, stdin, BufferMode(..))
+import Types (Config(..), Mode(..))
 import qualified Handlers.Bot
 import qualified Handlers.Base
 import qualified Base
@@ -19,22 +19,17 @@ import Data.Bool (bool)
 
 main :: IO ()
 main = do
---bracn good 
-  hGetBuffering stdin >>= print 
-  hGetBuffering stdout >>= print
-  hSetBuffering stdin LineBuffering -- чтобы логи нормально выводились с потоками.
+  -- set buffering 
+  hSetBuffering stdin LineBuffering 
   hSetBuffering stdout LineBuffering
-  -- hGetBuffering stdin >>= print 
-  -- hGetBuffering stdout >>= print
   -- load config and make handles
 -------------------------------------------------------------------------------------------------
   stackMessage <- Base.newBaseMessage
   base <- Base.newBaseUser
   cfg <- Config.loadConfig
-  print "Make config"
 
   let logHandle = Handlers.Logger.Handle
-                  { Handlers.Logger.levelLogger = cLvlLog cfg -- Fatal
+                  { Handlers.Logger.levelLogger = cLvlLog cfg -- Debug
                   , Handlers.Logger.writeLog = Logger.writeLog
                   }
 
@@ -71,8 +66,8 @@ main = do
                , Handlers.Dispatcher.bot = botHandle
                , Handlers.Dispatcher.logger = logHandle
                }
-  print "Start Programm"
--- start watcher for new message
+-------------------------------------------------------------------------------------------------
+-- start watcher for new messages
   _ <- forkIO 
     $ forever $ Handlers.Dispatcher.watcherForNewMessage handle
 -- start main logic

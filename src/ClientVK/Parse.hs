@@ -1,7 +1,7 @@
 module ClientVK.Parse where
 
-import Data.Aeson
-import GHC.Generics
+import Data.Aeson (ToJSON, FromJSON, Value(..), parseJSON, (.:), (.:?), encode)
+import GHC.Generics (Generic)
 import Data.Text as T (Text, unpack)
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy as L (toStrict)

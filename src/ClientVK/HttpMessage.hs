@@ -1,11 +1,11 @@
 module ClientVK.HttpMessage where
--- import ClientVK.TData (QueryID, TParse(..))
 import qualified Data.Text.Encoding as E (encodeUtf8)
-import Network.HTTP.Simple --(parseRequest, Request, httpLBS, getResponseBody, getResponseStatusCode, getResponseHeader)
+import Network.HTTP.Simple (defaultRequest, setRequestPort, setRequestSecure, setRequestMethod,
+ setRequestHost, parseRequest, Request, setRequestPath, setRequestQueryString)
 import qualified Data.ByteString.Char8 as BC (pack)
 import Data.Function ((&))
 import ClientVK.Parse (justKeyBoard)
-import Types
+import Types (Config(..), Message(..), Data(..))
 
 buildGetRequest :: Config -> Request
 buildGetRequest cfg =
@@ -13,7 +13,6 @@ buildGetRequest cfg =
   $ setRequestMethod (cfg & cMethod) 
   $ setRequestSecure (cfg & cSecure)
   $ setRequestQueryString ([("offset", Just $ cfg & cOffset), ("timeout", Just $ cfg & cTimeOut)])
-  -- $ setRequestQueryString ([("offset", Just (E.encodeUtf8 "240950490")), ("timeout", Just $ cfg & cTimeOut)])
   $ setRequestPath (mconcat[cfg & cApiPath, cfg & cToken, "/getUpdates"])
   $ setRequestPort (cfg & cPort)
   $ defaultRequest

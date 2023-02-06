@@ -1,13 +1,11 @@
 module Base where
 -- здесь реализация базы данных пользователей на потоках в мапке
--- import qualified Handlers.Base as Handler
 import Types (User, RepeatCount, Message, LastMessage)
-import Control.Concurrent
+import Control.Concurrent (takeMVar, MVar, putMVar,threadDelay, newMVar)
 import qualified Data.Map.Strict as Map
-
-import qualified Data.ByteString.Lazy.Char8 as LC
-import qualified Data.ByteString.Lazy as L
-import Data.Map.Internal.Debug
+-- import qualified Data.ByteString.Lazy.Char8 as LC
+-- import qualified Data.ByteString.Lazy as L
+-- import Data.Map.Internal.Debug (showTree)
 
 mks :: Int
 mks = 10 -- for function readStackMessage
@@ -67,8 +65,3 @@ eraseMessage (MessageDataBase m) msg = do
     Just msg' -> if msg' == msg
                  then putMVar m (Nothing, Just msg)
                  else (do putMVar m (stack, lastMessage); error "can't error message. Don't mine")
-
-
--- close :: Handler.Handle IO -> ()
-close = undefined
-
