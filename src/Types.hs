@@ -11,8 +11,7 @@ type LastMessage = Message
 
 data Data t i = Msg t | Gif t | Command t | KeyboardMenu | Query i deriving (Show, Eq)
 
-data UnknownMessage = UnknownMessage
-  { uID :: ID }
+newtype UnknownMessage = UnknownMessage { uID :: ID } -- another message from telegram client
 
 data Message = Message 
   {

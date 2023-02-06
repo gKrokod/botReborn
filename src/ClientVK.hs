@@ -35,6 +35,7 @@ fetch c lm = do
 makeMessage :: Data T.Text DataFromButton -> Message -> Message
 makeMessage (Msg t) msg = case t of
   "/help"   -> msg {mData = Command "/help"}
+  "/start"  -> msg {mData = Command "/help"}
   "/repeat" -> msg {mData = Command "/repeat"}
   otherwise -> msg 
 makeMessage _ msg = msg

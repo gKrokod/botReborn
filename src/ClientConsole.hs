@@ -20,6 +20,7 @@ fetch lm = do
 makeMessage :: String -> Message -> Message
 makeMessage t msg = case t of
   "/help"   -> msg {mData = Command "/help"}
+  "/start"  -> msg {mData = Command "/help"}
   "/repeat" -> msg {mData = Command "/repeat"}
   otherwise -> msg {mData = Msg $ T.pack t}
 
@@ -27,7 +28,6 @@ makeMessage t msg = case t of
 carryAway :: Message -> IO ()
 carryAway msg = case mData msg of
                     Query i      -> print i
-		    Msg t        -> do 
-		                      TIO.putStrLn t
+		    Msg t        -> TIO.putStrLn t
 		    KeyboardMenu -> TIO.putStrLn ("Type a new repeat count [1..5]: ")
 		    otherwise    -> pure ()
