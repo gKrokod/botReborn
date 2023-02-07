@@ -19,9 +19,9 @@ loadConfig = do
   token <- C.lookupDefault "NotFoundToken.cfg" conf ("config.url.token")
   port <- C.lookupDefault "NotFoundPort.cfg" conf ("config.url.port")
   method <- C.lookupDefault "NotFoundMethod.cfg" conf ("config.url.method")
-  secure <- C.lookupDefault False conf ("config.url.secure") -- сделать здесь строку вида "False" для единообразия?
-  mode <- C.lookupDefault False conf ("config.telegrammode") -- сделать здесь строку вида "False" для единообразия
-  lvlLog <- C.lookupDefault "DEBUG" conf ("config.lvlLog") -- сделать здесь строку вида "False" для единообразия
+  secure <- C.lookupDefault False conf ("config.url.secure") 
+  mode <- C.lookupDefault False conf ("config.telegrammode")
+  lvlLog <- C.lookupDefault "DEBUG" conf ("config.lvlLog") 
   return   Config { 
                     cRepeatCount = read $ T.unpack rcount 
                   , cTextMenuHelp = helpmenu

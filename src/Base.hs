@@ -50,18 +50,18 @@ readStackMessage (MessageDataBase m) = do
 -- если в стеке ничего не хранится, то сохраняем в него, есле же там лежит сообщение, то пишем ошибку, либо перезапускаем сохранение, ждя когда там станет nothing
 saveMessage :: MessageDataBase -> Message -> IO ()
 saveMessage (MessageDataBase m) msg = do
-  (stack, lastMessage) <- takeMVar m
-  case stack of
+  (mbMessage, lastMessage) <- takeMVar m
+  case mbMessage of
     Nothing -> putMVar m (Just msg, lastMessage)
-    Just _ -> (do putMVar m (stack, lastMessage); error "can't save message")
+    Just _ -> (do putMVar m (mbMessage, lastMessage); error "can't save Message")
 -- получаем сообщение, смотрим, что хранится в стеке. Если сообщение наше, то убираем его, чтобы обработать
 -- и записываем в стек, что оно пока последнее, которое мы стали обрабатывать.лоЖц
 --
 eraseMessage :: MessageDataBase -> Message -> IO ()
 eraseMessage (MessageDataBase m) msg = do
-  (stack, lastMessage) <- takeMVar m
-  case stack of
-    Nothing -> (do putMVar m (stack, lastMessage); error "nothing erase message")
+  (mbMessage, lastMessage) <- takeMVar m
+  case mbMessage of
+    Nothing -> (do putMVar m (mbMessage, lastMessage); error "nothing erase Message")
     Just msg' -> if msg' == msg
                  then putMVar m (Nothing, Just msg)
-                 else (do putMVar m (stack, lastMessage); error "can't error message. Don't mine")
+                 else (do putMVar m (mbMessage, lastMessage); error "can't error Message. Don't mine")

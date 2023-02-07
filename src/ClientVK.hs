@@ -1,15 +1,16 @@
 module ClientVK (fetch, carryAway) where
 
 -- тут реализация vk версии
-import Types (Message(..), Data(..), LastMessage, Config (..), DataFromButton, UnknownMessage(..))
+import Types (Message(..), Data(..), LastMessage, Config (..), DataFromButton)
 import qualified Data.Text as T (Text) 
 import ClientVK.HttpMessage ( buildGetRequest
                             , buildTextSendRequest
-			    , buildGifSendRequest
-			    , buildKeyboardSendRequest)
+                            , buildGifSendRequest
+                            , buildKeyboardSendRequest)
+import ClientVK.Parse (UnknownMessage(..))
 import Network.HTTP.Simple ( httpLBS
                            , getResponseBody
-			   , getResponseStatusCode)
+                           , getResponseStatusCode)
 import qualified Data.ByteString.Char8 as BC (pack)
 import Data.Aeson (decode)
 import Control.Monad (when)
