@@ -33,7 +33,7 @@ buildGifSendRequest  cfg msg = do
 
 buildKeyboardSendRequest :: Config -> Message -> Request
 buildKeyboardSendRequest cfg msg = do
-    setRequestQueryString ([("chat_id", msg & Just . BC.pack . show . mUser), ("text", Just $ E.encodeUtf8 $ "Для выбора нового значения введите цифру, либо нажмите кнопку клавиатуры"), ("reply_markup", justKeyBoard)])
+    setRequestQueryString ([("chat_id", msg & Just . BC.pack . show . mUser), ("text", Just $ E.encodeUtf8 $ "Enter a new number of repeats"), ("reply_markup", justKeyBoard)])
   $ setRequestPath (mconcat[cfg & cApiPath, cfg & cToken, "/sendMessage"])
   $ buildDefaultSendRequest cfg
 

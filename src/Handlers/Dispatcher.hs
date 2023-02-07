@@ -2,7 +2,7 @@ module Handlers.Dispatcher where
 import qualified Handlers.Base
 import qualified Handlers.Client
 import qualified Handlers.Bot
-import Types
+import Types (Message(..), User, Log(..))
 import qualified Handlers.Logger
 import qualified Data.Text as T
 
@@ -13,90 +13,90 @@ data Handle m = Handle
   , forkForUser :: m () -> m ()
   }
 
-  -- Handlers.Logger.logMessage logHandle Debug "find the user in base"
 dispatcher :: (Monad m) => Handle m -> m ()
 dispatcher h = do
   let logHandle = logger h
   let botHandle = bot h
   let baseHandle = Handlers.Bot.base botHandle
   let clientHandle = client h
+  -- input : message database / desired (Just msg, _)
   (mbMessage, _) <- Handlers.Base.readStackMessage baseHandle
-  -- Handlers.Logger.logMessage logHandle Debug "ReadStackMessage from Dispatcher"
   case mbMessage of
-    Nothing -> pure ()
+    Nothing -> pure () -- desired result: (Nothing, _)
     Just msg -> do
       let user = mUser msg
       existUser <- Handlers.Base.findUser baseHandle user
       case existUser of
-        Just _ -> pure ()
+-- User exists. wait. The fork Bot will get the desired result
+        Just _ -> pure () 
+-- Does not. Save the user in the database and run fork Bot for him
         Nothing -> do
-         -- если в базе пользователя нет, то сохрани его в базе с дефолтными настройкам и создай для него поток
           Handlers.Logger.logMessage logHandle Debug 
-            (mconcat ["Пользователь "
+            (mconcat ["Dispatcher. The user "
                      , T.pack $ show user
-                     ," не найден"])
+                     ," not found"])
           Handlers.Base.updateUser baseHandle user (Handlers.Base.defaultRepeatCount baseHandle)
           Handlers.Logger.logMessage logHandle Debug 
-            (mconcat ["Пользователь "
+            (mconcat ["Dispatcher. The user "
                      , T.pack $ show user
-                     ," сохранен в базе (диспетчер)"])
+                     ," save in the database"])
           let forUserBotHandle = botHandle 
                                  { Handlers.Bot.getMessage = getMessage h user
-                                 , Handlers.Bot.sendMessage = sendMessage h--Handlers.Client.carryAway clientHandle
+                                 , Handlers.Bot.sendMessage = sendMessage h
                                  }
           forkForUser h 
             (Handlers.Bot.doWork forUserBotHandle)
           Handlers.Logger.logMessage logHandle Debug
-            (mconcat ["Запустили новый поток для пользователя: "
+            (mconcat ["Dispatcher. Run fork Bot for user: "
                      , T.pack $ show user])
-         
-------------------------------------------------------------------------------------------------------------------
-getMessage :: (Monad m) => Handle m -> User -> m (Message)
-getMessage h user = do
-  let logHandle = logger h
-  (mbMessage, _) <- Handlers.Base.readStackMessage (Handlers.Bot.base $ bot h)
-  case mbMessage of
-    Just msg -> if mUser msg == user
-                then do
-                  Handlers.Base.eraseMessage (Handlers.Bot.base $ bot h) msg
-                  Handlers.Logger.logMessage logHandle Debug 
-                    (mconcat ["Получено сообщение для пользователя "
-                             , T.pack $ show user
-                             , " из базы данных"])
-                  pure msg
-                else getMessage h user
-    Nothing -> getMessage h user 
 
-
-sendMessage :: (Monad m) => Handle m -> Message -> m ()
-sendMessage h msg = do
-  let logHandle = logger h
-  let clientHandle = client h
-  Handlers.Logger.logMessage logHandle Debug 
-    (mconcat ["Пользователю "
-             , T.pack $ show $ mUser msg
-             , "\n направлено сообщение : \n"
-             , T.pack $ show $ mData msg ])
-  Handlers.Client.carryAway clientHandle msg
-
--- рабочий вотчер, если не создавать новых потоков
--- Если стэк с сообщениями пустой, то получает у клиента еще одно
 watcherForNewMessage :: (Monad m) => Handle m -> m ()
 watcherForNewMessage h = do
   let logHandle = logger h
   let baseHandle = Handlers.Bot.base (bot h)
   let clientHandle = client h
+  -- input : message database / desired (Nothing, _)
   (mbMessage, lastMsg) <- Handlers.Base.readStackMessage baseHandle
   case mbMessage of
-    Just _ -> pure ()
+    Just _ -> pure () -- desired result: (Just msg, _)
     Nothing -> do
       Handlers.Logger.logMessage logHandle Debug
-        "Нет новых необработанных сообщений от клиента, начинаем постоянный запрос"
-      loop
+        "Dispatcher. No new unanswered messages from the client\n"
+      loop -- desired result: (Just msg, _)
+      -- Ask for new message from the client
       where loop = do
               fetchedMessage <- Handlers.Client.fetch clientHandle lastMsg
               case fetchedMessage of
                 Nothing -> loop
                 Just msg -> Handlers.Base.saveMessage baseHandle msg
 
+-- in order for fork Bot to work with the one user
+getMessage :: (Monad m) => Handle m -> User -> m (Message)
+getMessage h user = do
+  let logHandle = logger h
+  -- input : message database / desired (Just msg, _)
+  (mbMessage, _) <- Handlers.Base.readStackMessage (Handlers.Bot.base $ bot h)
+  case mbMessage of
+    Just msg -> if mUser msg == user
+                then do
+                  -- desired result: (Nothing, Just msg)
+                  Handlers.Base.eraseMessage (Handlers.Bot.base $ bot h) msg
+                  Handlers.Logger.logMessage logHandle Debug 
+                    (mconcat ["Dispatcher. Message received for user: "
+                             , T.pack $ show user
+                             , " from the database"])
+                  pure msg
+                else getMessage h user
+    Nothing -> getMessage h user 
 
+-- in order for fork Bot to write log 
+sendMessage :: (Monad m) => Handle m -> Message -> m ()
+sendMessage h msg = do
+  let logHandle = logger h
+  let clientHandle = client h
+  Handlers.Logger.logMessage logHandle Debug 
+    (mconcat ["Dispatcher. A message has been sent to user: "
+             , T.pack $ show $ mUser msg
+             , "\n content: \n"
+             , T.pack $ show $ mData msg ])
+  Handlers.Client.carryAway clientHandle msg

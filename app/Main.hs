@@ -29,7 +29,7 @@ main = do
   cfg <- Config.loadConfig
 
   let logHandle = Handlers.Logger.Handle
-                  { Handlers.Logger.levelLogger = cLvlLog cfg -- Debug
+                  { Handlers.Logger.levelLogger = cLvlLog cfg --Debug
                   , Handlers.Logger.writeLog = Logger.writeLog
                   }
 
@@ -73,4 +73,3 @@ main = do
 -- start main logic
   forever 
     $ Handlers.Dispatcher.dispatcher handle 
---

@@ -18,7 +18,7 @@ data Handle m = Handle
 doWork :: (Monad m) => Handle m -> m ()
 doWork h = do
   let logHandle = logger h
-  Handlers.Logger.logMessage logHandle Debug "Запускаем логику бота: запрос сообщений - ответ"
+  Handlers.Logger.logMessage logHandle Debug "Bot. Run the bot logic: get message -> make reaction"
   message <- getMessage h
   makeReaction h message
 
@@ -26,29 +26,34 @@ doWork h = do
 makeReaction :: (Monad m) => Handle m -> Message -> m ()
 makeReaction h msg = do
   let logHandle = logger h
-  Handlers.Logger.logMessage logHandle Debug "бот рассматривает поступивщее сообщение"
+  Handlers.Logger.logMessage logHandle 
+    Debug "Bot. The bot analyzes the received message"
   case dataMsg of
     Msg _ -> do
-      Handlers.Logger.logMessage logHandle Debug "Боту было передано текстовое сообщение"
+      Handlers.Logger.logMessage logHandle 
+        Debug "Bot. The received message is text message"
       count <- Handlers.Base.giveRepeatCountFromBase (base h) user 
       mapM_ (sendMessage h) (replicate count msg)
     Gif _ -> do
-      Handlers.Logger.logMessage logHandle Debug "Боту было передано gif сообщение"
+      Handlers.Logger.logMessage logHandle 
+        Debug "Bot. The received message is gif message"
       count <- Handlers.Base.giveRepeatCountFromBase (base h) user 
       mapM_ (sendMessage h) (replicate count msg)
     Command t -> do
-      Handlers.Logger.logMessage logHandle Debug "Боту было передана команда"
+      Handlers.Logger.logMessage logHandle
+        Debug "Bot. The received message is command message"
       case t of
         "/help" -> sendMessage h (msg {mData = Msg $ helpMessage h})
         "/repeat" -> changeRepeatCountForUser h user
-        _ -> error "unknow command"
+        -- _ -> error "unknow command"
     Query i -> do 
-      Handlers.Logger.logMessage logHandle Debug "Боту было передан ответ на запрос о количестве повторений"
+      Handlers.Logger.logMessage logHandle
+        Debug "Bot. The received message is query message for change number of repeats for user"
       Handlers.Base.updateUser (base h) user i
     KeyboardMenu -> pure ()
-    otherwise -> do
-      Handlers.Logger.logMessage logHandle Error "Пришло неизвестное сообщение"
-      error "unknow mData Message"
+    -- _ -> do
+    --   Handlers.Logger.logMessage logHandle Error "The received message is unknwon message"
+    --   error "unknow mData Message"
     where dataMsg = mData msg
           id = mID msg
           user = mUser msg
@@ -56,30 +61,32 @@ makeReaction h msg = do
 changeRepeatCountForUser :: (Monad m) => Handle m -> User -> m ()
 changeRepeatCountForUser h user = do
   let logHandle = logger h
-  Handlers.Logger.logMessage logHandle Debug "запрашиваем количество повторений в базе для пользователя"
+  Handlers.Logger.logMessage logHandle Debug "Bot. Get number of repeats for user from the database"
   count <- Handlers.Base.giveRepeatCountFromBase (base h) user
-  let msg = Message {mUser = user} --когда команда /repeat, почему-то стало вылетать здесь
+  let msg = Message {mUser = user}
   sendMessage h (msg {mData = Msg $ (repeatMessage h) <> T.pack (show count) }) 
   sendMessage h (msg {mData = KeyboardMenu}) 
   answer <- getMessage h
   if not (isCorrectRepeatCount answer)
   then do
-    Handlers.Logger.logMessage logHandle Warning "Пользователь вводит некорректное значение количества повторов"
+    Handlers.Logger.logMessage logHandle
+      Warning "Bot. The user entered the wrong number of repeats"
     changeRepeatCountForUser h user
   else do
     case mData answer of
       Msg t -> do
         let query' = read $ T.unpack t :: DataFromButton
-	makeReaction h (msg {mData = Query query', mUser = mUser answer})
+        makeReaction h (msg {mData = Query query', mUser = mUser answer})
       Query i -> makeReaction h (msg {mData = Query i, mUser = mUser answer})
-      otherwise -> do
-        Handlers.Logger.logMessage logHandle Error "Пришло неизвестное сообщение"
-        error "answer uncorrect"
+      -- _ -> do
+      --   Handlers.Logger.logMessage logHandle 
+      --     Error "Bot. The received message is unknwon message"
+      --   error "answer uncorrect"
 
 isCorrectRepeatCount :: Message -> Bool
 isCorrectRepeatCount m = case mData m of
                            Msg t -> T.all (isDigit) t && not (T.null t) && helper (read $ T.unpack t)
-			   Query i -> helper i
-			   otherwise -> False
-			 where helper :: DataFromButton -> Bool
-			       helper = (&&) <$> (> 0) <*> (< 6)
+                           Query i -> helper i
+                           otherwise -> False
+                         where helper :: DataFromButton -> Bool
+                               helper = (&&) <$> (> 0) <*> (< 6)

@@ -17,20 +17,20 @@ giveRepeatCountFromBase :: (Monad m) => Handle m -> User -> m (RepeatCount)
 giveRepeatCountFromBase h user = do
   let logHandle = logger h
   Handlers.Logger.logMessage logHandle Debug
-    "ищем пользователя в базе"
+    "Base. Looking for the user in the database"
   existUser <- findUser h user
   case existUser of
     Nothing -> do
       Handlers.Logger.logMessage logHandle Debug
-        "пользователь в базе не найден"
+        "Base. The user not found in the database"
       Handlers.Logger.logMessage logHandle Debug
-        "сохраняем пользователя в базе"
+        "Base. Save the user in the database"
       updateUser h user (defaultRepeatCount h)
       Handlers.Logger.logMessage logHandle Debug
-        "считываем количество повторов для пользователя из базы"
+        "Base. Get number of repeats for user from the database"
       giveRepeatCountFromBase h user
     Just repeatCount -> do
       Handlers.Logger.logMessage logHandle Debug
-        "считываем количество повторов для пользователя из базы"
+        "Base. Get number of repeats for user from the database"
       pure repeatCount
 

@@ -15,7 +15,7 @@ fetch lm = do
     Nothing -> pure $ Just $ makeMessage m msg
     Just lm -> if mID lm == mID msg
                then pure Nothing
-	       else pure $ Just $ makeMessage m msg
+               else pure $ Just $ makeMessage m msg
 
 makeMessage :: String -> Message -> Message
 makeMessage t msg = case t of
@@ -27,7 +27,7 @@ makeMessage t msg = case t of
 
 carryAway :: Message -> IO ()
 carryAway msg = case mData msg of
-                    Query i      -> print i
-		    Msg t        -> TIO.putStrLn t
-		    KeyboardMenu -> TIO.putStrLn ("Type a new repeat count [1..5]: ")
-		    otherwise    -> pure ()
+                    -- Query i      -> print i
+                    Msg t        -> TIO.putStrLn t
+                    KeyboardMenu -> TIO.putStrLn ("Type a new repeat count [1..5]: ")
+                    otherwise    -> pure ()
