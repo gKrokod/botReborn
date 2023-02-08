@@ -3,16 +3,22 @@
 
 ## What is botReborn? ##
 
-BotReborn is a echo-bot
-text 
+BotReborn is a echo-bot that have to send a message from the user to 
+him in response. Echo-bot work with user  trhought several delivery mechanisms
+specified in the configuration file */config/bot.cfg*
+* Console: the user's message is entered from stdin, the bot's response is printed to stdout.
+* Telegram: https://core.telegram.org/bots/api#poll
 
 ## Distribution ##
 
-You can often use your favorite package manager to install 
-Some popular places to get the latest Vim:
-* Check out the git repository from [GitHub](https://github.com/vim/vim).
+place to get the latest borReborn: 
+* the git repository [GitHub](https://github.com/gKrokod/botReborn).
 
 ## Installation ##
+
+This project uses The Haskell Tool Stack. Go check it out if you don't have it locally installed 
+https://docs.haskellstack.org/en/stable/ .
+
 
 See one of these files for system-specific instructions.  Either in the
 [READMEdir directory](./READMEdir/) (in the repository) or
