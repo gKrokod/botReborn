@@ -11,7 +11,7 @@ specified in the configuration file `/config/bot.cfg`
 
 ## Distribution ##
 
-Place to get the latest borReborn: 
+Place to get the latest botReborn: 
 + the git repository [GitHub](https://github.com/gKrokod/botReborn).
 
 ## Installation ##
