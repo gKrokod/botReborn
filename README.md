@@ -6,35 +6,58 @@
 BotReborn is a echo-bot that have to send a message from the user to 
 him in response. Echo-bot work with user  trhought several delivery mechanisms
 specified in the configuration file `/config/bot.cfg` 
-* Console: the user's message is entered from stdin, the bot's response is printed to stdout.
-* Telegram: https://core.telegram.org/bots/api#poll
++ Console: the user's message is entered from stdin, the bot's response is printed to stdout. `telegrammode = off`
++ Telegram: https://core.telegram.org/bots/api#poll `telegrammode = on`
 
 ## Distribution ##
 
 place to get the latest borReborn: 
-* the git repository [GitHub](https://github.com/gKrokod/botReborn).
++ the git repository [GitHub](https://github.com/gKrokod/botReborn).
 
 ## Installation ##
 
-This project uses The Haskell Tool Stack. Go check it out if you don't have it locally installed 
-https://docs.haskellstack.org/en/stable/ .
+This project uses The Haskell Tool Stack. Go check it out if you don't have it locally installed https://docs.haskellstack.org/en/stable/ .
+Once you have installed The Haskell Tool stack, you need to make a configuration file `/config/bot.cfg`  (the repository has a template file for this `/config/readMe.txt`). 
 
+```
+config {
+  user {
+  repeatcount = "3"
+  helpmenu = "Hello! I am echo-bot.\nPossible command : /help, /repeat\nWhat about me? Good to     meet you!"
+  repeatmenu = "Number of repeats = "
+  }
+  url {
+    apipath = "/bot"
+    bothost = "api.telegram.org"
+    timeout = "10"
+    offset = "-1"
+    token = "_"
+    port = "443"
+    method = "GET"
+    secure = on
+  }-
+  telegrammode = off
+  lvlLog = "Debug"
+}
+```
+after build this project
+```
+$ stack build
+```
 
-See one of these files for system-specific instructions.  Either in the
-[READMEdir directory](./READMEdir/) (in the repository) or
-the top directory (if you unpack an archive):
+and run (i.g. Linux)
+```
+$ stack exec botReborn-exe
+```
 
-	README_unix.txt		Unix
 
 ## Documentation ##
 
-The Vim tutor is a one hour training course for beginners.  Often it can be
-started as `vimtutor`.  See `:help tutor` for more information.
+sha bse bydet
 
 ## Copying ##
 
 BotReborn is Charityware.  You can use and copy it as much as you like.
-
 
 ## Main author ##
 
