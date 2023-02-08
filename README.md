@@ -4,14 +4,14 @@
 ## What is botReborn? ##
 
 BotReborn is a echo-bot that have to send a message from the user to 
-him in response. Echo-bot work with user  trhought several delivery mechanisms
+him in response multiple times. Echo-bot work with user  trhought several delivery mechanisms
 specified in the configuration file `/config/bot.cfg` 
-+ Console: the user's message is entered from stdin, the bot's response is printed to stdout. `telegrammode = off`
++ Console: the user's message is entered from stdin, the bot's response is sent to stdout. `telegrammode = off`
 + Telegram: https://core.telegram.org/bots/api#poll `telegrammode = on`
 
 ## Distribution ##
 
-place to get the latest borReborn: 
+Place to get the latest borReborn: 
 + the git repository [GitHub](https://github.com/gKrokod/botReborn).
 
 ## Installation ##
@@ -49,7 +49,6 @@ and run (i.g. Linux)
 ```
 $ stack exec botReborn-exe
 ```
-
 
 ## Documentation ##
 
