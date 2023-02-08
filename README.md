@@ -54,6 +54,15 @@ $ stack exec botReborn-exe
 
 sha bse bydet
 
+<details>
+<summary>Cхематичное изображение взаимодействия потоков в программе</summary>
+ 
+[![concept][1]][1]
+ 
+[1]: config/5.jpg
+ 
+</details>
+
 ## Copying ##
 
 BotReborn is Charityware.  You can use and copy it as much as you like.
