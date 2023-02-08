@@ -5,7 +5,7 @@
 
 BotReborn is a echo-bot that have to send a message from the user to 
 him in response. Echo-bot work with user  trhought several delivery mechanisms
-specified in the configuration file */config/bot.cfg*
+specified in the configuration file `/config/bot.cfg` 
 * Console: the user's message is entered from stdin, the bot's response is printed to stdout.
 * Telegram: https://core.telegram.org/bots/api#poll
 
@@ -38,4 +38,4 @@ BotReborn is Charityware.  You can use and copy it as much as you like.
 
 ## Main author ##
 
-gKrokod
+[@gKrokod](https://github.com/gKrokod)
