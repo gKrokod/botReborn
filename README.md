@@ -65,7 +65,7 @@ sha bse bydet
 
 ## Copying ##
 
-BotReborn is Charityware.  You can use and copy it as much as you like.
+botReborn is Charityware.  You can use and copy it as much as you like.
 
 ## Main author ##
 
