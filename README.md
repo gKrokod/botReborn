@@ -45,7 +45,7 @@ after build this project
 $ stack build
 ```
 
-and run (i.g. Linux)
+and run (e.g. Linux)
 ```
 $ stack exec botReborn-exe
 ```
@@ -108,10 +108,15 @@ $ stack exec botReborn-exe
  
 </details>
 
+<details>
+<summary>Описание параметров конфигурационного файла bot.cfg</summary>
+ 
+</details>
+
 ## Copying ##
 
 botReborn is Charityware.  You can use and copy it as much as you like.
 
 ## Main author ##
 
-[@gKrokod](https://github.com/gKrokod)
+[@gKrokod](https://github.com/gKrokod) or @ofspb (telegram)
