@@ -104,7 +104,7 @@ $ stack exec botReborn-exe
  
 [![concept][1]][1]
  
-[1]: config/5.jpg
+[1]: config/botReborn.svg
  
 </details>
 
