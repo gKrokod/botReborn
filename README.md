@@ -3,7 +3,7 @@
 
 ## What is botReborn? ##
 
-BotReborn is a echo-bot that have to send a message from the user to 
+BotReborn is a echo-bot that have to send a  text or gif message from the user to 
 him in response multiple times. Echo-bot work with user  throught several delivery mechanisms
 specified in the configuration file `/config/bot.cfg` 
 + Console: the user's message is entered from stdin, the bot's response is sent to stdout. `telegrammode = off`
@@ -84,36 +84,34 @@ $ stack exec botReborn-exe
 
 <details><summary>Description of threads</summary>
   
-  1. Основной поток Main (main.hs / main, forever dispatcher)
+  1. Main thread (main.hs / main, forever dispatcher)
   
-    Цель: поддерживать объект stack message в состоянии (Nothing, Just msg).
+    The goal: to keep the stack message object in the state (Nothing, Just msg).
     
-    Задачи:
-      - Загрузить параметры из configuration file.
-      - Сформировать окружение для работы.
-      - инициализировать объект stack message в состоянии (Nothing, Nothing).
-      - запустить поток Watch.
-      - запустить потоки Bot при необходимости. При получении сообщения от нового пользователя 
-      (т.е. состояние stack message (Just msg, _)) сохранить его в базе данных и запустить поток Bot,
-      обрабатывающий сообщения только от данного пользователя. 
-
-  2. Watch (Handlers/Dispatcher.hs / watcherForNewMessage)
+    Tasks:
+      - Load parameters from configuration file.
+      - Create an environment for work.
+      - initialize the stack message object in the state (Nothing, Nothing).
+      - run the Watch thread.
+      - run Bot threads if necessary. Run the Bot thread processing messages only 
+      from the one user when first receiving a message from him and store this user in the database.
+    
+  2. Watch thread (Handlers/Dispatcher.hs / watcherForNewMessage)
    
-    Цель: состояние stack message (Just msg, _).
+    The goal: stack message state (Just msg, _).
     
-    Задачи: 
-    - при обнаружении в stack message состояния (Nothing, _), т.е. нет нового необработанного сообщения, 
-    запрашивать до получения новое сообщение у выбранного клиента (console, telegram).
+    Tasks: 
+    - Regularly reuest a new message from the selected client (console, telegram) 
+    when stack message state is (Nothing, _), i.e. no new incoming message.
+    
+  3. Bot treads (Handlers/Bot.hs / doWork)
+    
+    The goal: stack message state (Nothing, Just msg).
+    
+    Tasks:
+    - Process the message according to the underlying logic
+    when stack message state is (Just msg, _), i.e. there is new incoming message.
 
-  3. Потоки Bot (Handlers/Bot.hs / doWork)
-    
-    Цель: состояние stack message (Nothing, Just msg).
-    
-    Задачи:
-    -при обнаружении состояния stack message (Just msg, _), т.е. есть новое необработанное сообщение, 
-    обработать сообщение согласно заложенной логике. 
-  
- 
 </details>
 
 <details><summary>Main parameters of the configuration file</summary>
@@ -136,7 +134,7 @@ $ stack exec botReborn-exe
   
   5. telegrammode
     
-    selection key of client version ("off" - Console client, "on" - TM client)
+    selection key of client version ("off" - Console client, "on" - Telegram client)
   
   6. lvlLog
     
