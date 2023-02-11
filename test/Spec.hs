@@ -18,7 +18,7 @@ main = hspec $ do
   describe "Base logic" $ do
     let testUser = 341 :: User 
     let newUser = 11 :: User
-    let repeatCount = 5 :: RepeatCount
+    let repeatCount = 2 :: RepeatCount
     let testBase = Map.fromList [(testUser,repeatCount)]
     let logerHandle = Handlers.Logger.Handle
 		   { Handlers.Logger.levelLogger = Debug
@@ -40,8 +40,8 @@ main = hspec $ do
 
   describe "Bot logic" $ modifyMaxSuccess (const 1000) $ do
     it "User can change his repeat count" $ do
-      let oldRepeatCount = 4 :: RepeatCount
-      let newRepeatCount = 5 :: RepeatCount
+      let oldRepeatCount = 1 :: RepeatCount
+      let newRepeatCount = 2 :: RepeatCount
       let testUser = 111 :: User
       let testBase = Map.fromList [(testUser,oldRepeatCount)]
 

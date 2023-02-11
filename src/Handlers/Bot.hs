@@ -89,4 +89,5 @@ isCorrectRepeatCount m = case mData m of
                            Query i -> helper i
                            otherwise -> False
                          where helper :: DataFromButton -> Bool
-                               helper = (&&) <$> (> 0) <*> (< 6)
+                               -- helper = (&&) <$> (> 0) <*> (< 6)
+			       helper = \d -> d `elem` [1..5] 
