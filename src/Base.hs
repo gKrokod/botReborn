@@ -13,12 +13,12 @@ type UserDB = Map.Map User RepeatCount
 newtype UserDataBase = UserDataBase (MVar UserDB)
 
 type MessageDB = (Maybe Message, Maybe LastMessage)
-newtype MessageDataBase = MessageDataBase (MVar MessageDB)
+newtype StackMessage = StackMessage (MVar MessageDB)
 
-newBaseMessage :: IO MessageDataBase
+newBaseMessage :: IO StackMessage
 newBaseMessage = do
   m <- newMVar (Nothing, Nothing)
-  return $ MessageDataBase m
+  return $ StackMessage m
 
 newBaseUser :: IO UserDataBase
 newBaseUser = do
@@ -39,22 +39,22 @@ findUser (UserDataBase m) user = do
   putMVar m base
   return $ Map.lookup user base
 
-readStackMessage :: MessageDataBase -> IO MessageDB
-readStackMessage (MessageDataBase m) = do
+readStackMessage :: StackMessage -> IO MessageDB
+readStackMessage (StackMessage m) = do
   threadDelay (mks) -- prevention 
   a <- takeMVar m
   putMVar m a
   return a
 
-saveMessage :: MessageDataBase -> Message -> IO ()
-saveMessage (MessageDataBase m) msg = do
+saveMessage :: StackMessage -> Message -> IO ()
+saveMessage (StackMessage m) msg = do
   (mbMessage, lastMessage) <- takeMVar m
   case mbMessage of
     Nothing -> putMVar m (Just msg, lastMessage)
     Just _ -> pure () --for test (do putMVar m (mbMessage, lastMessage); error "can't save Message")
 
-eraseMessage :: MessageDataBase -> Message -> IO ()
-eraseMessage (MessageDataBase m) msg = do
+eraseMessage :: StackMessage -> Message -> IO ()
+eraseMessage (StackMessage m) msg = do
   (mbMessage, lastMessage) <- takeMVar m
   case mbMessage of
     Nothing -> pure () --for test (do putMVar m (mbMessage, lastMessage); error "nothing erase ")
