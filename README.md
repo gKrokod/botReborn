@@ -54,21 +54,22 @@ $ stack exec botReborn-exe
 
 <details><summary>Structure of botReborn</summary> <image src="config/botReborn.svg" alt="structure"></details>
 <details>
+  
 <summary>Основная идея организации программы</summary>
-  В программе есть объект под названием stack message base, представленный в виде tuple (Maybe Message, Maybe LastMessage), где
+  В программе есть объект под названием stack message, представленный в виде tuple (Maybe Message, Maybe LastMessage), где
   
   * Maybe Message - новое необработанное сообщение.
   * Maybe LastMessage - последнее обработанное сообщение.
      
-  Возможные состояния stack message base:
+  Возможные состояния stack message:
   1. (Nothing, Nothing) - при запуске.
   2. (Just msg, Nothing) - при получении первого сообщения.
   3. (Nothing, Just msg) - желаемое состояние, когда программа обработала все поступившие сообщения.
   4. (Just newMsg, Just msg) - промежуточное состояние, когда программа уже обрабатывала сообщение и поступило новое.
   
-  Цель программы: поддерживать stack message base в состоянии 3. 
+  Цель программы: поддерживать stack message в состоянии 3. 
   
-  Для работы с stack message base применяются 3 (Main, Watch, Dispatcher) + N (Bot) потоков, где N количество пользователей.
+  Для работы с stack message в состояних 4применяются 2 (Main, Watch) + N (Bot) потоков, где N количество пользователей.
 </details>
 
 <details>
@@ -81,7 +82,7 @@ $ stack exec botReborn-exe
       - Считывает настройки из configuration file.
       - Формирует окружение для работы и handles.
       - запускает поток Watch.
-      - запускает поток Dispatcher.
+      - запускает в бесконечном цикле dispatcher.
   2. Watch (Handlers/Dispatcher.hs / watcherForNewMessage)
     
     - Переводит stack message base из состояния (Nothing, _) в состояние (Just msg, _) для чего пользуется выбранным
