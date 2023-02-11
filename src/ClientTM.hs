@@ -1,13 +1,13 @@
-module ClientVK (fetch, carryAway) where
+module ClientTM (fetch, carryAway) where
 
 -- тут реализация vk версии
 import Types (Message(..), Data(..), LastMessage, Config (..), DataFromButton)
 import qualified Data.Text as T (Text) 
-import ClientVK.HttpMessage ( buildGetRequest
+import ClientTM.HttpMessage ( buildGetRequest
                             , buildTextSendRequest
                             , buildGifSendRequest
                             , buildKeyboardSendRequest)
-import ClientVK.Parse (UnknownMessage(..))
+import ClientTM.Parse (UnknownMessage(..))
 import Network.HTTP.Simple ( httpLBS
                            , getResponseBody
                            , getResponseStatusCode)

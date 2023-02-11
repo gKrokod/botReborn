@@ -27,9 +27,9 @@ library
   exposed-modules:
       Base
       ClientConsole
-      ClientVK
-      ClientVK.HttpMessage
-      ClientVK.Parse
+      ClientTM
+      ClientTM.HttpMessage
+      ClientTM.Parse
       Config
       Dispatcher
       Handlers.Base

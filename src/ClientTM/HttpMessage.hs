@@ -1,10 +1,10 @@
-module ClientVK.HttpMessage where
+module ClientTM.HttpMessage where
 import qualified Data.Text.Encoding as E (encodeUtf8)
 import Network.HTTP.Simple (defaultRequest, setRequestPort, setRequestSecure, setRequestMethod,
  setRequestHost, parseRequest, Request, setRequestPath, setRequestQueryString)
 import qualified Data.ByteString.Char8 as BC (pack)
 import Data.Function ((&))
-import ClientVK.Parse (justKeyBoard)
+import ClientTM.Parse (justKeyBoard)
 import Types (Config(..), Message(..), Data(..))
 
 buildGetRequest :: Config -> Request

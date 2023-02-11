@@ -1,4 +1,4 @@
-module ClientVK.Parse where
+module ClientTM.Parse where
 
 import Data.Aeson (ToJSON, FromJSON, Value(..), parseJSON, (.:), (.:?), encode)
 import GHC.Generics (Generic)

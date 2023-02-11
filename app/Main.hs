@@ -8,7 +8,7 @@ import qualified Handlers.Base
 import qualified Base
 import qualified Handlers.Client
 import qualified ClientConsole
-import qualified ClientVK
+import qualified ClientTM
 import qualified Handlers.Dispatcher
 import qualified Dispatcher
 import qualified Handlers.Logger
@@ -51,10 +51,10 @@ main = do
                   }
 
   let clientHandle = Handlers.Client.Handle
-                     { Handlers.Client.fetch = bool (ClientVK.fetch cfg)
+                     { Handlers.Client.fetch = bool (ClientTM.fetch cfg)
                                                     ClientConsole.fetch
                                                     (ConsoleBot == cMode cfg)
-                     , Handlers.Client.carryAway = bool (ClientVK.carryAway cfg)
+                     , Handlers.Client.carryAway = bool (ClientTM.carryAway cfg)
                                                         ClientConsole.carryAway 
                                                         (ConsoleBot == cMode cfg) 
                      , Handlers.Client.logger = logHandle
