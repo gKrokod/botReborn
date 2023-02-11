@@ -100,18 +100,17 @@ $ stack exec botReborn-exe
 </details>
 
 <details>
-<summary>Cхематичное изображение взаимодействия потоков в программе</summary>
- 
-[![concept][1]][1]
- 
-[1]: config/botReborn.svg
- 
+<summary>Structure of botReborn</summary>
+
+ <image src="config/botReborn.svg" alt="structure">
+
+  
 </details>
 
 <details>
 <summary>Описание параметров конфигурационного файла bot.cfg</summary>
- 
 </details>
+
 
 ## Copying ##
 
