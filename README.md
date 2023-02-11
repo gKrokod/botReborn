@@ -19,27 +19,30 @@ Place to get the latest botReborn:
 This project uses The Haskell Tool Stack. Go check it out if you don't have it locally installed https://docs.haskellstack.org/en/stable/ .
 Once you have installed The Haskell Tool stack, you need to make a configuration file `/config/bot.cfg`  (the repository has a template file for this `/config/readMe.txt`). 
 
-```
-config {
-  user {
-  repeatcount = "3"
-  helpmenu = "Hello! I am echo-bot.\nPossible command : /help, /repeat\nWhat about me? Good to     meet you!"
-  repeatmenu = "Number of repeats = "
-  }
-  url {
-    apipath = "/bot"
-    bothost = "api.telegram.org"
-    timeout = "10"
-    offset = "-1"
-    token = "_"
-    port = "443"
-    method = "GET"
-    secure = on
-  }-
-  telegrammode = off
-  lvlLog = "Debug"
-}
-```
+<details><summary>template configuration file</summary>
+    
+    config {
+      user {
+      repeatcount = "3"
+      helpmenu = "Hello! I am echo-bot.\nPossible command : /help, /repeat\nWhat about me? Good to     meet you!"
+      repeatmenu = "Number of repeats = "
+      }
+      url {
+        apipath = "/bot"
+        bothost = "api.telegram.org"
+        timeout = "10"
+        offset = "-1"
+        token = "_"
+        port = "443"
+        method = "GET"
+        secure = on
+      }-
+      telegrammode = off
+      lvlLog = "Debug"
+    }
+    
+</details>
+
 after build this project
 ```
 $ stack build
@@ -53,57 +56,66 @@ $ stack exec botReborn-exe
 ## Documentation ##
 
 <details><summary>Structure of botReborn</summary> <image src="config/botReborn.svg" alt="structure"></details>
-<details>
-  
-<summary>Основная идея организации программы</summary>
-  В программе есть объект под названием stack message, представленный в виде tuple (Maybe Message, Maybe LastMessage), где
+
+<details><summary>Idea of organizing the program</summary>
+
+  В программе представлен объект под названием stack message в виде tuple
+(Maybe Message, Maybe LastMessage), где
   
   * Maybe Message - новое необработанное сообщение.
   * Maybe LastMessage - последнее обработанное сообщение.
      
   Возможные состояния stack message:
-  1. (Nothing, Nothing) - при запуске.
+  1. (Nothing, Nothing) - инициализируется  при запуске.
   2. (Just msg, Nothing) - при получении первого сообщения.
   3. (Nothing, Just msg) - желаемое состояние, когда программа обработала все поступившие сообщения.
   4. (Just newMsg, Just msg) - промежуточное состояние, когда программа уже обрабатывала сообщение и поступило новое.
   
-  Цель программы: поддерживать stack message в состоянии 3. 
+   События, изменяющие состояние stack message::
+  1. Инициализация при запуске программы.
+  2. Поступление нового сообщения.
+  3. Обработка поступившего сообщения.
   
-  Для работы с stack message в состояних 4применяются 2 (Main, Watch) + N (Bot) потоков, где N количество пользователей.
+  Цель программы: поддерживать объект stack message в состоянии (Nothing, Just msg). 
+  Для этого используется 2  + n  постоянно работающих потоков, где n количество пользователей.
+  
 </details>
 
-<details>
-
-  <summary>Описание потоков</summary>
+<details><summary>Description of threads</summary>
   
-  1. Main (main.hs / main)
-     
-    задачей является ...
-      - Считывает настройки из configuration file.
-      - Формирует окружение для работы и handles.
-      - запускает поток Watch.
-      - запускает в бесконечном цикле dispatcher.
+  1. Основной поток Main (main.hs / main, forever dispatcher)
+  
+    Цель: поддерживать объект stack message в состоянии (Nothing, Just msg).
+    
+    Задачи:
+      - Загрузить параметры из configuration file.
+      - Сформировать окружение для работы.
+      - инициализировать объект stack message в состоянии (Nothing, Nothing).
+      - запустить поток Watch.
+      - запустить потоки Bot при необходимости. При получении сообщения от нового пользователя 
+      (т.е. состояние stack message (Just msg, _)) сохранить его в базе данных и запустить поток Bot,
+      обрабатывающий сообщения только от данного пользователя. 
+
   2. Watch (Handlers/Dispatcher.hs / watcherForNewMessage)
+   
+    Цель: состояние stack message (Just msg, _).
     
-    - Переводит stack message base из состояния (Nothing, _) в состояние (Just msg, _) для чего пользуется выбранным
-  клиентом (console, telegram).  
-  3. Dispatcher (Handlers/Dispatcher.hs / dispatcher)
+    Задачи: 
+    - при обнаружении в stack message состояния (Nothing, _), т.е. нет нового необработанного сообщения, 
+    запрашивать до получения новое сообщение у выбранного клиента (console, telegram).
+
+  3. Потоки Bot (Handlers/Bot.hs / doWork)
     
-    задачей является ...
-    - Намерен перевести stack message base из состояния (Just msg, _) в состояние (Nothing, Just msg) для чего рассматривает
-  поступившее сообщение и решает создавать для него новый Bot поток или же просто подождать, когда ранее созданный обработает сообщение
-  и изменит состояние stack message base.
-  4. Bot (Handlers/Bot.hs / doWork)
+    Цель: состояние stack message (Nothing, Just msg).
+    
+    Задачи:
+    -при обнаружении состояния stack message (Just msg, _), т.е. есть новое необработанное сообщение, 
+    обработать сообщение согласно заложенной логике. 
   
-    задачей является ...
-    - Переводит stack message base из состояния (Just msg, _) в состояние (Nothing, Just msg) для чего обрабатывает
-  поступившее сообщение (msg) согласно заложенной логике. Каждый Bot поток обрабатывает сообщение только от пользователя
-  для которого он был запущен.
+ 
 </details>
 
-<details>
-
-<summary>Main parameters of the configuration file</summary>
+<details><summary>Main parameters of the configuration file</summary>
   
   1. repeatcount
     
