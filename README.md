@@ -58,26 +58,27 @@ $ stack exec botReborn-exe
 <details><summary>Structure of botReborn</summary> <image src="config/botReborn.svg" alt="structure"></details>
 
 <details><summary>Idea of organizing the program</summary>
+  
+  There is an object called "stack message" in the form of tuple data types
+  (Maybe Message, Maybe LastMessage), where
+  
+  * Maybe Message - new incoming message.
+  * Maybe LastMessage - last outcoming message.
 
-  В программе представлен объект под названием stack message в виде tuple
-(Maybe Message, Maybe LastMessage), где
+  Possible stack message states:
+  1. (Nothing, Nothing) - initialization at program start.
+  2. (Just msg, Nothing) - receiving the first message.
+  3. (Nothing, Just msg) - the desired state, when the program has processed all incoming messages.
+  4. (Just newMsg, Just msg) - an intermediate state, when the program has already processed the message and a new one has arrived.
   
-  * Maybe Message - новое необработанное сообщение.
-  * Maybe LastMessage - последнее обработанное сообщение.
-     
-  Возможные состояния stack message:
-  1. (Nothing, Nothing) - инициализируется  при запуске.
-  2. (Just msg, Nothing) - при получении первого сообщения.
-  3. (Nothing, Just msg) - желаемое состояние, когда программа обработала все поступившие сообщения.
-  4. (Just newMsg, Just msg) - промежуточное состояние, когда программа уже обрабатывала сообщение и поступило новое.
+  Events that change the state of the stack message:
+  1. Initialization at program start.
+  2. New incoming message.
+  3. Processing the message.
   
-   События, изменяющие состояние stack message::
-  1. Инициализация при запуске программы.
-  2. Поступление нового сообщения.
-  3. Обработка поступившего сообщения.
+  The goal of the program: to keep the stack message object in the state (Nothing, Just msg).
   
-  Цель программы: поддерживать объект stack message в состоянии (Nothing, Just msg). 
-  Для этого используется 2  + n  постоянно работающих потоков, где n количество пользователей.
+  For this, 2 + n constantly running threads are used, where n is the number of users.
   
 </details>
 
