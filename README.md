@@ -52,6 +52,7 @@ $ stack exec botReborn-exe
 
 ## Documentation ##
 
+<details><summary>Structure of botReborn</summary> <image src="config/botReborn.svg" alt="structure"></details>
 <details>
 <summary>Основная идея организации программы</summary>
   В программе есть объект под названием stack message base, представленный в виде tuple (Maybe Message, Maybe LastMessage), где
@@ -99,10 +100,34 @@ $ stack exec botReborn-exe
   для которого он был запущен.
 </details>
 
-<details><summary>Structure of botReborn</summary> <image src="config/botReborn.svg" alt="structure"></details>
-
 <details>
-<summary>Описание параметров конфигурационного файла bot.cfg</summary>
+
+<summary>Main parameters of the configuration file</summary>
+  
+  1. repeatcount
+    
+    default number of repeats for user x: 1 <= x <= 5
+  
+  2. helpmenu
+    
+    text of menu on commands "/help" and "/start"
+   
+  3. repeatmenu
+    
+    text of menu on command "/repeat"
+  
+  4. token
+    
+    identifier for Telegram client
+  
+  5. telegrammode
+    
+    selection key of client version ("off" - Console client, "on" - TM client)
+  
+  6. lvlLog
+    
+    minimum log message level to display ("Debug" < "Warning" < "Error" < "Fatal")   
+
 </details>
 
 
