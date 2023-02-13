@@ -1,10 +1,11 @@
 module ClientConsole where
 
 -- тут реализация консольной версии
-import Types (LastMessage, Message(..), Data(..))
+
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import qualified Data.Time.Clock.System as Time
+import Types (Data (..), LastMessage, Message (..))
 
 fetch :: Maybe LastMessage -> IO (Maybe Message)
 fetch lm = do
@@ -13,21 +14,21 @@ fetch lm = do
   let msg = Message {mID = fromIntegral $ Time.systemSeconds time, mUser = 1}
   case lm of
     Nothing -> pure $ Just $ makeMessage m msg
-    Just lm -> if mID lm == mID msg
-               then pure Nothing
-               else pure $ Just $ makeMessage m msg
+    Just lm ->
+      if mID lm == mID msg
+        then pure Nothing
+        else pure $ Just $ makeMessage m msg
 
 makeMessage :: String -> Message -> Message
 makeMessage t msg = case t of
-  "/help"   -> msg {mData = Command "/help"}
-  "/start"  -> msg {mData = Command "/help"}
+  "/help" -> msg {mData = Command "/help"}
+  "/start" -> msg {mData = Command "/help"}
   "/repeat" -> msg {mData = Command "/repeat"}
   otherwise -> msg {mData = Msg $ T.pack t}
 
-
 carryAway :: Message -> IO ()
 carryAway msg = case mData msg of
-                    -- Query i      -> print i
-                    Msg t        -> TIO.putStrLn t
-                    KeyboardMenu -> TIO.putStrLn ("Type a new repeat count [1..5]: ")
-                    otherwise    -> pure ()
+  -- Query i      -> print i
+  Msg t -> TIO.putStrLn t
+  KeyboardMenu -> TIO.putStrLn ("Type a new repeat count [1..5]: ")
+  otherwise -> pure ()

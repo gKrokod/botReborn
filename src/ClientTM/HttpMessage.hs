@@ -1,46 +1,61 @@
 module ClientTM.HttpMessage where
-import qualified Data.Text.Encoding as E (encodeUtf8)
-import Network.HTTP.Simple (defaultRequest, setRequestPort, setRequestSecure, setRequestMethod,
- setRequestHost, parseRequest, Request, setRequestPath, setRequestQueryString)
+
+import ClientTM.Parse (justKeyBoard)
 import qualified Data.ByteString.Char8 as BC (pack)
 import Data.Function ((&))
-import ClientTM.Parse (justKeyBoard)
-import Types (Config(..), Message(..), Data(..))
+import qualified Data.Text.Encoding as E (encodeUtf8)
+import Network.HTTP.Simple
+  ( Request,
+    defaultRequest,
+    parseRequest,
+    setRequestHost,
+    setRequestMethod,
+    setRequestPath,
+    setRequestPort,
+    setRequestQueryString,
+    setRequestSecure,
+  )
+import Types (Config (..), Data (..), Message (..))
 
 buildGetRequest :: Config -> Request
 buildGetRequest cfg =
-    setRequestHost (cfg & cBotHost)
-  $ setRequestMethod (cfg & cMethod) 
-  $ setRequestSecure (cfg & cSecure)
-  $ setRequestQueryString ([("offset", Just $ cfg & cOffset), ("timeout", Just $ cfg & cTimeOut)])
-  $ setRequestPath (mconcat[cfg & cApiPath, cfg & cToken, "/getUpdates"])
-  $ setRequestPort (cfg & cPort)
-  $ defaultRequest
+  setRequestHost (cfg & cBotHost) $
+    setRequestMethod (cfg & cMethod) $
+      setRequestSecure (cfg & cSecure) $
+        setRequestQueryString ([("offset", Just $ cfg & cOffset), ("timeout", Just $ cfg & cTimeOut)]) $
+          setRequestPath (mconcat [cfg & cApiPath, cfg & cToken, "/getUpdates"]) $
+            setRequestPort (cfg & cPort) $
+              defaultRequest
 
 buildTextSendRequest :: Config -> Message -> Request
-buildTextSendRequest  cfg msg = do
+buildTextSendRequest cfg msg =
+  do
     setRequestQueryString ([("chat_id", msg & Just . BC.pack . show . mUser), ("text", Just $ E.encodeUtf8 $ textMessage), ("reply_markup", Nothing)])
-  $ setRequestPath (mconcat[cfg & cApiPath, cfg & cToken, "/sendMessage"])
-  $ buildDefaultSendRequest cfg
-    where (Msg textMessage) = mData msg
+    $ setRequestPath (mconcat [cfg & cApiPath, cfg & cToken, "/sendMessage"])
+    $ buildDefaultSendRequest cfg
+  where
+    (Msg textMessage) = mData msg
 
 buildGifSendRequest :: Config -> Message -> Request
-buildGifSendRequest  cfg msg = do
+buildGifSendRequest cfg msg =
+  do
     setRequestQueryString ([("chat_id", msg & Just . BC.pack . show . mUser), ("animation", Just $ E.encodeUtf8 $ gifMessage), ("reply_markup", Nothing)])
-  $ setRequestPath (mconcat[cfg & cApiPath, cfg & cToken, "/sendAnimation"])
-  $ buildDefaultSendRequest cfg
-    where (Gif gifMessage) = mData msg
+    $ setRequestPath (mconcat [cfg & cApiPath, cfg & cToken, "/sendAnimation"])
+    $ buildDefaultSendRequest cfg
+  where
+    (Gif gifMessage) = mData msg
 
 buildKeyboardSendRequest :: Config -> Message -> Request
-buildKeyboardSendRequest cfg msg = do
+buildKeyboardSendRequest cfg msg =
+  do
     setRequestQueryString ([("chat_id", msg & Just . BC.pack . show . mUser), ("text", Just $ E.encodeUtf8 $ "Enter a new number of repeats"), ("reply_markup", justKeyBoard)])
-  $ setRequestPath (mconcat[cfg & cApiPath, cfg & cToken, "/sendMessage"])
-  $ buildDefaultSendRequest cfg
+    $ setRequestPath (mconcat [cfg & cApiPath, cfg & cToken, "/sendMessage"])
+    $ buildDefaultSendRequest cfg
 
 buildDefaultSendRequest :: Config -> Request
 buildDefaultSendRequest cfg =
-    setRequestHost (cfg & cBotHost)
-  $ setRequestMethod (cfg & cMethod)
-  $ setRequestSecure (cfg & cSecure)
-  $ setRequestPort (cfg & cPort)
-  $ defaultRequest
+  setRequestHost (cfg & cBotHost) $
+    setRequestMethod (cfg & cMethod) $
+      setRequestSecure (cfg & cSecure) $
+        setRequestPort (cfg & cPort) $
+          defaultRequest
