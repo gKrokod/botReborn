@@ -1,4 +1,4 @@
-module Handlers.Bot where
+module Handlers.Bot (Handle (..), doWork) where
 
 -- import Data.Function ((&))
 
@@ -55,7 +55,7 @@ makeReaction h msg = do
       case t of
         "/help" -> sendMessage h (msg {mData = Msg $ helpMessage h})
         "/repeat" -> changeRepeatCountForUser h user
-    -- _ -> error "unknow command"
+        _ -> Handlers.Logger.logMessage logHandle Error "Bot. The received command isn't command message" >> pure ()
     Query i -> do
       Handlers.Logger.logMessage
         logHandle
@@ -69,7 +69,7 @@ makeReaction h msg = do
     --   error "unknow mData Message"
 
     dataMsg = mData msg
-    id = mID msg
+    -- id = mID msg
     user = mUser msg
 
 changeRepeatCountForUser :: (Monad m) => Handle m -> User -> m ()
@@ -77,7 +77,7 @@ changeRepeatCountForUser h user = do
   let logHandle = logger h
   Handlers.Logger.logMessage logHandle Debug "Bot. Get number of repeats for user from the database"
   count <- Handlers.Base.giveRepeatCountFromBase (base h) user
-  let msg = Message {mUser = user}
+  let msg = Message {mUser = user, mData = Msg "fake for wall", mID = -1}
   sendMessage h (msg {mData = Msg $ (repeatMessage h) <> T.pack (show count)})
   sendMessage h (msg {mData = KeyboardMenu})
   answer <- getMessage h
@@ -94,17 +94,15 @@ changeRepeatCountForUser h user = do
           let query' = read $ T.unpack t :: DataFromButton
           makeReaction h (msg {mData = Query query', mUser = mUser answer})
         Query i -> makeReaction h (msg {mData = Query i, mUser = mUser answer})
-
--- _ -> do
---   Handlers.Logger.logMessage logHandle
---     Error "Bot. The received message is unknwon message"
---   error "answer uncorrect"
+        _ -> do
+           Handlers.Logger.logMessage logHandle Error "Bot. The received message is unknwon message"
+           pure ()
 
 isCorrectRepeatCount :: Message -> Bool
 isCorrectRepeatCount m = case mData m of
   Msg t -> T.all (isDigit) t && not (T.null t) && helper (read $ T.unpack t)
   Query i -> helper i
-  otherwise -> False
+  _ -> False
   where
     helper :: DataFromButton -> Bool
     -- helper = (&&) <$> (> 0) <*> (< 6)

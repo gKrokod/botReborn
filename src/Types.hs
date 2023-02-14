@@ -1,4 +1,4 @@
-module Types where
+module Types (Message (..), Log (..), LastMessage, User, RepeatCount, Data (..), DataFromButton, Config (..), Mode (..), ID) where
 
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.Text as T

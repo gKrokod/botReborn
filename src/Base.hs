@@ -1,4 +1,4 @@
-module Base where
+module Base (newBaseMessage, updateUser, findUser, saveMessage, newBaseUser, readStackMessage, eraseMessage) where
 
 import Control.Concurrent (MVar, newMVar, putMVar, takeMVar, threadDelay)
 import qualified Data.Map.Strict as Map
@@ -59,7 +59,7 @@ saveMessage (StackMessage m) msg = do
 
 eraseMessage :: StackMessage -> Message -> IO ()
 eraseMessage (StackMessage m) msg = do
-  (mbMessage, lastMessage) <- takeMVar m
+  (mbMessage, _) <- takeMVar m
   case mbMessage of
     Nothing -> pure () -- for test (do putMVar m (mbMessage, lastMessage); error "nothing erase ")
     Just msg' ->

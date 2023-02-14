@@ -1,9 +1,9 @@
-module Handlers.Client where
+module Handlers.Client (Handle (..)) where
 
 -- тут реализация консольной версии
 
 import qualified Handlers.Logger
-import Types (Config, LastMessage, Message)
+import Types (LastMessage, Message)
 
 data Handle m = Handle
   { fetch :: Maybe LastMessage -> m (Maybe Message),

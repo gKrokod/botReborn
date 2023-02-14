@@ -1,4 +1,4 @@
-module Logger where
+module Logger (writeLog) where
 
 import qualified Data.Text as T (Text)
 import qualified Data.Text.IO as TIO

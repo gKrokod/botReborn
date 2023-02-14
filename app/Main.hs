@@ -15,7 +15,7 @@ import qualified Handlers.Dispatcher
 import qualified Handlers.Logger
 import qualified Logger
 import System.IO (BufferMode (..), hSetBuffering, stdin, stdout)
-import Types (Config (..), Mode (..))
+import Types (Config (..), Mode (..), Message (..), Data (..))
 
 main :: IO ()
 main = do
@@ -50,6 +50,8 @@ main = do
           { Handlers.Bot.base = baseHandle,
             Handlers.Bot.helpMessage = cTextMenuHelp cfg,
             Handlers.Bot.repeatMessage = cTextMenuRepeat cfg,
+            Handlers.Bot.getMessage = pure (Message {mID = 1, mUser = -1, mData = Msg "fake func"}), 
+            Handlers.Bot.sendMessage = \_ -> pure (),
             Handlers.Bot.logger = logHandle
           }
 

@@ -1,4 +1,4 @@
-module ClientTM.Parse where
+module ClientTM.Parse ( Keyboard, justKeyBoard, UnknownMessage (..), WrapMessage (..)) where
 
 import Data.Aeson (FromJSON, ToJSON, Value (..), encode, parseJSON, (.:), (.:?))
 import qualified Data.ByteString.Char8 as BC
@@ -19,6 +19,7 @@ data Button = Button
   deriving (Show, Generic)
 
 newtype UnknownMessage = UnknownMessage {uID :: ID} -- another message from telegram client
+newtype WrapMessage = WrapMessage {wMsg :: Message} -- because had orphan instance
 
 justKeyBoard :: Maybe BC.ByteString
 justKeyBoard = Just $ L.toStrict $ encode menuForRepeatCount
@@ -48,8 +49,10 @@ instance FromJSON UnknownMessage where
           [] -> v .: "emptyListMakeNothing"
           (h : _) -> h .: "update_id"
     return UnknownMessage {uID = updateId}
+  parseJSON _ = undefined 
 
-instance FromJSON Message where
+-- instance FromJSON Message, rebuild because -Wall, -Werror 
+instance FromJSON WrapMessage where
   parseJSON (Object v) = do
     updateId <-
       v .: "result"
@@ -91,8 +94,5 @@ instance FromJSON Message where
                     >>= (.: "data")
                     >>= pure . Query . read . T.unpack
     return
-      Message
-        { mID = updateId,
-          mUser = chatId,
-          mData = message
-        }
+      WrapMessage { wMsg = Message { mID = updateId, mUser = chatId, mData = message}}
+  parseJSON _ = undefined 

@@ -1,4 +1,4 @@
-module Handlers.Base where
+module Handlers.Base (giveRepeatCountFromBase, Handle (..)) where
 
 import qualified Handlers.Logger
 import Types (LastMessage, Log (..), Message, RepeatCount, User)

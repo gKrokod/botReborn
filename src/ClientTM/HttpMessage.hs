@@ -1,4 +1,4 @@
-module ClientTM.HttpMessage where
+module ClientTM.HttpMessage (buildTextSendRequest, buildGetRequest, buildGifSendRequest, buildKeyboardSendRequest) where
 
 import ClientTM.Parse (justKeyBoard)
 import qualified Data.ByteString.Char8 as BC (pack)
@@ -7,7 +7,7 @@ import qualified Data.Text.Encoding as E (encodeUtf8)
 import Network.HTTP.Simple
   ( Request,
     defaultRequest,
-    parseRequest,
+    -- parseRequest,
     setRequestHost,
     setRequestMethod,
     setRequestPath,
@@ -34,7 +34,9 @@ buildTextSendRequest cfg msg =
     $ setRequestPath (mconcat [cfg & cApiPath, cfg & cToken, "/sendMessage"])
     $ buildDefaultSendRequest cfg
   where
-    (Msg textMessage) = mData msg
+    textMessage = case mData msg of
+      Msg t -> t
+      _ -> ""
 
 buildGifSendRequest :: Config -> Message -> Request
 buildGifSendRequest cfg msg =
@@ -43,7 +45,9 @@ buildGifSendRequest cfg msg =
     $ setRequestPath (mconcat [cfg & cApiPath, cfg & cToken, "/sendAnimation"])
     $ buildDefaultSendRequest cfg
   where
-    (Gif gifMessage) = mData msg
+    gifMessage = case mData msg of
+      Gif t -> t
+      _ -> ""
 
 buildKeyboardSendRequest :: Config -> Message -> Request
 buildKeyboardSendRequest cfg msg =

@@ -4,7 +4,7 @@ import Data.Bool (bool)
 import qualified Data.Configurator as C (Worth (Required), load, lookupDefault)
 import Data.Text as T (Text, toLower, unpack)
 import qualified Data.Text.Encoding as E (encodeUtf8)
-import Types (Config (..), Log (..), Mode (ConsoleBot, TelegramBot), RepeatCount)
+import Types (Config (..), Log (..), Mode (ConsoleBot, TelegramBot))
 
 loadConfig :: IO Config
 loadConfig = do

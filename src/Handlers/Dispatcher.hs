@@ -1,4 +1,4 @@
-module Handlers.Dispatcher where
+module Handlers.Dispatcher (Handle (..), dispatcher, watcherForNewMessage) where
 
 import qualified Data.Text as T
 import qualified Handlers.Base
@@ -19,7 +19,7 @@ dispatcher h = do
   let logHandle = logger h
   let botHandle = bot h
   let baseHandle = Handlers.Bot.base botHandle
-  let clientHandle = client h
+  -- let clientHandle = client h
   -- input : message database / desired (Just msg, _)
   (mbMessage, _) <- Handlers.Base.readStackMessage baseHandle
   case mbMessage of

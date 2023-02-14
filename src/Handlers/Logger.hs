@@ -1,4 +1,4 @@
-module Handlers.Logger where
+module Handlers.Logger (Handle (..), logMessage) where
 
 import qualified Data.Text as T
 import Types (Log)
