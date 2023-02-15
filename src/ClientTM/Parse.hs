@@ -1,7 +1,7 @@
-module ClientTM.Parse (Keyboard, justKeyBoard, UnknownMessage (..), WrapMessage (..)) where
+module ClientTM.Parse (Keyboard, justKeyBoard, UnknownMessage (..), BoxMessage (..)) where
 
 import Data.Aeson (FromJSON, ToJSON, Value (..), encode, parseJSON, (.:), (.:?))
-import Data.Aeson.Types (prependFailure, typeMismatch)
+import Data.Aeson.Types (parseFail, prependFailure, typeMismatch)
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy as L (toStrict)
 import Data.Text as T (Text, unpack)
@@ -21,7 +21,7 @@ data Button = Button
 
 newtype UnknownMessage = UnknownMessage {uID :: ID} -- another message from telegram client
 
-newtype WrapMessage = WrapMessage {wMsg :: Message} -- because had orphan instance
+newtype BoxMessage = BoxMessage {unboxMessage :: Message} -- because had orphan instance
 
 justKeyBoard :: Maybe BC.ByteString
 justKeyBoard = Just $ L.toStrict $ encode menuForRepeatCount
@@ -48,23 +48,23 @@ instance FromJSON UnknownMessage where
     updateId <-
       v .: "result"
         >>= \case
-          [] -> v .: "emptyListMakeNothing"
+          [] -> parseFail "haven't unknwon message"
           (h : _) -> h .: "update_id"
     return UnknownMessage {uID = updateId}
   parseJSON invalid = prependFailure "parsing UnknownMessage failed, " (typeMismatch "Object" invalid)
 
 -- instance FromJSON Message, rebuild because -Wall, -Werror
-instance FromJSON WrapMessage where
+instance FromJSON BoxMessage where
   parseJSON (Object v) = do
     updateId <-
       v .: "result"
         >>= \case
-          [] -> v .: "emptyListMakeNothing"
+          [] -> parseFail "haven't message"
           (h : _) -> h .: "update_id"
     chatId <-
       v .: "result"
         >>= \case
-          [] -> v .: "emptyListMakeNothing"
+          [] -> parseFail "haven't message"
           (h : _) ->
             h .:? "message"
               >>= \case
@@ -79,7 +79,7 @@ instance FromJSON WrapMessage where
     message <-
       v .: "result"
         >>= \case
-          [] -> v .: "emptyListMakeNothing" >>= pure . Gif
+          [] -> parseFail "haven't message" -- v .: "emptyListMakeNothing" >>= pure . Gif
           (h : _) ->
             h .:? "message"
               >>= \case
@@ -96,5 +96,5 @@ instance FromJSON WrapMessage where
                     >>= (.: "data")
                     >>= pure . Query . read . T.unpack
     return
-      WrapMessage {wMsg = Message {mID = updateId, mUser = chatId, mData = message}}
+      BoxMessage {unboxMessage = Message {mID = updateId, mUser = chatId, mData = message}}
   parseJSON invalid = prependFailure "parsing Message failed, " (typeMismatch "Object" invalid)

@@ -8,7 +8,7 @@ import ClientTM.HttpMessage
     buildKeyboardSendRequest,
     buildTextSendRequest,
   )
-import ClientTM.Parse (UnknownMessage (..), WrapMessage (..))
+import ClientTM.Parse (BoxMessage (..), UnknownMessage (..))
 import Control.Monad (when)
 import Data.Aeson (decode)
 import qualified Data.ByteString.Char8 as BC (pack)
@@ -29,7 +29,7 @@ fetch cfg lm = do
   let msg = decode $ getResponseBody $ response -- messages : text, gif
   let umsg = decode $ getResponseBody $ response -- another messages
   case (msg, umsg) of
-    (Just m, _) -> pure $ Just $ makeMessage (mData (wMsg m)) (wMsg m)
+    (Just m, _) -> pure $ Just $ makeMessage (mData (unboxMessage m)) (unboxMessage m)
     (_, Just m) -> fetch cfg (Just Message {mID = uID m, mUser = -1, mData = Msg "fake"})
     _ -> pure Nothing
 
