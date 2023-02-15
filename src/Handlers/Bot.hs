@@ -95,8 +95,8 @@ changeRepeatCountForUser h user = do
           makeReaction h (msg {mData = Query query', mUser = mUser answer})
         Query i -> makeReaction h (msg {mData = Query i, mUser = mUser answer})
         _ -> do
-           Handlers.Logger.logMessage logHandle Error "Bot. The received message is unknwon message"
-           pure ()
+          Handlers.Logger.logMessage logHandle Error "Bot. The received message is unknwon message"
+          pure ()
 
 isCorrectRepeatCount :: Message -> Bool
 isCorrectRepeatCount m = case mData m of

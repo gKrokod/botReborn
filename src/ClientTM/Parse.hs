@@ -1,6 +1,7 @@
-module ClientTM.Parse ( Keyboard, justKeyBoard, UnknownMessage (..), WrapMessage (..)) where
+module ClientTM.Parse (Keyboard, justKeyBoard, UnknownMessage (..), WrapMessage (..)) where
 
 import Data.Aeson (FromJSON, ToJSON, Value (..), encode, parseJSON, (.:), (.:?))
+import Data.Aeson.Types (prependFailure, typeMismatch)
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy as L (toStrict)
 import Data.Text as T (Text, unpack)
@@ -19,6 +20,7 @@ data Button = Button
   deriving (Show, Generic)
 
 newtype UnknownMessage = UnknownMessage {uID :: ID} -- another message from telegram client
+
 newtype WrapMessage = WrapMessage {wMsg :: Message} -- because had orphan instance
 
 justKeyBoard :: Maybe BC.ByteString
@@ -49,9 +51,9 @@ instance FromJSON UnknownMessage where
           [] -> v .: "emptyListMakeNothing"
           (h : _) -> h .: "update_id"
     return UnknownMessage {uID = updateId}
-  parseJSON _ = undefined 
+  parseJSON invalid = prependFailure "parsing UnknownMessage failed, " (typeMismatch "Object" invalid)
 
--- instance FromJSON Message, rebuild because -Wall, -Werror 
+-- instance FromJSON Message, rebuild because -Wall, -Werror
 instance FromJSON WrapMessage where
   parseJSON (Object v) = do
     updateId <-
@@ -94,5 +96,5 @@ instance FromJSON WrapMessage where
                     >>= (.: "data")
                     >>= pure . Query . read . T.unpack
     return
-      WrapMessage { wMsg = Message { mID = updateId, mUser = chatId, mData = message}}
-  parseJSON _ = undefined 
+      WrapMessage {wMsg = Message {mID = updateId, mUser = chatId, mData = message}}
+  parseJSON invalid = prependFailure "parsing Message failed, " (typeMismatch "Object" invalid)

@@ -13,13 +13,13 @@ import Control.Monad (when)
 import Data.Aeson (decode)
 import qualified Data.ByteString.Char8 as BC (pack)
 import qualified Data.Text as T (Text)
+import qualified Data.Text.IO as TIO
 import Network.HTTP.Simple
   ( getResponseBody,
     getResponseStatusCode,
     httpLBS,
   )
 import Types (Config (..), Data (..), DataFromButton, LastMessage, Message (..))
-import qualified Data.Text.IO as TIO
 
 fetch :: Config -> Maybe LastMessage -> IO (Maybe Message)
 fetch cfg lm = do
