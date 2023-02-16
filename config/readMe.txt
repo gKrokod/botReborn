@@ -16,6 +16,6 @@ config {
     method = "GET"
     secure = on
   } 
-  telegrammode = on
+  telegrammode = off
   lvlLog = "Debug"
 }
