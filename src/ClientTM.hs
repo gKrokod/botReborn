@@ -19,7 +19,7 @@ import Network.HTTP.Simple
     getResponseStatusCode,
     httpLBS,
   )
-import Types (Config (..), Data (..), DataFromButton, LastMessage, Message (..))
+import Types (Config (..), Data (..), DataFromButton, LastMessage, Message (..), defaultMessage)
 
 fetch :: Config -> Maybe LastMessage -> IO (Maybe Message)
 fetch cfg lm = do
@@ -30,7 +30,7 @@ fetch cfg lm = do
   let umsg = decode $ getResponseBody $ response -- another messages
   case (msg, umsg) of
     (Just m, _) -> pure $ Just $ makeMessage (mData (unboxMessage m)) (unboxMessage m)
-    (_, Just m) -> fetch cfg (Just Message {mID = uID m, mUser = -1, mData = Msg "fake"})
+    (_, Just m) -> fetch cfg (Just defaultMessage {mID = uID m})
     _ -> pure Nothing
 
 makeMessage :: Data T.Text DataFromButton -> Message -> Message

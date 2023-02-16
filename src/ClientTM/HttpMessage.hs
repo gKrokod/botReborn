@@ -7,7 +7,6 @@ import qualified Data.Text.Encoding as E (encodeUtf8)
 import Network.HTTP.Simple
   ( Request,
     defaultRequest,
-    -- parseRequest,
     setRequestHost,
     setRequestMethod,
     setRequestPath,

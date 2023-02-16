@@ -1,4 +1,4 @@
-module Types (Message (..), Log (..), LastMessage, User, RepeatCount, Data (..), DataFromButton, Config (..), Mode (..), ID) where
+module Types (Message (..), Log (..), LastMessage, User, RepeatCount, Data (..), DataFromButton, Config (..), Mode (..), ID, defaultMessage) where
 
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.Text as T
@@ -43,5 +43,6 @@ data Mode = ConsoleBot | TelegramBot deriving (Show, Eq)
 
 data Log = Debug | Warning | Error | Fatal deriving (Eq, Ord, Show)
 
+-- for -Wall and -Werror
+defaultMessage :: Message
 defaultMessage = Message {mID = -1, mUser = -1, mData = Msg "fake message for -Wall and -Werror"}
-

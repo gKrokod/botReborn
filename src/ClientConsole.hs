@@ -5,13 +5,14 @@ module ClientConsole (fetch, carryAway) where
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import qualified Data.Time.Clock.System as Time
-import Types (Data (..), LastMessage, Message (..))
+import Types (Data (..), LastMessage, Message (..), defaultMessage)
 
 fetch :: Maybe LastMessage -> IO (Maybe Message)
 fetch lm = do
   m <- getLine
   time <- Time.getSystemTime
-  let msg = Message {mID = fromIntegral $ Time.systemSeconds time, mUser = 1, mData = Msg "fake"}
+  let msg = defaultMessage {mID = fromIntegral $ Time.systemSeconds time}
+  -- let msg = Message {mID = fromIntegral $ Time.systemSeconds time, mUser = 1, mData = Msg "fake"}
   case lm of
     Nothing -> pure $ Just $ makeMessage m msg
     Just m' ->

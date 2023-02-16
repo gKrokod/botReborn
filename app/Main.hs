@@ -15,7 +15,7 @@ import qualified Handlers.Dispatcher
 import qualified Handlers.Logger
 import qualified Logger
 import System.IO (BufferMode (..), hSetBuffering, stdin, stdout)
-import Types (Config (..), Data (..), Message (..), Mode (..), defaultMessage)
+import Types (Config (..), Mode (..), defaultMessage)
 
 main :: IO ()
 main = do

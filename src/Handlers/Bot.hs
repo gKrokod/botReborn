@@ -6,7 +6,7 @@ import Data.Char (isDigit)
 import qualified Data.Text as T (Text, all, null, pack, unpack)
 import qualified Handlers.Base
 import qualified Handlers.Logger
-import Types
+import Types (Data (..), DataFromButton, Log (..), Message (..), User, defaultMessage)
 
 data Handle m = Handle
   { getMessage :: m (Message),
@@ -77,7 +77,8 @@ changeRepeatCountForUser h user = do
   let logHandle = logger h
   Handlers.Logger.logMessage logHandle Debug "Bot. Get number of repeats for user from the database"
   count <- Handlers.Base.giveRepeatCountFromBase (base h) user
-  let msg = Message {mUser = user, mData = Msg "fake for wall", mID = -1}
+  -- let msg = Message {mUser = user, mID = -1}
+  let msg = defaultMessage {mUser = user}
   sendMessage h (msg {mData = Msg $ (repeatMessage h) <> T.pack (show count)})
   sendMessage h (msg {mData = KeyboardMenu})
   answer <- getMessage h

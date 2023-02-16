@@ -6,12 +6,12 @@ cabal-version: 1.12
 
 name:           botReborn
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/botReborn#readme>
-homepage:       https://github.com/githubuser/botReborn#readme
-bug-reports:    https://github.com/githubuser/botReborn/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2022 Author name here
+description:    Please see the README on GitHub at <https://github.com/gKrokod/botReborn#readme>
+homepage:       https://github.com/github/gKrokod#readme
+bug-reports:    https://github.com/github/gKrokod/issues
+author:         gKrokod
+maintainer:     @ofspb
+copyright:      2023 gKrokod
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -21,7 +21,8 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/botReborn
+  location: https://github.com/github/gKrokod
+  subdir: botReborn
 
 library
   exposed-modules:
