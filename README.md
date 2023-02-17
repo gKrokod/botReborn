@@ -3,9 +3,8 @@
 
 ## What is botReborn? ##
 
-BotReborn is a echo-bot that have to send a  text or gif message from the user to 
-him in response multiple times. Echo-bot work with user  throught several delivery mechanisms
-specified in the configuration file `/config/bot.cfg` 
+BotReborn is a echo-bot that send multiple text or gif messages to еach message from the user.
+Echo-bot interacts with user through some delivery mechanisms specified in the configuration file `/config/bot.cfg` 
 + Console: the user's message is entered from stdin, the bot's response is sent to stdout. `telegrammode = off`
 + Telegram: https://core.telegram.org/bots/api#poll `telegrammode = on`
 
@@ -78,7 +77,7 @@ $ stack exec botReborn-exe
   
   The goal of the program: to keep the stack message object in the state (Nothing, Just msg).
   
-  For this, 2 + n constantly running threads are used, where n is the number of users.
+  There are 2 + n constantly running threads for this goal, where n is the number of users.
   
 </details>
 
@@ -94,7 +93,8 @@ $ stack exec botReborn-exe
       - initialize the stack message object in the state (Nothing, Nothing).
       - run the Watch thread.
       - run Bot threads if necessary. Run the Bot thread processing messages only 
-      from the one user when first receiving a message from him and store this user in the database.
+      from the one user for each user in the database. Store a user in the database when
+      first receiving a message from him.
     
   2. Watch thread (Handlers/Dispatcher.hs / watcherForNewMessage)
    
