@@ -1,4 +1,3 @@
-!!!!!!!fill the gap, delete this line and rename this file to "bot.cfg"!!!!
 config {
   user {
   repeatcount = "3"
