@@ -35,6 +35,7 @@ buildTextSendRequest cfg msg =
   where
     textMessage = case mData msg of
       Msg t -> t
+      Calendar t -> t
       _ -> ""
 
 buildGifSendRequest :: Config -> Message -> Request

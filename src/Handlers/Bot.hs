@@ -63,6 +63,13 @@ makeReaction h msg = do
         "Bot. The received message is query message for change number of repeats for user"
       Handlers.Base.updateUser (base h) user i
     KeyboardMenu -> pure ()
+    Calendar _ -> do 
+      Handlers.Logger.logMessage
+        logHandle
+        Debug
+        "Bot. The received message is calendar message"
+      sendMessage h msg
+
   where
     -- _ -> do
     --   Handlers.Logger.logMessage logHandle Error "The received message is unknwon message"
@@ -108,3 +115,4 @@ isCorrectRepeatCount m = case mData m of
     helper :: DataFromButton -> Bool
     -- helper = (&&) <$> (> 0) <*> (< 6)
     helper = \d -> d `elem` [1 .. 5]
+

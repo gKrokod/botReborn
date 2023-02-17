@@ -13,7 +13,7 @@ type DataFromButton = Int
 
 type LastMessage = Message
 
-data Data t i = Msg t | Gif t | Command t | KeyboardMenu | Query i deriving (Show, Eq)
+data Data t i = Msg t | Gif t | Command t | KeyboardMenu | Query i | Calendar t deriving (Show, Eq)
 
 data Message = Message
   { mData :: Data T.Text DataFromButton,
