@@ -9,8 +9,9 @@ import ClientTM.HttpMessage
     buildTextSendRequest,
   )
 import ClientTM.Parse (BoxMessage (..), UnknownMessage (..))
-import Control.Exception
-import Control.Exception.Base
+import Control.Exception 
+-- import Control.Exception.Base
+import Control.Concurrent (threadDelay)
 import Control.Monad (when)
 import Data.Aeson (decode)
 import qualified Data.ByteString.Char8 as BC (pack)
@@ -29,21 +30,27 @@ import Data.Time.Format (parseTimeM, defaultTimeLocale)
 fetch :: Config -> Maybe LastMessage -> IO (Maybe Message)
 fetch cfg lm = do
   today <- localDay <$> zonedTimeToLocalTime <$> getZonedTime  
-  response <- onException (httpLBS $ buildGetRequest (cfg {cOffset = maybe "-1" (BC.pack . show . succ . mID) lm})) (fetch cfg lm)
-  let status = getResponseStatusCode response
-  when (404 == status || status == 301) (TIO.putStrLn "Error! Bot Server 404 or 301")
-  let msg = decode $ getResponseBody $ response -- messages : text, gif
-  let umsg = decode $ getResponseBody $ response -- another messages
-  case (msg, umsg) of
-    (Just m, _) -> do
-      let m' = unboxMessage m
-      case isCalendar (mData m') of
-        Nothing -> pure $ Just $ makeMessage (mData  m') (m')
-        Just day -> do 
-          let resultYear = cdMonths (diffGregorianDurationClip today day) `div` 12
-          pure $ Just $ m' {mData = Calendar $ T.pack $ show resultYear}
-    (_, Just m) -> fetch cfg (Just defaultMessage {mID = uID m})
-    _ -> pure Nothing
+  response' <- try (httpLBS $ buildGetRequest (cfg {cOffset = maybe "-1" (BC.pack . show . succ . mID) lm}))
+  case response' of
+    Left e -> do
+      print (e :: SomeException)
+      threadDelay (10)
+      fetch cfg lm
+    Right response -> do
+      let status = getResponseStatusCode response
+      when (404 == status || status == 301) (TIO.putStrLn "Error! Bot Server 404 or 301")
+      let msg = decode $ getResponseBody $ response -- messages : text, gif
+      let umsg = decode $ getResponseBody $ response -- another messages
+      case (msg, umsg) of
+        (Just m, _) -> do
+          let m' = unboxMessage m
+          case isCalendar (mData m') of
+            Nothing -> pure $ Just $ makeMessage (mData  m') (m')
+            Just day -> do 
+              let resultYear = cdMonths (diffGregorianDurationClip today day) `div` 12
+              pure $ Just $ m' {mData = Calendar $ T.pack $ show resultYear}
+        (_, Just m) -> fetch cfg (Just defaultMessage {mID = uID m})
+        _ -> pure Nothing
 
 
 makeMessage :: Data T.Text DataFromButton -> Message -> Message
