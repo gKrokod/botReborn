@@ -9,7 +9,7 @@ import Types (LastMessage, Message, RepeatCount, User)
 -- import Data.Map.Internal.Debug (showTree)
 
 mks :: Int
-mks = 10 -- for function readStackMessage
+mks = 1000 -- for function readStackMessage
 
 type UserDB = Map.Map User RepeatCount
 
