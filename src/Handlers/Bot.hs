@@ -1,7 +1,6 @@
-module Handlers.Bot (Handle (..), doWork) where
+module Handlers.Bot (Handle (..), doWork, changeRepeatCountForUser, isCorrectRepeatCount, makeReaction) where
 
--- import Data.Function ((&))
-
+import Control.Monad (replicateM_, void)
 import Data.Char (isDigit)
 import qualified Data.Text as T (Text, all, null, pack, unpack)
 import qualified Handlers.Base
@@ -9,7 +8,7 @@ import qualified Handlers.Logger
 import Types (Data (..), DataFromButton, Log (..), Message (..), User, defaultMessage)
 
 data Handle m = Handle
-  { getMessage :: m (Message),
+  { getMessage :: m Message,
     sendMessage :: Message -> m (),
     base :: Handlers.Base.Handle m,
     helpMessage :: T.Text,
@@ -39,14 +38,14 @@ makeReaction h msg = do
         Debug
         "Bot. The received message is text message"
       count <- Handlers.Base.giveRepeatCountFromBase (base h) user
-      mapM_ (sendMessage h) (replicate count msg)
+      replicateM_ count (sendMessage h msg)
     Gif _ -> do
       Handlers.Logger.logMessage
         logHandle
         Debug
         "Bot. The received message is gif message"
       count <- Handlers.Base.giveRepeatCountFromBase (base h) user
-      mapM_ (sendMessage h) (replicate count msg)
+      replicateM_ count (sendMessage h msg)
     Command t -> do
       Handlers.Logger.logMessage
         logHandle
@@ -55,7 +54,7 @@ makeReaction h msg = do
       case t of
         "/help" -> sendMessage h (msg {mData = Msg $ helpMessage h})
         "/repeat" -> changeRepeatCountForUser h user
-        _ -> Handlers.Logger.logMessage logHandle Error "Bot. The received command isn't command message" >> pure ()
+        _ -> void $ Handlers.Logger.logMessage logHandle Error "Bot. The received command isn't command message"
     Query i -> do
       Handlers.Logger.logMessage
         logHandle
@@ -79,7 +78,7 @@ changeRepeatCountForUser h user = do
   count <- Handlers.Base.giveRepeatCountFromBase (base h) user
   -- let msg = Message {mUser = user, mID = -1}
   let msg = defaultMessage {mUser = user}
-  sendMessage h (msg {mData = Msg $ (repeatMessage h) <> T.pack (show count)})
+  sendMessage h (msg {mData = Msg $ repeatMessage h <> T.pack (show count)})
   sendMessage h (msg {mData = KeyboardMenu})
   answer <- getMessage h
   if not (isCorrectRepeatCount answer)
@@ -101,10 +100,9 @@ changeRepeatCountForUser h user = do
 
 isCorrectRepeatCount :: Message -> Bool
 isCorrectRepeatCount m = case mData m of
-  Msg t -> T.all (isDigit) t && not (T.null t) && helper (read $ T.unpack t)
+  Msg t -> T.all isDigit t && not (T.null t) && helper (read $ T.unpack t)
   Query i -> helper i
   _ -> False
   where
     helper :: DataFromButton -> Bool
-    -- helper = (&&) <$> (> 0) <*> (< 6)
-    helper = \d -> d `elem` [1 .. 5]
+    helper d = d `elem` [1 .. 5]

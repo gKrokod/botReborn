@@ -8,7 +8,7 @@ import Data.Text as T (Text, unpack)
 import GHC.Generics (Generic)
 import Types (Data (..), ID, Message (..))
 
-data Keyboard = Keyboard
+newtype Keyboard = Keyboard
   { inline_keyboard :: [[Button]]
   }
   deriving (Show, Generic)

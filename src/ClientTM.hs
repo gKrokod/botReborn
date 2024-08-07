@@ -1,6 +1,6 @@
 module ClientTM (fetch, carryAway) where
 
--- тут реализация vk версии
+-- implementation vk version
 
 import ClientTM.HttpMessage
   ( buildGetRequest,
@@ -11,7 +11,7 @@ import ClientTM.HttpMessage
 import ClientTM.Parse (BoxMessage (..), UnknownMessage (..))
 import Control.Concurrent (threadDelay)
 import Control.Exception (SomeException, try)
-import Control.Monad (when)
+import Control.Monad (void, when)
 import Data.Aeson (decode)
 import qualified Data.ByteString.Char8 as BC (pack)
 import qualified Data.Text as T (Text)
@@ -29,13 +29,13 @@ fetch cfg lm = do
   case response' of
     Left e -> do
       print (e :: SomeException)
-      threadDelay (10)
+      threadDelay 10
       fetch cfg lm
     Right response -> do
       let status = getResponseStatusCode response
       when (404 == status || status == 301) (TIO.putStrLn "Error! Bot Server 404 or 301")
-      let msg = decode $ getResponseBody $ response -- messages : text, gif
-      let umsg = decode $ getResponseBody $ response -- another messages
+      let msg = decode $ getResponseBody response -- messages : text, gif
+      let umsg = decode $ getResponseBody response -- another messages
       case (msg, umsg) of
         (Just m, _) -> pure $ Just $ makeMessage (mData (unboxMessage m)) (unboxMessage m)
         (_, Just m) -> fetch cfg (Just defaultMessage {mID = uID m})
@@ -51,7 +51,7 @@ makeMessage _ msg = msg
 
 carryAway :: Config -> Message -> IO ()
 carryAway cfg msg = case mData msg of
-  Msg _ -> httpLBS (buildTextSendRequest cfg msg) >> pure ()
-  Gif _ -> httpLBS (buildGifSendRequest cfg msg) >> pure ()
-  KeyboardMenu -> httpLBS (buildKeyboardSendRequest cfg msg) >> pure ()
-  _ -> TIO.putStrLn "carryAway wrong message" >> pure ()
+  Msg _ -> void $ httpLBS (buildTextSendRequest cfg msg)
+  Gif _ -> void $ httpLBS (buildGifSendRequest cfg msg)
+  KeyboardMenu -> void $ httpLBS (buildKeyboardSendRequest cfg msg)
+  _ -> void $ TIO.putStrLn "carryAway wrong message"

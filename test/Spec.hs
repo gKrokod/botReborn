@@ -1,6 +1,8 @@
+import Control.Monad (void)
 import Control.Monad.State (State (..), evalState, execState, get, modify, put)
 import Data.Char (isDigit)
 import qualified Data.Map.Strict as Map (Map, fromList, insert, lookup)
+import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import qualified Handlers.Base (Handle (..), giveRepeatCountFromBase)
 import qualified Handlers.Bot (Handle (..), changeRepeatCountForUser, isCorrectRepeatCount, makeReaction)
@@ -31,7 +33,7 @@ main = hspec $ do
             { Handlers.Base.logger = logerHandle,
               Handlers.Base.defaultRepeatCount = cRepeatCount testConfig,
               Handlers.Base.findUser = \user -> get >>= \base -> pure $ Map.lookup user base,
-              Handlers.Base.updateUser = \user count -> modify (Map.insert user count) >> pure ()
+              Handlers.Base.updateUser = \user count -> void $ modify (Map.insert user count)
             }
     it "return repeat count from Base for user" $
       evalState (Handlers.Base.giveRepeatCountFromBase baseHandle testUser) testBase
@@ -57,7 +59,7 @@ main = hspec $ do
       let baseHandle =
             Handlers.Base.Handle
               { Handlers.Base.findUser = \user -> get >>= \base -> pure $ Map.lookup user base,
-                Handlers.Base.updateUser = \user count -> modify (Map.insert user count) >> pure (),
+                Handlers.Base.updateUser = \user count -> void $ modify (Map.insert user count),
                 Handlers.Base.logger = loggerHandle
               }
       let botHandle =
@@ -91,7 +93,7 @@ main = hspec $ do
           let numberMessage =
                 if length answer /= 1
                   then 0
-                  else maybe 0 id (readMaybe answer :: Maybe Int)
+                  else fromMaybe 0 (readMaybe answer :: Maybe Int)
           let msg = Message {mData = Msg (T.pack answer), mID = 1, mUser = 2}
 
           Handlers.Bot.isCorrectRepeatCount msg
@@ -112,7 +114,7 @@ main = hspec $ do
                 Handlers.Bot.Handle
                   { Handlers.Bot.sendMessage =
                       \(Message {mData = msg}) -> case msg of
-                        Msg text -> put text >> pure ()
+                        Msg text -> void $ put text
                         _ -> pure (),
                     Handlers.Bot.helpMessage = T.pack helpMessage,
                     Handlers.Bot.logger = logHandle
@@ -142,7 +144,7 @@ main = hspec $ do
                 Handlers.Bot.Handle
                   { Handlers.Bot.sendMessage =
                       \(Message {mData = msg}) -> case msg of
-                        Msg text -> put text >> pure ()
+                        Msg text -> void $ put text
                         _ -> pure (),
                     Handlers.Bot.repeatMessage = T.pack repeatMessage,
                     Handlers.Bot.getMessage = pure (Message {mData = Msg "1", mID = 1, mUser = testUser}),
@@ -150,7 +152,7 @@ main = hspec $ do
                     Handlers.Bot.base = baseHandle
                   }
           execState (Handlers.Bot.makeReaction botHandle testMessage) "no repeat menu"
-            `shouldBe` (T.pack (repeatMessage <> show repeatCount))
+            `shouldBe` T.pack (repeatMessage <> show repeatCount)
 
       it "text message and gif message" $ do
         property $ \textMessage -> do
@@ -174,8 +176,8 @@ main = hspec $ do
                 Handlers.Bot.Handle
                   { Handlers.Bot.sendMessage =
                       \(Message {mData = msg}) -> case msg of
-                        Msg text -> modify (<> text) >> pure ()
-                        Gif text -> modify (<> text) >> pure ()
+                        Msg text -> void $ modify (<> text)
+                        Gif text -> void $ modify (<> text)
                         _ -> pure (),
                     Handlers.Bot.repeatMessage = cTextMenuRepeat testConfig,
                     Handlers.Bot.helpMessage = cTextMenuHelp testConfig,
@@ -184,9 +186,11 @@ main = hspec $ do
                   }
 
           execState (Handlers.Bot.makeReaction botHandle testMessage) ""
-            `shouldBe` (mconcat $ replicate (cRepeatCount testConfig) (T.pack textMessage))
+            `shouldBe` mconcat
+            $ replicate (cRepeatCount testConfig) (T.pack textMessage)
           execState (Handlers.Bot.makeReaction botHandle testMessage2) ""
-            `shouldBe` (mconcat $ replicate (cRepeatCount testConfig) (T.pack textMessage))
+            `shouldBe` mconcat
+            $ replicate (cRepeatCount testConfig) (T.pack textMessage)
 
   describe "Client logic" $ do
     it "No logic, no test" $ do
@@ -217,7 +221,7 @@ main = hspec $ do
                 }
         let clientHandle =
               Handlers.Client.Handle
-                { Handlers.Client.fetch = \message -> pure message,
+                { Handlers.Client.fetch = pure,
                   Handlers.Client.carryAway = \_ -> pure (),
                   Handlers.Client.logger = logerHandle
                 }
@@ -244,8 +248,8 @@ main = hspec $ do
               Handlers.Logger.Handle (State (Maybe Message, Maybe LastMessage))
       let baseHandle =
             Handlers.Base.Handle
-              { Handlers.Base.readStackMessage = get >>= pure,
-                Handlers.Base.saveMessage = \message -> put (Just message, Nothing) >> pure (),
+              { Handlers.Base.readStackMessage = get,
+                Handlers.Base.saveMessage = \message -> void $ put (Just message, Nothing),
                 Handlers.Base.logger = logerHandle
               }
       let botHandle =
@@ -295,7 +299,7 @@ main = hspec $ do
                 Handlers.Base.logger = logerHandle,
                 Handlers.Base.defaultRepeatCount = cRepeatCount testConfig,
                 Handlers.Base.findUser = \user -> get >>= \base -> pure $ Map.lookup user base,
-                Handlers.Base.updateUser = \user count -> modify (Map.insert user count) >> pure ()
+                Handlers.Base.updateUser = \user count -> void $ modify (Map.insert user count)
               }
       let botHandle =
             Handlers.Bot.Handle
@@ -312,7 +316,7 @@ main = hspec $ do
               { Handlers.Dispatcher.client = clientHandle,
                 Handlers.Dispatcher.bot = botHandle,
                 Handlers.Dispatcher.logger = logerHandle,
-                Handlers.Dispatcher.forkForUser = \_ -> modify (Map.insert testForkImitation forkCount) >> pure ()
+                Handlers.Dispatcher.forkForUser = \_ -> void $ modify (Map.insert testForkImitation forkCount)
               }
       -- testBase
       evalState (Handlers.Base.findUser baseHandle newUser) testBase
@@ -363,7 +367,7 @@ main = hspec $ do
       let logHandle' =
             Handlers.Logger.Handle
               { Handlers.Logger.levelLogger = cLvlLog testConfig,
-                Handlers.Logger.writeLog = \text -> put text >> pure ()
+                Handlers.Logger.writeLog = void . put
               } ::
               Handlers.Logger.Handle (State T.Text)
       let logHandle = logHandle' {Handlers.Logger.levelLogger = Debug}
@@ -406,7 +410,7 @@ main = hspec $ do
       let logHandle' =
             Handlers.Logger.Handle
               { Handlers.Logger.levelLogger = cLvlLog testConfig,
-                Handlers.Logger.writeLog = \text -> put text >> pure ()
+                Handlers.Logger.writeLog = void . put
               } ::
               Handlers.Logger.Handle (State T.Text)
       let logHandle = logHandle' {Handlers.Logger.levelLogger = Warning}

@@ -21,15 +21,16 @@ buildGetRequest cfg =
   setRequestHost (cfg & cBotHost) $
     setRequestMethod (cfg & cMethod) $
       setRequestSecure (cfg & cSecure) $
-        setRequestQueryString ([("offset", Just $ cfg & cOffset), ("timeout", Just $ cfg & cTimeOut)]) $
+        setRequestQueryString [("offset", Just $ cfg & cOffset), ("timeout", Just $ cfg & cTimeOut)] $
           setRequestPath (mconcat [cfg & cApiPath, cfg & cToken, "/getUpdates"]) $
-            setRequestPort (cfg & cPort) $
+            setRequestPort
+              (cfg & cPort)
               defaultRequest
 
 buildTextSendRequest :: Config -> Message -> Request
 buildTextSendRequest cfg msg =
   do
-    setRequestQueryString ([("chat_id", msg & Just . BC.pack . show . mUser), ("text", Just $ E.encodeUtf8 $ textMessage), ("reply_markup", Nothing)])
+    setRequestQueryString [("chat_id", msg & Just . BC.pack . show . mUser), ("text", Just $ E.encodeUtf8 textMessage), ("reply_markup", Nothing)]
     $ setRequestPath (mconcat [cfg & cApiPath, cfg & cToken, "/sendMessage"])
     $ buildDefaultSendRequest cfg
   where
@@ -40,7 +41,7 @@ buildTextSendRequest cfg msg =
 buildGifSendRequest :: Config -> Message -> Request
 buildGifSendRequest cfg msg =
   do
-    setRequestQueryString ([("chat_id", msg & Just . BC.pack . show . mUser), ("animation", Just $ E.encodeUtf8 $ gifMessage), ("reply_markup", Nothing)])
+    setRequestQueryString [("chat_id", msg & Just . BC.pack . show . mUser), ("animation", Just $ E.encodeUtf8 gifMessage), ("reply_markup", Nothing)]
     $ setRequestPath (mconcat [cfg & cApiPath, cfg & cToken, "/sendAnimation"])
     $ buildDefaultSendRequest cfg
   where
@@ -51,7 +52,7 @@ buildGifSendRequest cfg msg =
 buildKeyboardSendRequest :: Config -> Message -> Request
 buildKeyboardSendRequest cfg msg =
   do
-    setRequestQueryString ([("chat_id", msg & Just . BC.pack . show . mUser), ("text", Just $ E.encodeUtf8 $ "Enter a new number of repeats"), ("reply_markup", justKeyBoard)])
+    setRequestQueryString [("chat_id", msg & Just . BC.pack . show . mUser), ("text", Just $ E.encodeUtf8 "Enter a new number of repeats"), ("reply_markup", justKeyBoard)]
     $ setRequestPath (mconcat [cfg & cApiPath, cfg & cToken, "/sendMessage"])
     $ buildDefaultSendRequest cfg
 
@@ -60,5 +61,6 @@ buildDefaultSendRequest cfg =
   setRequestHost (cfg & cBotHost) $
     setRequestMethod (cfg & cMethod) $
       setRequestSecure (cfg & cSecure) $
-        setRequestPort (cfg & cPort) $
+        setRequestPort
+          (cfg & cPort)
           defaultRequest

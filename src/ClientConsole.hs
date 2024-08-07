@@ -1,6 +1,6 @@
 module ClientConsole (fetch, carryAway) where
 
--- тут реализация консольной версии
+-- implementation console verion
 
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
@@ -31,5 +31,5 @@ carryAway :: Message -> IO ()
 carryAway msg = case mData msg of
   -- Query i      -> print i
   Msg t -> TIO.putStrLn t
-  KeyboardMenu -> TIO.putStrLn ("Type a new repeat count [1..5]: ")
+  KeyboardMenu -> TIO.putStrLn "Type a new repeat count [1..5]: "
   _ -> pure ()

@@ -1,4 +1,4 @@
-module Handlers.Dispatcher (Handle (..), dispatcher, watcherForNewMessage) where
+module Handlers.Dispatcher (Handle (..), dispatcher, watcherForNewMessage, getMessage) where
 
 import qualified Data.Text as T
 import qualified Handlers.Base
@@ -92,7 +92,7 @@ watcherForNewMessage h = do
             Just msg -> Handlers.Base.saveMessage baseHandle msg
 
 -- in order for fork Bot to work with the one user
-getMessage :: (Monad m) => Handle m -> User -> m (Message)
+getMessage :: (Monad m) => Handle m -> User -> m Message
 getMessage h user = do
   let logHandle = logger h
   -- input : message database / desired (Just msg, _)

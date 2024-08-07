@@ -13,7 +13,7 @@ data Handle m = Handle
     logger :: Handlers.Logger.Handle m
   }
 
-giveRepeatCountFromBase :: (Monad m) => Handle m -> User -> m (RepeatCount)
+giveRepeatCountFromBase :: (Monad m) => Handle m -> User -> m RepeatCount
 giveRepeatCountFromBase h user = do
   let logHandle = logger h
   Handlers.Logger.logMessage
