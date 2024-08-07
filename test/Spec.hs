@@ -186,11 +186,10 @@ main = hspec $ do
                   }
 
           execState (Handlers.Bot.makeReaction botHandle testMessage) ""
-            `shouldBe` mconcat
-            $ replicate (cRepeatCount testConfig) (T.pack textMessage)
+            `shouldBe` mconcat (replicate (cRepeatCount testConfig) (T.pack textMessage))
           execState (Handlers.Bot.makeReaction botHandle testMessage2) ""
-            `shouldBe` mconcat
-            $ replicate (cRepeatCount testConfig) (T.pack textMessage)
+            `shouldBe` mconcat (replicate (cRepeatCount testConfig) (T.pack textMessage))
+            
 
   describe "Client logic" $ do
     it "No logic, no test" $ do
