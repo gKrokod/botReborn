@@ -31,7 +31,6 @@ updateUser (UserDataBase m) user count = do
   base <- takeMVar m
   let base' = Map.insert user count base
   putMVar m base'
-  -- for test L.writeFile "config/base.db" (LC.pack $ showTree base')
   seq base' (return ())
 
 findUser :: UserDataBase -> User -> IO (Maybe RepeatCount)
@@ -42,7 +41,7 @@ findUser (UserDataBase m) user = do
 
 readStackMessage :: StackMessage -> IO MessageDB
 readStackMessage (StackMessage m) = do
-  threadDelay mks -- prevention
+  threadDelay mks 
   a <- takeMVar m
   putMVar m a
   return a
@@ -52,11 +51,11 @@ saveMessage (StackMessage m) msg = do
   (mbMessage, lastMessage) <- takeMVar m
   case mbMessage of
     Nothing -> putMVar m (Just msg, lastMessage)
-    Just _ -> pure () -- for test (do putMVar m (mbMessage, lastMessage); error "can't save Message")
+    Just _ -> pure () 
 
 eraseMessage :: StackMessage -> Message -> IO ()
 eraseMessage (StackMessage m) msg = do
   (mbMessage, _) <- takeMVar m
   case mbMessage of
-    Nothing -> pure () -- for test (do putMVar m (mbMessage, lastMessage); error "nothing erase ")
-    Just msg' -> when (msg' == msg) (putMVar m (Nothing, Just msg)) -- for test (do putMVar m (mbMessage, lastMessage); error "can't error . Don't mine")
+    Nothing -> pure () 
+    Just msg' -> when (msg' == msg) (putMVar m (Nothing, Just msg)) 

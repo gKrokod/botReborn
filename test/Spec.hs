@@ -360,8 +360,6 @@ main = hspec $ do
         `shouldBe` Nothing
 
   describe "Logger logic" $ do
-    -- describe "new" $ do
-    -- context "Logger write log message if level log message >=  level from Config:" $ do
     it "Logger write log message if level log message >=  level from Config" $ do
       let logHandle' =
             Handlers.Logger.Handle

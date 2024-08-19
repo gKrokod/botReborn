@@ -20,7 +20,7 @@ data Message = Message
     mID :: ID,
     mUser :: User
   }
-  deriving (Eq, Show) -- show for test dispatcher
+  deriving (Eq, Show) 
 
 data Config = Config
   { cRepeatCount :: RepeatCount,
@@ -43,6 +43,5 @@ data Mode = ConsoleBot | TelegramBot deriving (Show, Eq)
 
 data Log = Debug | Warning | Error | Fatal deriving (Eq, Ord, Show)
 
--- for -Wall and -Werror
 defaultMessage :: Message
 defaultMessage = Message {mID = -1, mUser = -1, mData = Msg "fake message for -Wall and -Werror"}

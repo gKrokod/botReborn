@@ -1,12 +1,12 @@
 config {
   user {
-  repeatcount = "3"
-  helpmenu = "Hello! I am echo-bot.\nPossible command : /help, /repeat\nWhat about me? Good to     meet you!"
-  repeatmenu = "Number of repeats = "
+  repeatCount = "3"
+  helpMenu = "Hello! I am echo-bot.\nPossible command : /help, /repeat\nWhat about me? Good to     meet you!"
+  repeatMenu = "Number of repeats = "
   }
   url {
-    apipath = "/bot"
-    bothost = "api.telegram.org"
+    apiPath = "/bot"
+    botHost = "api.telegram.org"
     timeout = "10"
     offset = "-1"
     token = "_"
@@ -14,6 +14,6 @@ config {
     method = "GET"
     secure = on
   } 
-  telegrammode = off
+  telegramMode = off
   lvlLog = "Debug"
 }

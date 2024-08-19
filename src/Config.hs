@@ -9,18 +9,18 @@ import Types (Config (..), Log (..), Mode (ConsoleBot, TelegramBot))
 loadConfig :: IO Config
 loadConfig = do
   conf <- C.load [C.Required "config/bot.cfg"]
-  rcount <- C.lookupDefault "NotFoundRepeatCount.cfg" conf "config.user.repeatcount"
-  helpmenu <- C.lookupDefault "NotFoundHelpMenu.cfg" conf "config.user.helpmenu"
-  repeatmenu <- C.lookupDefault "NotFoundRepeatMenu.cfg" conf "config.user.repeatmenu"
-  apipath <- C.lookupDefault "NotFoundApiPath.cfg" conf "config.url.apipath"
-  bothost <- C.lookupDefault "NotFoundBotHost.cfg" conf "config.url.bothost"
+  rcount <- C.lookupDefault "NotFoundRepeatCount.cfg" conf "config.user.repeatCount"
+  helpmenu <- C.lookupDefault "NotFoundHelpMenu.cfg" conf "config.user.helpMenu"
+  repeatmenu <- C.lookupDefault "NotFoundRepeatMenu.cfg" conf "config.user.repeatMenu"
+  apipath <- C.lookupDefault "NotFoundApiPath.cfg" conf "config.url.apiPath"
+  bothost <- C.lookupDefault "NotFoundBotHost.cfg" conf "config.url.botHost"
   timeout <- C.lookupDefault "NotFoundTimeOut.cfg" conf "config.url.timeout"
   offset <- C.lookupDefault "NotFoundOffset.cfg" conf "config.url.offset"
   token <- C.lookupDefault "NotFoundToken.cfg" conf "config.url.token"
   port <- C.lookupDefault "NotFoundPort.cfg" conf "config.url.port"
   method <- C.lookupDefault "NotFoundMethod.cfg" conf "config.url.method"
   secure <- C.lookupDefault False conf "config.url.secure"
-  mode <- C.lookupDefault False conf "config.telegrammode"
+  mode <- C.lookupDefault False conf "config.telegramMode"
   lvlLog <- C.lookupDefault "DEBUG" conf "config.lvlLog"
   return
     Config

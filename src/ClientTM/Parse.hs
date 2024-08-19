@@ -48,12 +48,11 @@ instance FromJSON UnknownMessage where
     updateId <-
       v .: "result"
         >>= \case
-          [] -> parseFail "haven't unknwon message"
+          [] -> parseFail "haven't unknown message"
           (h : _) -> h .: "update_id"
     return UnknownMessage {uID = updateId}
-  parseJSON invalid = prependFailure "parsing UnknownMessage failed, " (typeMismatch "Object" invalid)
+  parseJSON invalid = prependFailure "parsing Unknown Message failed, " (typeMismatch "Object" invalid)
 
--- instance FromJSON Message, rebuild because -Wall, -Werror
 instance FromJSON BoxMessage where
   parseJSON (Object v) = do
     updateId <-
@@ -79,7 +78,7 @@ instance FromJSON BoxMessage where
     message <-
       v .: "result"
         >>= \case
-          [] -> parseFail "haven't message" -- v .: "emptyListMakeNothing" >>= pure . Gif
+          [] -> parseFail "haven't message" 
           (h : _) ->
             h .:? "message"
               >>= \case

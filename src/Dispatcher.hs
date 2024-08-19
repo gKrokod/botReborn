@@ -5,6 +5,4 @@ import Control.Monad (forever)
 
 forkForUser :: IO () -> IO ()
 forkForUser f = do
-  _ <- forkIO $ forever f
-  -- print "****************************MAKE NEW FORK****************************************"
-  pure ()
+  forkIO (forever f) >> pure ()

@@ -1,7 +1,5 @@
 module Handlers.Client (Handle (..)) where
 
--- тут реализация консольной версии
-
 import qualified Handlers.Logger
 import Types (LastMessage, Message)
 

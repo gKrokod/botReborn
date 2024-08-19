@@ -19,7 +19,6 @@ dispatcher h = do
   let logHandle = logger h
   let botHandle = bot h
   let baseHandle = Handlers.Bot.base botHandle
-  -- let clientHandle = client h
   -- input : message database / desired (Just msg, _)
   (mbMessage, _) <- Handlers.Base.readStackMessage baseHandle
   case mbMessage of
@@ -28,7 +27,7 @@ dispatcher h = do
       let user = mUser msg
       existUser <- Handlers.Base.findUser baseHandle user
       case existUser of
-        -- User exists. wait. The fork Bot will get the desired result
+        -- User exists. Wait. The fork Bot will get the desired result
         Just _ -> pure ()
         -- Does not. Save the user in the database and run fork Bot for him
         Nothing -> do

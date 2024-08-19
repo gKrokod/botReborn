@@ -19,7 +19,6 @@ import Types (Config (..), Mode (..), defaultMessage)
 
 main :: IO ()
 main = do
-  -- set buffering
   hSetBuffering stdin LineBuffering
   hSetBuffering stdout LineBuffering
   -- load config and make handles
@@ -30,7 +29,7 @@ main = do
 
   let logHandle =
         Handlers.Logger.Handle
-          { Handlers.Logger.levelLogger = cLvlLog cfg, -- Debug
+          { Handlers.Logger.levelLogger = cLvlLog cfg, 
             Handlers.Logger.writeLog = Logger.writeLog
           }
 
@@ -78,11 +77,11 @@ main = do
             Handlers.Dispatcher.logger = logHandle
           }
   -------------------------------------------------------------------------------------------------
-  -- start watcher for new messages
+  -- run watcher for new messages
   _ <-
     forkIO $
       forever $
         Handlers.Dispatcher.watcherForNewMessage handle
-  -- start main logic
+  -- run main logic
   forever $
     Handlers.Dispatcher.dispatcher handle

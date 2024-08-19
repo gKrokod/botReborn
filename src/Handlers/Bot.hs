@@ -63,12 +63,7 @@ makeReaction h msg = do
       Handlers.Base.updateUser (base h) user i
     KeyboardMenu -> pure ()
   where
-    -- _ -> do
-    --   Handlers.Logger.logMessage logHandle Error "The received message is unknwon message"
-    --   error "unknow mData Message"
-
     dataMsg = mData msg
-    -- id = mID msg
     user = mUser msg
 
 changeRepeatCountForUser :: (Monad m) => Handle m -> User -> m ()
@@ -76,7 +71,6 @@ changeRepeatCountForUser h user = do
   let logHandle = logger h
   Handlers.Logger.logMessage logHandle Debug "Bot. Get number of repeats for user from the database"
   count <- Handlers.Base.giveRepeatCountFromBase (base h) user
-  -- let msg = Message {mUser = user, mID = -1}
   let msg = defaultMessage {mUser = user}
   sendMessage h (msg {mData = Msg $ repeatMessage h <> T.pack (show count)})
   sendMessage h (msg {mData = KeyboardMenu})
@@ -95,7 +89,7 @@ changeRepeatCountForUser h user = do
           makeReaction h (msg {mData = Query query', mUser = mUser answer})
         Query i -> makeReaction h (msg {mData = Query i, mUser = mUser answer})
         _ -> do
-          Handlers.Logger.logMessage logHandle Error "Bot. The received message is unknwon message"
+          Handlers.Logger.logMessage logHandle Error "Bot. The received message is unknown message"
           pure ()
 
 isCorrectRepeatCount :: Message -> Bool

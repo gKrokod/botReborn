@@ -1,7 +1,5 @@
 module ClientTM (fetch, carryAway) where
 
--- implementation vk version
-
 import ClientTM.HttpMessage
   ( buildGetRequest,
     buildGifSendRequest,
@@ -54,4 +52,4 @@ carryAway cfg msg = case mData msg of
   Msg _ -> void $ httpLBS (buildTextSendRequest cfg msg)
   Gif _ -> void $ httpLBS (buildGifSendRequest cfg msg)
   KeyboardMenu -> void $ httpLBS (buildKeyboardSendRequest cfg msg)
-  _ -> void $ TIO.putStrLn "carryAway wrong message"
+  _ -> void $ TIO.putStrLn "carry away wrong message"
