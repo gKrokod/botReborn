@@ -18,12 +18,12 @@ import Network.HTTP.Simple
     getResponseStatusCode,
     httpLBS,
   )
-import Types (Data (..), DataFromButton, LastMessage, Message (..), defaultMessage)
+import Types (Data (..), DataFromButton, LastMessage, Message (..), defaultMessage, ID(..))
 import Config (Config(..))
 
 fetch :: Config -> Maybe LastMessage -> IO (Maybe Message)
 fetch cfg lm = do
-  response' <- try $ httpLBS $ buildGetRequest (cfg {cOffset = maybe "-1" (T.pack . show . succ . mID) lm})
+  response' <- try $ httpLBS $ buildGetRequest (cfg {cOffset = maybe "-1" (T.pack . show . succ . giveId . mID) lm})
   case response' of
     Left e -> do
       print (e :: SomeException)

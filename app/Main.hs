@@ -15,7 +15,7 @@ import qualified Handlers.Dispatcher
 import qualified Handlers.Logger
 import qualified Logger
 import System.IO (BufferMode (..), hSetBuffering, stdin, stdout)
-import Types (defaultMessage)
+import Types (defaultMessage, RepeatCount(..))
 
 main :: IO ()
 main = do
@@ -35,7 +35,7 @@ main = do
 
   let baseHandle =
         Handlers.Base.Handle
-          { Handlers.Base.defaultRepeatCount = cRepeatCount cfg,
+          { Handlers.Base.defaultRepeatCount = RepeatCount $ cRepeatCount cfg,
             Handlers.Base.readStackMessage = Base.readStackMessage stackMessage,
             Handlers.Base.saveMessage = Base.saveMessage stackMessage,
             Handlers.Base.eraseMessage = Base.eraseMessage stackMessage,

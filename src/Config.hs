@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DerivingStrategies #-}
-
+{-#LANGUAGE TypeApplications #-}
 module Config (loadConfig,  Config(..), Mode (..)) where
 
 import Data.Text (Text)
