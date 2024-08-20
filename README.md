@@ -20,24 +20,20 @@ Once you have installed The Haskell Tool stack, you need to make a configuration
 
 <details><summary>template configuration file</summary>
     
-    config {
-      user {
-      repeatcount = "3"
-      helpmenu = "Hello! I am echo-bot.\nPossible command : /help, /repeat\nWhat about me? Good to     meet you!"
-      repeatmenu = "Number of repeats = "
-      }
-      url {
-        apipath = "/bot"
-        bothost = "api.telegram.org"
-        timeout = "10"
-        offset = "-1"
-        token = "_"
-        port = "443"
-        method = "GET"
-        secure = on
-      }-
-      telegrammode = off
-      lvlLog = "Debug"
+    {
+      "cApiPath": "/bot",
+      "cBotHost": "api.telegram.org",
+      "cLvlLog": "Debug",
+      "cMethod": "GET",
+      "cMode": "ConsoleBot",
+      "cOffset": "-1",
+      "cPort": 443,
+      "cRepeatCount": 3,
+      "cSecure": true,
+      "cTextMenuHelp": "Hello! I am echo-bot.\nPossible command : /help, /repeat\nWhat about me? Good to     meet you!",
+      "cTextMenuRepeat": "Number of repeats = ",
+      "cTimeOut": "10",
+      "cToken": "_"
     }
     
 </details>
@@ -116,15 +112,15 @@ $ stack exec botReborn-exe
 
 <details><summary>Main parameters of the configuration file</summary>
   
-  1. repeatcount
+  1. repeatCount
     
     default number of repeats for user x: 1 <= x <= 5
   
-  2. helpmenu
+  2. helpMenu
     
     text of menu on commands "/help" and "/start"
    
-  3. repeatmenu
+  3. repeatMenu
     
     text of menu on command "/repeat"
   
@@ -132,9 +128,9 @@ $ stack exec botReborn-exe
     
     identifier for Telegram client
   
-  5. telegrammode
+  5. telegramMode
     
-    selection key of client version ("off" - Console client, "on" - Telegram client)
+    selection key of client version ("ConsoleBot" - Console client, "TelegramBot" - Telegram client)
   
   6. lvlLog
     

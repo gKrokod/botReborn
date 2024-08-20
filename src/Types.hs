@@ -1,7 +1,11 @@
-module Types (Message (..), Log (..), LastMessage, User, RepeatCount, Data (..), DataFromButton, Config (..), Mode (..), ID, defaultMessage) where
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DerivingStrategies #-}
 
-import qualified Data.ByteString.Char8 as BC
+module Types (Message (..), Log (..), LastMessage, User, RepeatCount, Data (..), DataFromButton, ID, defaultMessage) where
+
 import qualified Data.Text as T
+import GHC.Generics (Generic)
+import Data.Aeson (FromJSON (..), ToJSON (..))
 
 type User = Int
 
@@ -22,26 +26,10 @@ data Message = Message
   }
   deriving (Eq, Show) 
 
-data Config = Config
-  { cRepeatCount :: RepeatCount,
-    cTextMenuHelp :: T.Text,
-    cTextMenuRepeat :: T.Text,
-    cApiPath :: BC.ByteString,
-    cBotHost :: BC.ByteString,
-    cTimeOut :: BC.ByteString,
-    cOffset :: BC.ByteString,
-    cToken :: BC.ByteString,
-    cPort :: Int,
-    cMethod :: BC.ByteString,
-    cSecure :: Bool,
-    cMode :: Mode,
-    cLvlLog :: Log
-  }
-  deriving (Show)
 
-data Mode = ConsoleBot | TelegramBot deriving (Show, Eq)
-
-data Log = Debug | Warning | Error | Fatal deriving (Eq, Ord, Show)
+data Log = Debug | Warning | Error | Fatal
+  deriving stock (Eq, Ord, Show, Generic)
+  deriving anyclass (ToJSON, FromJSON)
 
 defaultMessage :: Message
 defaultMessage = Message {mID = -1, mUser = -1, mData = Msg "fake message for -Wall and -Werror"}

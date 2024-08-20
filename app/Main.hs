@@ -3,7 +3,7 @@ module Main (main) where
 import qualified Base
 import qualified ClientConsole
 import qualified ClientTM
-import qualified Config (loadConfig)
+import Config (Config (..), Mode (..), loadConfig)
 import Control.Concurrent (forkIO)
 import Control.Monad (forever)
 import Data.Bool (bool)
@@ -15,7 +15,7 @@ import qualified Handlers.Dispatcher
 import qualified Handlers.Logger
 import qualified Logger
 import System.IO (BufferMode (..), hSetBuffering, stdin, stdout)
-import Types (Config (..), Mode (..), defaultMessage)
+import Types (defaultMessage)
 
 main :: IO ()
 main = do
