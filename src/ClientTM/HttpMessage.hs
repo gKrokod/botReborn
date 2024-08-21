@@ -15,7 +15,7 @@ import Network.HTTP.Simple
     setRequestQueryString,
     setRequestSecure,
   )
-import Types (Data (..), Message (..), User(..))
+import Types (Data (..), Message (..))
 import Config (Config(..))
 
 
@@ -33,7 +33,7 @@ buildGetRequest cfg =
 buildTextSendRequest :: Config -> Message -> Request
 buildTextSendRequest cfg msg =
   do
-    setRequestQueryString [("chat_id", Just . BC.pack . show . giveUser . mUser $ msg), ("text", Just $ E.encodeUtf8 textMessage), ("reply_markup", Nothing)]
+    setRequestQueryString [("chat_id", Just . BC.pack . show . mUser $ msg), ("text", Just $ E.encodeUtf8 textMessage), ("reply_markup", Nothing)]
     $ setRequestPath (mconcat [cfg & cApiPath, cfg & cToken, "/sendMessage"])
     $ buildDefaultSendRequest cfg
   where
@@ -44,7 +44,7 @@ buildTextSendRequest cfg msg =
 buildGifSendRequest :: Config -> Message -> Request
 buildGifSendRequest cfg msg =
   do
-    setRequestQueryString [("chat_id", Just . BC.pack . show . giveUser . mUser $ msg), ("animation", Just $ E.encodeUtf8 gifMessage), ("reply_markup", Nothing)]
+    setRequestQueryString [("chat_id", Just . BC.pack . show . mUser $ msg), ("animation", Just $ E.encodeUtf8 gifMessage), ("reply_markup", Nothing)]
     $ setRequestPath (mconcat [cfg & cApiPath, cfg & cToken, "/sendAnimation"])
     $ buildDefaultSendRequest cfg
   where
@@ -55,7 +55,7 @@ buildGifSendRequest cfg msg =
 buildKeyboardSendRequest :: Config -> Message -> Request
 buildKeyboardSendRequest cfg msg =
   do
-    setRequestQueryString [("chat_id", Just . BC.pack . show . giveUser . mUser $ msg), ("text", Just $ E.encodeUtf8 "Enter a new number of repeats"), ("reply_markup", justKeyBoard)]
+    setRequestQueryString [("chat_id", Just . BC.pack . show . mUser $ msg), ("text", Just $ E.encodeUtf8 "Enter a new number of repeats"), ("reply_markup", justKeyBoard)]
     $ setRequestPath (mconcat [cfg & cApiPath, cfg & cToken, "/sendMessage"])
     $ buildDefaultSendRequest cfg
 

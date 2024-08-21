@@ -7,7 +7,7 @@ import qualified Data.Text as T
 import GHC.Generics (Generic)
 import Data.Aeson (FromJSON (..), ToJSON (..))
 
-newtype User = User {giveUser :: Int}
+newtype User = User Int
   deriving stock (Show, Eq, Generic, Ord)
   deriving anyclass (ToJSON, FromJSON)
 
@@ -20,7 +20,7 @@ newtype ID = ID { giveId :: Int }
   deriving anyclass (ToJSON, FromJSON)
 
 newtype DataFromButton = DataFromButton {dataFromButton :: Int}
-  deriving stock (Show, Eq, Generic, Read)
+  deriving stock (Show, Eq, Read, Generic)
 
 type LastMessage = Message
 
