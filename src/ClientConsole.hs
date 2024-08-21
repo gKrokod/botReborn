@@ -3,7 +3,7 @@ module ClientConsole (fetch, carryAway) where
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import qualified Data.Time.Clock.System as Time
-import Types (Data (..), ID (..), LastMessage, Message (..), defaultMessage)
+import Types (Data (..), LastMessage, Message (..), defaultMessage, ID (..))
 
 fetch :: Maybe LastMessage -> IO (Maybe Message)
 fetch lm = do

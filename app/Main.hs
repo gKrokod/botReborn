@@ -15,7 +15,7 @@ import qualified Handlers.Dispatcher
 import qualified Handlers.Logger
 import qualified Logger
 import System.IO (BufferMode (..), hSetBuffering, stdin, stdout)
-import Types (RepeatCount (..), defaultMessage)
+import Types (defaultMessage, RepeatCount(..))
 
 main :: IO ()
 main = do
@@ -26,10 +26,10 @@ main = do
   stackMessage <- Base.newBaseMessage
   base <- Base.newBaseUser
   cfg <- Config.loadConfig
-  print cfg
+  print cfg 
   let logHandle =
         Handlers.Logger.Handle
-          { Handlers.Logger.levelLogger = cLvlLog cfg,
+          { Handlers.Logger.levelLogger = cLvlLog cfg, 
             Handlers.Logger.writeLog = Logger.writeLog
           }
 

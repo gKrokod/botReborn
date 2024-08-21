@@ -1,4 +1,3 @@
-import Config (Config (..))
 import Control.Monad (void)
 import Control.Monad.State (State (..), evalState, execState, get, modify, put)
 import qualified Data.Map.Strict as Map (Map, fromList, insert, lookup)
@@ -13,7 +12,8 @@ import Test.Hspec (context, describe, hspec, it, shouldBe, shouldNotBe)
 import Test.Hspec.QuickCheck (modifyMaxSuccess)
 import Test.QuickCheck (property)
 import Text.Read (readMaybe)
-import Types (Data (..), DataFromButton (..), ID (..), LastMessage, Log (..), Message (..), RepeatCount (..), User (..))
+import Types (Data (..), LastMessage, Log (..), Message (..), RepeatCount(..), User(..), DataFromButton(..), ID(..))
+import Config (Config (..))
 
 main :: IO ()
 main = hspec $ do
@@ -41,12 +41,12 @@ main = hspec $ do
 
     it "return default repeat count from Base for new user" $
       evalState (Handlers.Base.giveRepeatCountFromBase baseHandle newUser) testBase
-        `shouldBe` (RepeatCount $ cRepeatCount testConfig)
+        `shouldBe` (RepeatCount  $ cRepeatCount testConfig)
 
   describe "Bot logic" $ modifyMaxSuccess (const 1000) $ do
     it "User can change his repeat count" $ do
-      let oldRepeatCount = RepeatCount 1
-      let newRepeatCount = DataFromButton 2
+      let oldRepeatCount = RepeatCount 1 
+      let newRepeatCount = DataFromButton 2 
       let testUser = User 111 :: User
       let testBase = Map.fromList [(testUser, oldRepeatCount)]
 
@@ -189,6 +189,7 @@ main = hspec $ do
             `shouldBe` mconcat (replicate (cRepeatCount testConfig) (T.pack textMessage))
           execState (Handlers.Bot.makeReaction botHandle testMessage2) ""
             `shouldBe` mconcat (replicate (cRepeatCount testConfig) (T.pack textMessage))
+            
 
   describe "Client logic" $ do
     it "No logic, no test" $ do
@@ -434,7 +435,7 @@ main = hspec $ do
 testConfig :: Config
 testConfig =
   Config
-    { cRepeatCount = 3,
+    { cRepeatCount = 3, 
       cTextMenuHelp = "Help menu:" :: T.Text,
       cTextMenuRepeat = "Repeat menu:" :: T.Text,
       cLvlLog = Debug :: Log
