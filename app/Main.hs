@@ -3,7 +3,7 @@ module Main (main) where
 import qualified Base
 import qualified ClientConsole
 import qualified ClientTM
-import qualified Config (loadConfig)
+import Config (Config (..), Mode (..), loadConfig)
 import Control.Concurrent (forkIO)
 import Control.Monad (forever)
 import Data.Bool (bool)
@@ -15,7 +15,7 @@ import qualified Handlers.Dispatcher
 import qualified Handlers.Logger
 import qualified Logger
 import System.IO (BufferMode (..), hSetBuffering, stdin, stdout)
-import Types (Config (..), Mode (..), defaultMessage)
+import Types (RepeatCount (..), defaultMessage)
 
 main :: IO ()
 main = do
@@ -26,16 +26,16 @@ main = do
   stackMessage <- Base.newBaseMessage
   base <- Base.newBaseUser
   cfg <- Config.loadConfig
-
+  print cfg
   let logHandle =
         Handlers.Logger.Handle
-          { Handlers.Logger.levelLogger = cLvlLog cfg, 
+          { Handlers.Logger.levelLogger = cLvlLog cfg,
             Handlers.Logger.writeLog = Logger.writeLog
           }
 
   let baseHandle =
         Handlers.Base.Handle
-          { Handlers.Base.defaultRepeatCount = cRepeatCount cfg,
+          { Handlers.Base.defaultRepeatCount = RepeatCount $ cRepeatCount cfg,
             Handlers.Base.readStackMessage = Base.readStackMessage stackMessage,
             Handlers.Base.saveMessage = Base.saveMessage stackMessage,
             Handlers.Base.eraseMessage = Base.eraseMessage stackMessage,

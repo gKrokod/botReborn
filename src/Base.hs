@@ -3,7 +3,7 @@ module Base (newBaseMessage, updateUser, findUser, saveMessage, newBaseUser, rea
 import Control.Concurrent (MVar, newMVar, putMVar, takeMVar, threadDelay)
 import Control.Monad (when)
 import qualified Data.Map.Strict as Map
-import Types (LastMessage, Message, RepeatCount, User)
+import Types (LastMessage, Message (..), RepeatCount (..), User (..))
 
 mks :: Int
 mks = 1000 -- for function readStackMessage
@@ -41,7 +41,7 @@ findUser (UserDataBase m) user = do
 
 readStackMessage :: StackMessage -> IO MessageDB
 readStackMessage (StackMessage m) = do
-  threadDelay mks 
+  threadDelay mks
   a <- takeMVar m
   putMVar m a
   return a
@@ -51,11 +51,11 @@ saveMessage (StackMessage m) msg = do
   (mbMessage, lastMessage) <- takeMVar m
   case mbMessage of
     Nothing -> putMVar m (Just msg, lastMessage)
-    Just _ -> pure () 
+    Just _ -> pure ()
 
 eraseMessage :: StackMessage -> Message -> IO ()
 eraseMessage (StackMessage m) msg = do
   (mbMessage, _) <- takeMVar m
   case mbMessage of
-    Nothing -> pure () 
-    Just msg' -> when (msg' == msg) (putMVar m (Nothing, Just msg)) 
+    Nothing -> pure ()
+    Just msg' -> when (msg' == msg) (putMVar m (Nothing, Just msg))

@@ -2,10 +2,11 @@ module Handlers.Bot (Handle (..), doWork, changeRepeatCountForUser, isCorrectRep
 
 import Control.Monad (replicateM_, void)
 import Data.Char (isDigit)
-import qualified Data.Text as T (Text, all, null, pack, unpack)
+import qualified Data.Text as T (Text, pack, unpack)
 import qualified Handlers.Base
 import qualified Handlers.Logger
-import Types (Data (..), DataFromButton, Log (..), Message (..), User, defaultMessage)
+import Text.Read (readMaybe)
+import Types (Data (..), DataFromButton (..), Log (..), Message (..), RepeatCount (..), User, defaultMessage)
 
 data Handle m = Handle
   { getMessage :: m Message,
@@ -37,14 +38,14 @@ makeReaction h msg = do
         logHandle
         Debug
         "Bot. The received message is text message"
-      count <- Handlers.Base.giveRepeatCountFromBase (base h) user
+      RepeatCount count <- Handlers.Base.giveRepeatCountFromBase (base h) user
       replicateM_ count (sendMessage h msg)
     Gif _ -> do
       Handlers.Logger.logMessage
         logHandle
         Debug
         "Bot. The received message is gif message"
-      count <- Handlers.Base.giveRepeatCountFromBase (base h) user
+      RepeatCount count <- Handlers.Base.giveRepeatCountFromBase (base h) user
       replicateM_ count (sendMessage h msg)
     Command t -> do
       Handlers.Logger.logMessage
@@ -55,12 +56,12 @@ makeReaction h msg = do
         "/help" -> sendMessage h (msg {mData = Msg $ helpMessage h})
         "/repeat" -> changeRepeatCountForUser h user
         _ -> void $ Handlers.Logger.logMessage logHandle Error "Bot. The received command isn't command message"
-    Query i -> do
+    Query (DataFromButton i) -> do
       Handlers.Logger.logMessage
         logHandle
         Debug
         "Bot. The received message is query message for change number of repeats for user"
-      Handlers.Base.updateUser (base h) user i
+      Handlers.Base.updateUser (base h) user (RepeatCount i)
     KeyboardMenu -> pure ()
   where
     dataMsg = mData msg
@@ -85,8 +86,9 @@ changeRepeatCountForUser h user = do
     else do
       case mData answer of
         Msg t -> do
-          let query' = read $ T.unpack t :: DataFromButton
-          makeReaction h (msg {mData = Query query', mUser = mUser answer})
+          case readMaybe $ T.unpack t of
+            Nothing -> pure ()
+            Just num -> makeReaction h (msg {mData = Query . DataFromButton $ num, mUser = mUser answer})
         Query i -> makeReaction h (msg {mData = Query i, mUser = mUser answer})
         _ -> do
           Handlers.Logger.logMessage logHandle Error "Bot. The received message is unknown message"
@@ -94,9 +96,12 @@ changeRepeatCountForUser h user = do
 
 isCorrectRepeatCount :: Message -> Bool
 isCorrectRepeatCount m = case mData m of
-  Msg t -> T.all isDigit t && not (T.null t) && helper (read $ T.unpack t)
+  Msg t -> checkText $ T.unpack t
   Query i -> helper i
   _ -> False
   where
     helper :: DataFromButton -> Bool
-    helper d = d `elem` [1 .. 5]
+    helper (DataFromButton d) = d `elem` [1 .. 5]
+    checkText :: String -> Bool
+    checkText [h] = h `elem` ("12345" :: String)
+    checkText _ = False

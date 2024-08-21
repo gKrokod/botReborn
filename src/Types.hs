@@ -1,15 +1,26 @@
-module Types (Message (..), Log (..), LastMessage, User, RepeatCount, Data (..), DataFromButton, Config (..), Mode (..), ID, defaultMessage) where
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DerivingStrategies #-}
 
-import qualified Data.ByteString.Char8 as BC
+module Types (Message (..), Log (..), LastMessage, User (..), RepeatCount (..), Data (..), DataFromButton (..), ID (..), defaultMessage) where
+
+import Data.Aeson (FromJSON (..), ToJSON (..))
 import qualified Data.Text as T
+import GHC.Generics (Generic)
 
-type User = Int
+newtype User = User {giveUser :: Int}
+  deriving stock (Show, Eq, Generic, Ord)
+  deriving anyclass (ToJSON, FromJSON)
 
-type RepeatCount = Int
+newtype RepeatCount = RepeatCount Int
+  deriving stock (Show, Eq, Generic, Ord)
+  deriving anyclass (ToJSON, FromJSON)
 
-type ID = Int
+newtype ID = ID {giveId :: Int}
+  deriving stock (Show, Eq, Generic)
+  deriving anyclass (ToJSON, FromJSON)
 
-type DataFromButton = Int
+newtype DataFromButton = DataFromButton {dataFromButton :: Int}
+  deriving stock (Show, Eq, Generic, Read)
 
 type LastMessage = Message
 
@@ -20,28 +31,11 @@ data Message = Message
     mID :: ID,
     mUser :: User
   }
-  deriving (Eq, Show) 
+  deriving (Eq, Show)
 
-data Config = Config
-  { cRepeatCount :: RepeatCount,
-    cTextMenuHelp :: T.Text,
-    cTextMenuRepeat :: T.Text,
-    cApiPath :: BC.ByteString,
-    cBotHost :: BC.ByteString,
-    cTimeOut :: BC.ByteString,
-    cOffset :: BC.ByteString,
-    cToken :: BC.ByteString,
-    cPort :: Int,
-    cMethod :: BC.ByteString,
-    cSecure :: Bool,
-    cMode :: Mode,
-    cLvlLog :: Log
-  }
-  deriving (Show)
-
-data Mode = ConsoleBot | TelegramBot deriving (Show, Eq)
-
-data Log = Debug | Warning | Error | Fatal deriving (Eq, Ord, Show)
+data Log = Debug | Warning | Error | Fatal
+  deriving stock (Eq, Ord, Show, Generic)
+  deriving anyclass (ToJSON, FromJSON)
 
 defaultMessage :: Message
-defaultMessage = Message {mID = -1, mUser = -1, mData = Msg "fake message for -Wall and -Werror"}
+defaultMessage = Message {mID = ID (-1), mUser = User (-1), mData = Msg "fake message for -Wall and -Werror"}

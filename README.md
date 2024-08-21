@@ -5,8 +5,8 @@
 
 BotReborn is a echo-bot that send multiple text or gif messages to еach message from the user.
 Echo-bot interacts with user through some delivery mechanisms specified in the configuration file `/config/bot.cfg` 
-+ Console: the user's message is entered from stdin, the bot's response is sent to stdout. `telegrammode = off`
-+ Telegram: https://core.telegram.org/bots/api#poll `telegrammode = on`
++ Console: the user's message is entered from stdin, the bot's response is sent to stdout. `cMode = ConsoleBot`
++ Telegram: https://core.telegram.org/bots/api#poll `cMode = TelegramBot`
 
 ## Distribution ##
 
@@ -20,24 +20,20 @@ Once you have installed The Haskell Tool stack, you need to make a configuration
 
 <details><summary>template configuration file</summary>
     
-    config {
-      user {
-      repeatcount = "3"
-      helpmenu = "Hello! I am echo-bot.\nPossible command : /help, /repeat\nWhat about me? Good to     meet you!"
-      repeatmenu = "Number of repeats = "
-      }
-      url {
-        apipath = "/bot"
-        bothost = "api.telegram.org"
-        timeout = "10"
-        offset = "-1"
-        token = "_"
-        port = "443"
-        method = "GET"
-        secure = on
-      }-
-      telegrammode = off
-      lvlLog = "Debug"
+    {
+      "cApiPath": "/bot",
+      "cBotHost": "api.telegram.org",
+      "cLvlLog": "Debug",
+      "cMethod": "GET",
+      "cMode": "ConsoleBot",
+      "cOffset": "-1",
+      "cPort": 443,
+      "cRepeatCount": 3,
+      "cSecure": true,
+      "cTextMenuHelp": "Hello! I am echo-bot.\nPossible command : /help, /repeat\nWhat about me? Good to     meet you!",
+      "cTextMenuRepeat": "Number of repeats = ",
+      "cTimeOut": "10",
+      "cToken": "_"
     }
     
 </details>
@@ -116,27 +112,27 @@ $ stack exec botReborn-exe
 
 <details><summary>Main parameters of the configuration file</summary>
   
-  1. repeatcount
+  1. cRepeatCount
     
     default number of repeats for user x: 1 <= x <= 5
   
-  2. helpmenu
+  2. cHelpMenu
     
     text of menu on commands "/help" and "/start"
    
-  3. repeatmenu
+  3. cRepeatMenu
     
     text of menu on command "/repeat"
   
-  4. token
+  4. cToken
     
     identifier for Telegram client
   
-  5. telegrammode
+  5. cMode
     
-    selection key of client version ("off" - Console client, "on" - Telegram client)
+    selection key of client version ("ConsoleBot" - Console client, "TelegramBot" - Telegram client)
   
-  6. lvlLog
+  6. cLvlLog
     
     minimum log message level to display ("Debug" < "Warning" < "Error" < "Fatal")   
 
