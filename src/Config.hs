@@ -41,7 +41,6 @@ loadConfig = do
     Right config -> pure config
 
 --
---
 loadConfigBot :: IO (Either String Config)
 loadConfigBot =
   either (Left . displayException) eitherDecode

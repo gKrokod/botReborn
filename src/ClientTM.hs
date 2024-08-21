@@ -27,7 +27,7 @@ fetch cfg lm = do
   case response' of
     Left e -> do
       print (e :: SomeException)
-      threadDelay 10000000
+      threadDelay 1000000
       fetch cfg lm
     Right response -> do
       let status = getResponseStatusCode response
@@ -39,7 +39,7 @@ fetch cfg lm = do
         (Right m, _) -> pure $ Just $ makeMessage (mData (unboxMessage m)) (unboxMessage m)
         (_, Right m) -> fetch cfg (Just defaultMessage {mID = uID m})
         _ -> do
-          threadDelay 10000000
+          threadDelay 1000000
           pure Nothing
 
 makeMessage :: Data T.Text DataFromButton -> Message -> Message
