@@ -5,7 +5,7 @@ import Data.Char (isDigit)
 import qualified Data.Text as T (Text, all, null, pack, unpack)
 import qualified Handlers.Base
 import qualified Handlers.Logger
-import Types (Data (..), DataFromButton(..), Log (..), Message (..), User, defaultMessage, RepeatCount(..))
+import Types (Data (..), DataFromButton, Log (..), Message (..), User, defaultMessage)
 
 data Handle m = Handle
   { getMessage :: m Message,
@@ -37,14 +37,14 @@ makeReaction h msg = do
         logHandle
         Debug
         "Bot. The received message is text message"
-      RepeatCount count <- Handlers.Base.giveRepeatCountFromBase (base h) user
+      count <- Handlers.Base.giveRepeatCountFromBase (base h) user
       replicateM_ count (sendMessage h msg)
     Gif _ -> do
       Handlers.Logger.logMessage
         logHandle
         Debug
         "Bot. The received message is gif message"
-      RepeatCount count <- Handlers.Base.giveRepeatCountFromBase (base h) user
+      count <- Handlers.Base.giveRepeatCountFromBase (base h) user
       replicateM_ count (sendMessage h msg)
     Command t -> do
       Handlers.Logger.logMessage
@@ -55,11 +55,12 @@ makeReaction h msg = do
         "/help" -> sendMessage h (msg {mData = Msg $ helpMessage h})
         "/repeat" -> changeRepeatCountForUser h user
         _ -> void $ Handlers.Logger.logMessage logHandle Error "Bot. The received command isn't command message"
-    Query (DataFromButton i) -> do
+    Query i -> do
       Handlers.Logger.logMessage
-        logHandle Debug
+        logHandle
+        Debug
         "Bot. The received message is query message for change number of repeats for user"
-      Handlers.Base.updateUser (base h) user (RepeatCount i)
+      Handlers.Base.updateUser (base h) user i
     KeyboardMenu -> pure ()
   where
     dataMsg = mData msg
@@ -98,4 +99,4 @@ isCorrectRepeatCount m = case mData m of
   _ -> False
   where
     helper :: DataFromButton -> Bool
-    helper (DataFromButton d) = d `elem` [1 .. 5]
+    helper d = d `elem` [1 .. 5]

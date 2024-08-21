@@ -1,26 +1,19 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DerivingStrategies #-}
 
-module Types (Message (..), Log (..), LastMessage, User(..), RepeatCount(..), Data (..), DataFromButton(..), ID(..), defaultMessage) where
+module Types (Message (..), Log (..), LastMessage, User, RepeatCount, Data (..), DataFromButton, ID, defaultMessage) where
 
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import Data.Aeson (FromJSON (..), ToJSON (..))
 
-newtype User = User Int
-  deriving stock (Show, Eq, Generic, Ord)
-  deriving anyclass (ToJSON, FromJSON)
+type User = Int
 
-newtype RepeatCount = RepeatCount Int
-  deriving stock (Show, Eq, Generic, Ord)
-  deriving anyclass (ToJSON, FromJSON)
+type RepeatCount = Int
 
-newtype ID = ID { giveId :: Int }
-  deriving stock (Show, Eq, Generic)
-  deriving anyclass (ToJSON, FromJSON)
+type ID = Int
 
-newtype DataFromButton = DataFromButton {dataFromButton :: Int}
-  deriving stock (Show, Eq, Read, Generic)
+type DataFromButton = Int
 
 type LastMessage = Message
 
@@ -39,4 +32,4 @@ data Log = Debug | Warning | Error | Fatal
   deriving anyclass (ToJSON, FromJSON)
 
 defaultMessage :: Message
-defaultMessage = Message {mID = ID (-1), mUser = User (-1), mData = Msg "fake message for -Wall and -Werror"}
+defaultMessage = Message {mID = -1, mUser = -1, mData = Msg "fake message for -Wall and -Werror"}

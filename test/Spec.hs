@@ -13,15 +13,14 @@ import Test.Hspec (context, describe, hspec, it, shouldBe, shouldNotBe)
 import Test.Hspec.QuickCheck (modifyMaxSuccess)
 import Test.QuickCheck (property)
 import Text.Read (readMaybe)
-import Types (Data (..), LastMessage, Log (..), Message (..), RepeatCount(..), User(..), DataFromButton(..), ID(..))
-import Config (Config (..))
+import Types (Config (..), Data (..), LastMessage, Log (..), Message (..), RepeatCount, User)
 
 main :: IO ()
 main = hspec $ do
   describe "Base logic" $ do
-    let testUser = User 341 :: User
-    let newUser = User 11 :: User
-    let repeatCount = RepeatCount 2 :: RepeatCount
+    let testUser = 341 :: User
+    let newUser = 11 :: User
+    let repeatCount = 2 :: RepeatCount
     let testBase = Map.fromList [(testUser, repeatCount)]
     let logerHandle =
           Handlers.Logger.Handle
@@ -32,7 +31,7 @@ main = hspec $ do
     let baseHandle =
           Handlers.Base.Handle
             { Handlers.Base.logger = logerHandle,
-              Handlers.Base.defaultRepeatCount = RepeatCount $ cRepeatCount testConfig,
+              Handlers.Base.defaultRepeatCount = cRepeatCount testConfig,
               Handlers.Base.findUser = \user -> get >>= \base -> pure $ Map.lookup user base,
               Handlers.Base.updateUser = \user count -> void $ modify (Map.insert user count)
             }
@@ -42,13 +41,13 @@ main = hspec $ do
 
     it "return default repeat count from Base for new user" $
       evalState (Handlers.Base.giveRepeatCountFromBase baseHandle newUser) testBase
-        `shouldBe` (RepeatCount  $ cRepeatCount testConfig)
+        `shouldBe` cRepeatCount testConfig
 
   describe "Bot logic" $ modifyMaxSuccess (const 1000) $ do
     it "User can change his repeat count" $ do
-      let oldRepeatCount = RepeatCount 1 
-      let newRepeatCount = DataFromButton 2 
-      let testUser = User 111 :: User
+      let oldRepeatCount = 1 :: RepeatCount
+      let newRepeatCount = 2 :: RepeatCount
+      let testUser = 111 :: User
       let testBase = Map.fromList [(testUser, oldRepeatCount)]
 
       let loggerHandle =
@@ -66,7 +65,7 @@ main = hspec $ do
       let botHandle =
             Handlers.Bot.Handle
               { Handlers.Bot.sendMessage = \_ -> pure (),
-                Handlers.Bot.getMessage = pure (Message {mData = Query newRepeatCount, mID = ID 1, mUser = testUser}),
+                Handlers.Bot.getMessage = pure (Message {mData = Query newRepeatCount, mID = 1, mUser = testUser}),
                 Handlers.Bot.repeatMessage = cTextMenuRepeat testConfig,
                 Handlers.Bot.helpMessage = cTextMenuHelp testConfig,
                 Handlers.Bot.logger = loggerHandle,
@@ -80,12 +79,12 @@ main = hspec $ do
             >> Handlers.Base.giveRepeatCountFromBase baseHandle testUser
         )
         testBase
-        `shouldBe` (RepeatCount $ dataFromButton newRepeatCount)
+        `shouldBe` newRepeatCount
 
     context "User can change repeat count only in range [1..5]" $ do
       it "Input: Int" $ do
         property $ \answer -> do
-          let msg = Message {mData = Query (DataFromButton answer), mID = ID 1, mUser = User 2}
+          let msg = Message {mData = Query answer, mID = 1, mUser = 2}
           Handlers.Bot.isCorrectRepeatCount msg
             `shouldBe` 1 <= answer && answer <= 5
 
@@ -95,7 +94,7 @@ main = hspec $ do
                 if length answer /= 1
                   then 0
                   else fromMaybe 0 (readMaybe answer :: Maybe Int)
-          let msg = Message {mData = Msg (T.pack answer), mID = ID 1, mUser = User 2}
+          let msg = Message {mData = Msg (T.pack answer), mID = 1, mUser = 2}
 
           Handlers.Bot.isCorrectRepeatCount msg
             `shouldBe` 1 <= numberMessage && numberMessage <= 5
@@ -103,7 +102,7 @@ main = hspec $ do
     context "Correct text in answer on:" $ do
       it "/help" $ do
         property $ \helpMessage -> do
-          let testMessage = Message {mData = Command "/help", mID = ID 1, mUser = User 2}
+          let testMessage = Message {mData = Command "/help", mID = 1, mUser = 2}
 
           let logHandle =
                 Handlers.Logger.Handle
@@ -126,9 +125,9 @@ main = hspec $ do
 
       it "/repeat" $ do
         property $ \repeatMessage -> do
-          let testUser = User 2 :: User
-          let testMessage = Message {mData = Command "/repeat", mID = ID 1, mUser = testUser}
-          let repeatCount = RepeatCount 5 :: RepeatCount
+          let testUser = 2 :: User
+          let testMessage = Message {mData = Command "/repeat", mID = 1, mUser = testUser}
+          let repeatCount = 5 :: RepeatCount
 
           let logHandle =
                 Handlers.Logger.Handle
@@ -148,7 +147,7 @@ main = hspec $ do
                         Msg text -> void $ put text
                         _ -> pure (),
                     Handlers.Bot.repeatMessage = T.pack repeatMessage,
-                    Handlers.Bot.getMessage = pure (Message {mData = Msg "1", mID = ID 1, mUser = testUser}),
+                    Handlers.Bot.getMessage = pure (Message {mData = Msg "1", mID = 1, mUser = testUser}),
                     Handlers.Bot.logger = logHandle,
                     Handlers.Bot.base = baseHandle
                   }
@@ -157,10 +156,10 @@ main = hspec $ do
 
       it "text message and gif message" $ do
         property $ \textMessage -> do
-          let testUser = User 2 :: User
-          let testMessage = Message {mData = Msg (T.pack textMessage), mID = ID 1, mUser = testUser}
-          let testUser2 = User 3 :: User
-          let testMessage2 = Message {mData = Gif (T.pack textMessage), mID = ID 2, mUser = testUser2}
+          let testUser = 2 :: User
+          let testMessage = Message {mData = Msg (T.pack textMessage), mID = 1, mUser = testUser}
+          let testUser2 = 3 :: User
+          let testMessage2 = Message {mData = Gif (T.pack textMessage), mID = 2, mUser = testUser2}
 
           let logHandle =
                 Handlers.Logger.Handle
@@ -170,7 +169,7 @@ main = hspec $ do
                   Handlers.Logger.Handle (State T.Text)
           let baseHandle =
                 Handlers.Base.Handle
-                  { Handlers.Base.findUser = \_ -> pure $ Just (RepeatCount $ cRepeatCount testConfig),
+                  { Handlers.Base.findUser = \_ -> pure $ Just (cRepeatCount testConfig),
                     Handlers.Base.logger = logHandle
                   }
           let botHandle =
@@ -201,7 +200,7 @@ main = hspec $ do
     it "Get message for only one user" $ do
       property $ \testUser -> do
         let testText = "Disptacher logic"
-        let testMessage = Message {mData = Msg testText, mID = ID 1, mUser = User testUser}
+        let testMessage = Message {mData = Msg testText, mID = 1, mUser = testUser}
         let logerHandle =
               Handlers.Logger.Handle
                 { Handlers.Logger.levelLogger = Debug,
@@ -231,13 +230,13 @@ main = hspec $ do
                   Handlers.Dispatcher.bot = botHandle,
                   Handlers.Dispatcher.logger = logerHandle
                 }
-        evalState (Handlers.Dispatcher.getMessage dispatcherHandle (User testUser)) (Just testMessage, Nothing)
+        evalState (Handlers.Dispatcher.getMessage dispatcherHandle testUser) (Just testMessage, Nothing)
           `shouldBe` testMessage
 
     it "Take message from client if stackMessages haven't a new message" $ do
-      let testUser = User 341 :: User
+      let testUser = 341 :: User
       let testText = "some message"
-      let testMessage = Message {mData = Msg testText, mID = ID 1, mUser = testUser}
+      let testMessage = Message {mData = Msg testText, mID = 1, mUser = testUser}
       let testStack = (Nothing, Nothing) :: (Maybe Message, Maybe LastMessage)
 
       let logerHandle =
@@ -277,16 +276,16 @@ main = hspec $ do
         `shouldBe` testMessage
 
     it "Save a new user in Base and start fork for him because of catch his message" $ do
-      let testUser = User 341 :: User
-      let newUser = User 444 :: User
-      let repeatCount = RepeatCount 5 :: RepeatCount
-      let forkCount = RepeatCount 111 :: RepeatCount
+      let testUser = 341 :: User
+      let newUser = 444 :: User
+      let repeatCount = 5 :: RepeatCount
+      let forkCount = 111 :: RepeatCount
       let testBase = Map.fromList [(testUser, repeatCount)]
       let testBase2 = Map.fromList [(testUser, repeatCount), (newUser, repeatCount)]
       let testText = "some message"
-      let testMessage = Message {mData = Msg testText, mID = ID 1, mUser = newUser}
+      let testMessage = Message {mData = Msg testText, mID = 1, mUser = newUser}
       let testStack = (Just testMessage, Nothing) :: (Maybe Message, Maybe LastMessage)
-      let testForkImitation = User 11111111 :: User
+      let testForkImitation = 11111111 :: User
       let logerHandle =
             Handlers.Logger.Handle
               { Handlers.Logger.levelLogger = Debug,
@@ -297,7 +296,7 @@ main = hspec $ do
             Handlers.Base.Handle
               { Handlers.Base.readStackMessage = pure testStack,
                 Handlers.Base.logger = logerHandle,
-                Handlers.Base.defaultRepeatCount = RepeatCount $ cRepeatCount testConfig,
+                Handlers.Base.defaultRepeatCount = cRepeatCount testConfig,
                 Handlers.Base.findUser = \user -> get >>= \base -> pure $ Map.lookup user base,
                 Handlers.Base.updateUser = \user count -> void $ modify (Map.insert user count)
               }
@@ -330,7 +329,7 @@ main = hspec $ do
             >> Handlers.Base.findUser baseHandle newUser
         )
         testBase
-        `shouldBe` Just (RepeatCount $ cRepeatCount testConfig)
+        `shouldBe` Just (cRepeatCount testConfig)
 
       evalState
         ( Handlers.Dispatcher.dispatcher dispatcherHandle
@@ -436,7 +435,7 @@ main = hspec $ do
 testConfig :: Config
 testConfig =
   Config
-    { cRepeatCount = 3, 
+    { cRepeatCount = 3 :: RepeatCount,
       cTextMenuHelp = "Help menu:" :: T.Text,
       cTextMenuRepeat = "Repeat menu:" :: T.Text,
       cLvlLog = Debug :: Log
