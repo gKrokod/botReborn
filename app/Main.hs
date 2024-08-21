@@ -26,7 +26,7 @@ main = do
   stackMessage <- Base.newBaseMessage
   base <- Base.newBaseUser
   cfg <- Config.loadConfig
-
+  print cfg 
   let logHandle =
         Handlers.Logger.Handle
           { Handlers.Logger.levelLogger = cLvlLog cfg, 

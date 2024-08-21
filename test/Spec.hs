@@ -1,6 +1,5 @@
 import Control.Monad (void)
 import Control.Monad.State (State (..), evalState, execState, get, modify, put)
-import Data.Char (isDigit)
 import qualified Data.Map.Strict as Map (Map, fromList, insert, lookup)
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
@@ -92,7 +91,7 @@ main = hspec $ do
       it "Input: Text" $ do
         property $ \answer -> do
           let numberMessage =
-                if length answer /= 1
+                if T.length (T.pack answer) /= 1
                   then 0
                   else fromMaybe 0 (readMaybe answer :: Maybe Int)
           let msg = Message {mData = Msg (T.pack answer), mID = ID 1, mUser = User 2}

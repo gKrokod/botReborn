@@ -2,9 +2,10 @@ module Handlers.Bot (Handle (..), doWork, changeRepeatCountForUser, isCorrectRep
 
 import Control.Monad (replicateM_, void)
 import Data.Char (isDigit)
-import qualified Data.Text as T (Text, all, null, pack, unpack)
+import qualified Data.Text as T (Text, pack, unpack)
 import qualified Handlers.Base
 import qualified Handlers.Logger
+import Text.Read (readMaybe)
 import Types (Data (..), DataFromButton(..), Log (..), Message (..), User, defaultMessage, RepeatCount(..))
 
 data Handle m = Handle
@@ -84,8 +85,9 @@ changeRepeatCountForUser h user = do
     else do
       case mData answer of
         Msg t -> do
-          let query' = read $ T.unpack t :: DataFromButton
-          makeReaction h (msg {mData = Query query', mUser = mUser answer})
+          case readMaybe $ T.unpack t of
+           Nothing -> pure ()
+           Just num ->  makeReaction h (msg {mData = Query . DataFromButton $ num, mUser = mUser answer})
         Query i -> makeReaction h (msg {mData = Query i, mUser = mUser answer})
         _ -> do
           Handlers.Logger.logMessage logHandle Error "Bot. The received message is unknown message"
@@ -93,9 +95,12 @@ changeRepeatCountForUser h user = do
 
 isCorrectRepeatCount :: Message -> Bool
 isCorrectRepeatCount m = case mData m of
-  Msg t -> T.all isDigit t && not (T.null t) && helper (read $ T.unpack t)
+  Msg t -> checkText $ T.unpack t 
   Query i -> helper i
   _ -> False
   where
     helper :: DataFromButton -> Bool
     helper (DataFromButton d) = d `elem` [1 .. 5]
+    checkText :: String -> Bool
+    checkText [h] = h `elem` ("12345" :: String)
+    checkText _ = False
