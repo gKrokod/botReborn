@@ -1,14 +1,15 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DerivingStrategies #-}
-{-#LANGUAGE TypeApplications #-}
-module Config (loadConfig,  Config(..), Mode (..)) where
+{-# LANGUAGE TypeApplications #-}
 
-import Data.Text (Text)
-import Types (Log (..)) 
+module Config (loadConfig, Config (..), Mode (..)) where
+
+import Control.Exception (SomeException, displayException, throwIO, try)
 import Data.Aeson (FromJSON (..), ToJSON (..), eitherDecode)
 import qualified Data.ByteString.Lazy as L
+import Data.Text (Text)
 import GHC.Generics (Generic)
-import Control.Exception (SomeException, displayException, throwIO, try)
+import Types (Log (..))
 
 data Config = Config
   { cRepeatCount :: Int,
@@ -38,6 +39,7 @@ loadConfig = do
   case cfg of
     Left error' -> throwIO $ userError error'
     Right config -> pure config
+
 --
 --
 loadConfigBot :: IO (Either String Config)

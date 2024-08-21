@@ -5,9 +5,9 @@ import Data.Aeson.Types (parseFail, prependFailure, typeMismatch)
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy as L (toStrict)
 import Data.Text as T (Text, unpack)
-import Text.Read (readMaybe)
 import GHC.Generics (Generic)
-import Types (Data (..), ID(..), User(..), Message (..), DataFromButton(..))
+import Text.Read (readMaybe)
+import Types (Data (..), DataFromButton (..), ID (..), Message (..), User (..))
 
 newtype Keyboard = Keyboard
   { inline_keyboard :: [[Button]]
@@ -21,10 +21,10 @@ data Button = Button
   deriving (Show, Generic)
 
 newtype UnknownMessage = UnknownMessage {uID :: ID} -- another message from telegram client
-  deriving Show
+  deriving (Show)
 
 newtype BoxMessage = BoxMessage {unboxMessage :: Message} -- because had orphan instance
-  deriving Show
+  deriving (Show)
 
 justKeyBoard :: Maybe BC.ByteString
 justKeyBoard = Just $ L.toStrict $ encode menuForRepeatCount
@@ -81,7 +81,7 @@ instance FromJSON BoxMessage where
     message <-
       v .: "result"
         >>= \case
-          [] -> parseFail "haven't message" 
+          [] -> parseFail "haven't message"
           (h : _) ->
             h .:? "message"
               >>= \case
@@ -97,8 +97,8 @@ instance FromJSON BoxMessage where
                   h .: "callback_query"
                     >>= (.: "data")
                     >>= \x -> case readMaybe . T.unpack $ x of
-                                Nothing -> parseFail "bad data from Button"
-                                Just n -> pure $ Query $ DataFromButton n 
+                      Nothing -> parseFail "bad data from Button"
+                      Just n -> pure $ Query $ DataFromButton n
     return
       BoxMessage {unboxMessage = Message {mID = ID updateId, mUser = User chatId, mData = message}}
   parseJSON invalid = prependFailure "parsing Message failed, " (typeMismatch "Object" invalid)

@@ -1,8 +1,9 @@
 module ClientTM.HttpMessage (buildTextSendRequest, buildGetRequest, buildGifSendRequest, buildKeyboardSendRequest) where
 
 import ClientTM.Parse (justKeyBoard)
-import qualified Data.ByteString.Char8 as BC (pack)
+import Config (Config (..))
 import qualified Data.ByteString as B (ByteString)
+import qualified Data.ByteString.Char8 as BC (pack)
 import Data.Text (Text)
 import qualified Data.Text.Encoding as E (encodeUtf8)
 import Network.HTTP.Simple
@@ -15,9 +16,7 @@ import Network.HTTP.Simple
     setRequestQueryString,
     setRequestSecure,
   )
-import Types (Data (..), Message (..), User(..))
-import Config (Config(..))
-
+import Types (Data (..), Message (..), User (..))
 
 buildGetRequest :: Config -> Request
 buildGetRequest cfg =
@@ -70,4 +69,3 @@ buildDefaultSendRequest cfg =
 
 (&) :: Config -> (Config -> Text) -> B.ByteString
 a & b = E.encodeUtf8 $ b a
-

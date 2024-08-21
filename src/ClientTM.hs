@@ -7,6 +7,7 @@ import ClientTM.HttpMessage
     buildTextSendRequest,
   )
 import ClientTM.Parse (BoxMessage (..), UnknownMessage (..))
+import Config (Config (..))
 import Control.Concurrent (threadDelay)
 import Control.Exception (SomeException, try)
 import Control.Monad (void, when)
@@ -18,8 +19,7 @@ import Network.HTTP.Simple
     getResponseStatusCode,
     httpLBS,
   )
-import Types (Data (..), DataFromButton, LastMessage, Message (..), defaultMessage, ID(..))
-import Config (Config(..))
+import Types (Data (..), DataFromButton, ID (..), LastMessage, Message (..), defaultMessage)
 
 fetch :: Config -> Maybe LastMessage -> IO (Maybe Message)
 fetch cfg lm = do
