@@ -5,8 +5,8 @@
 
 BotReborn is a echo-bot that send multiple text or gif messages to еach message from the user.
 Echo-bot interacts with user through some delivery mechanisms specified in the configuration file `/config/bot.cfg` 
-+ Console: the user's message is entered from stdin, the bot's response is sent to stdout. `cMode = ConsoleBot`
-+ Telegram: https://core.telegram.org/bots/api#poll `cMode = TelegramBot`
++ Console: the user's message is entered from stdin, the bot's response is sent to stdout. `telegrammode = off`
++ Telegram: https://core.telegram.org/bots/api#poll `telegrammode = on`
 
 ## Distribution ##
 
@@ -112,27 +112,27 @@ $ stack exec botReborn-exe
 
 <details><summary>Main parameters of the configuration file</summary>
   
-  1. cRepeatCount
+  1. repeatCount
     
     default number of repeats for user x: 1 <= x <= 5
   
-  2. cHelpMenu
+  2. helpMenu
     
     text of menu on commands "/help" and "/start"
    
-  3. cRepeatMenu
+  3. repeatMenu
     
     text of menu on command "/repeat"
   
-  4. cToken
+  4. token
     
     identifier for Telegram client
   
-  5. cMode
+  5. telegramMode
     
     selection key of client version ("ConsoleBot" - Console client, "TelegramBot" - Telegram client)
   
-  6. cLvlLog
+  6. lvlLog
     
     minimum log message level to display ("Debug" < "Warning" < "Error" < "Fatal")   
 
