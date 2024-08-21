@@ -45,6 +45,7 @@ library:
   - text
   - containers
   - bytestring
+  - configurator
   - time
   - aeson
   - http-conduit

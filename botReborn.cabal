@@ -53,6 +53,7 @@ library
       aeson
     , base >=4.7 && <5
     , bytestring
+    , configurator
     , containers
     , http-conduit
     , text

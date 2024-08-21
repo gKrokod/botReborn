@@ -11,19 +11,19 @@ import Control.Concurrent (threadDelay)
 import Control.Exception (SomeException, try)
 import Control.Monad (void, when)
 import Data.Aeson (decode)
-import qualified Data.Text as T (Text, pack)
+import qualified Data.ByteString.Char8 as BC (pack)
+import qualified Data.Text as T (Text)
 import qualified Data.Text.IO as TIO
 import Network.HTTP.Simple
   ( getResponseBody,
     getResponseStatusCode,
     httpLBS,
   )
-import Types (Data (..), DataFromButton, LastMessage, Message (..), defaultMessage)
-import Config (Config(..))
+import Types (Config (..), Data (..), DataFromButton, LastMessage, Message (..), defaultMessage)
 
 fetch :: Config -> Maybe LastMessage -> IO (Maybe Message)
 fetch cfg lm = do
-  response' <- try $ httpLBS $ buildGetRequest (cfg {cOffset = maybe "-1" (T.pack . show . succ . mID) lm})
+  response' <- try $ httpLBS $ buildGetRequest (cfg {cOffset = maybe "-1" (BC.pack . show . succ . mID) lm})
   case response' of
     Left e -> do
       print (e :: SomeException)
