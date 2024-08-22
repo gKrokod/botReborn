@@ -6,7 +6,8 @@ import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy as L (toStrict)
 import Data.Text as T (Text, unpack)
 import GHC.Generics (Generic)
-import Types (Data (..), ID, Message (..))
+import Text.Read (readMaybe)
+import Types (Data (..), DataFromButton (..), ID (..), Message (..), User (..))
 
 newtype Keyboard = Keyboard
   { inline_keyboard :: [[Button]]
@@ -20,8 +21,10 @@ data Button = Button
   deriving (Show, Generic)
 
 newtype UnknownMessage = UnknownMessage {uID :: ID} -- another message from telegram client
+  deriving (Show)
 
 newtype BoxMessage = BoxMessage {unboxMessage :: Message} -- because had orphan instance
+  deriving (Show)
 
 justKeyBoard :: Maybe BC.ByteString
 justKeyBoard = Just $ L.toStrict $ encode menuForRepeatCount
@@ -50,7 +53,7 @@ instance FromJSON UnknownMessage where
         >>= \case
           [] -> parseFail "haven't unknown message"
           (h : _) -> h .: "update_id"
-    return UnknownMessage {uID = updateId}
+    return UnknownMessage {uID = ID updateId}
   parseJSON invalid = prependFailure "parsing Unknown Message failed, " (typeMismatch "Object" invalid)
 
 instance FromJSON BoxMessage where
@@ -78,7 +81,7 @@ instance FromJSON BoxMessage where
     message <-
       v .: "result"
         >>= \case
-          [] -> parseFail "haven't message" 
+          [] -> parseFail "haven't message"
           (h : _) ->
             h .:? "message"
               >>= \case
@@ -93,7 +96,9 @@ instance FromJSON BoxMessage where
                 Nothing ->
                   h .: "callback_query"
                     >>= (.: "data")
-                    >>= pure . Query . read . T.unpack
+                    >>= \x -> case readMaybe . T.unpack $ x of
+                      Nothing -> parseFail "bad data from Button"
+                      Just n -> pure $ Query $ DataFromButton n
     return
-      BoxMessage {unboxMessage = Message {mID = updateId, mUser = chatId, mData = message}}
+      BoxMessage {unboxMessage = Message {mID = ID updateId, mUser = User chatId, mData = message}}
   parseJSON invalid = prependFailure "parsing Message failed, " (typeMismatch "Object" invalid)
