@@ -1,7 +1,8 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE FlexibleInstances #-}
 
-module Types (Message (..), Log (..), LastMessage, User (..), RepeatCount (..), Data (..), DataFromButton (..), ID (..), defaultMessage) where
+module Types (Message (..), Log (..), LastMessage, User (..), RepeatCount (..), Data (..), DataFromButton (..), ID (..), Messages (..), Command(..)) where
 
 import Data.Aeson (FromJSON (..), ToJSON (..))
 import qualified Data.Text as T
@@ -24,7 +25,9 @@ newtype DataFromButton = DataFromButton {dataFromButton :: Int}
 
 type LastMessage = Message
 
-data Data t i = Msg t | Gif t | Command t | KeyboardMenu | Query i deriving (Show, Eq)
+data Data t i = NoMsg | Msg t | Gif t | KeyboardMenu | Query i | Service Command deriving (Show, Eq)
+
+data Command = Help | Repeat deriving (Show, Eq)
 
 data Message = Message
   { mData :: Data T.Text DataFromButton,
@@ -37,5 +40,16 @@ data Log = Debug | Warning | Error | Fatal
   deriving stock (Eq, Ord, Show, Generic)
   deriving anyclass (ToJSON, FromJSON)
 
-defaultMessage :: Message
-defaultMessage = Message {mID = ID (-1), mUser = User (-1), mData = Msg "fake message for -Wall and -Werror"}
+class Messages a where
+  makeMessage :: a -> Message -> Message
+
+instance Messages T.Text where
+  makeMessage t msg = case t of
+    "/help" -> msg {mData = Service Help}
+    "/start" -> msg {mData = Service Help}
+    "/repeat" -> msg {mData = Service Repeat}
+    _ -> msg {mData = Msg t}
+
+instance Messages (Data T.Text DataFromButton) where
+  makeMessage (Msg t) msg = makeMessage t msg
+  makeMessage _ msg = msg
