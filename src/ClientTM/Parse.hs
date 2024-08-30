@@ -1,10 +1,12 @@
+{-# LANGUAGE TypeApplications #-}
+
 module ClientTM.Parse (Keyboard, justKeyBoard, UnknownMessage (..), BoxMessage (..)) where
 
 import Data.Aeson (FromJSON, ToJSON, Value (..), encode, parseJSON, (.:), (.:?))
 import Data.Aeson.Types (parseFail, prependFailure, typeMismatch)
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy as L (toStrict)
-import Data.Text as T (Text, unpack)
+import Data.Text as T (Text, pack, unpack)
 import GHC.Generics (Generic)
 import Text.Read (readMaybe)
 import Types (Data (..), DataFromButton (..), ID (..), Message (..), User (..))
@@ -32,14 +34,7 @@ justKeyBoard = Just $ L.toStrict $ encode menuForRepeatCount
 menuForRepeatCount :: Keyboard
 menuForRepeatCount =
   Keyboard
-    { inline_keyboard =
-        [ [ Button {text = "1", callback_data = "1"},
-            Button {text = "2", callback_data = "2"},
-            Button {text = "3", callback_data = "3"},
-            Button {text = "4", callback_data = "4"},
-            Button {text = "5", callback_data = "5"}
-          ]
-        ]
+    { inline_keyboard = [map ((\t -> Button {text = t, callback_data = t}) . T.pack . show @Integer) [1 .. 5]]
     }
 
 instance ToJSON Keyboard

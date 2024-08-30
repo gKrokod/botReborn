@@ -15,7 +15,7 @@ import qualified Handlers.Dispatcher
 import qualified Handlers.Logger
 import qualified Logger
 import System.IO (BufferMode (..), hSetBuffering, stdin, stdout)
-import Types (RepeatCount (..), defaultMessage)
+import Types (Data (..), ID (..), Message (..), RepeatCount (..), User (..))
 
 main :: IO ()
 main = do
@@ -49,7 +49,7 @@ main = do
           { Handlers.Bot.base = baseHandle,
             Handlers.Bot.helpMessage = cTextMenuHelp cfg,
             Handlers.Bot.repeatMessage = cTextMenuRepeat cfg,
-            Handlers.Bot.getMessage = pure defaultMessage,
+            Handlers.Bot.getMessage = pure (Message {mID = ID (-1), mUser = User (-1), mData = NoMsg}),
             Handlers.Bot.sendMessage = \_ -> pure (),
             Handlers.Bot.logger = logHandle
           }

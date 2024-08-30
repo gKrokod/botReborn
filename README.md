@@ -97,7 +97,7 @@ $ stack exec botReborn-exe
     The goal: stack message state (Just msg, _).
     
     Tasks: 
-    - Regularly reuest a new message from the selected client (console, telegram) 
+    - Regularly request a new message from the selected client (console, telegram) 
     when stack message state is (Nothing, _), i.e. no new incoming message.
     
   3. Bot treads (Handlers/Bot.hs / doWork)
