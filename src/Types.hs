@@ -7,7 +7,7 @@ import Data.Aeson (FromJSON (..), ToJSON (..))
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 
-newtype User = User {giveUser :: Int}
+newtype User = User {userId :: Int}
   deriving stock (Show, Eq, Generic, Ord)
   deriving anyclass (ToJSON, FromJSON)
 
