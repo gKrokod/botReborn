@@ -1,12 +1,12 @@
 module Handlers.Bot (Handle (..), doWork, changeRepeatCountForUser, isCorrectRepeatCount, makeReaction, getMessage) where
 
-import Control.Monad (replicateM_, void)
+import Control.Monad (replicateM_)
 import qualified Data.Text as T (Text, pack, unpack)
 import qualified Handlers.Base
 import qualified Handlers.Client
 import qualified Handlers.Logger
 import Text.Read (readMaybe)
-import Types (Data (..), DataFromButton (..), Log (..), Message (..), RepeatCount (..), User, defaultMessage)
+import Types (Data (..), DataFromButton (..), ID (..), Log (..), Message (..), RepeatCount (..), User, Command(..))
 
 data Handle m = Handle
   { base :: Handlers.Base.Handle m,
@@ -46,22 +46,21 @@ makeReaction h msg = do
         "Bot. The received message is gif message"
       RepeatCount count <- Handlers.Base.giveRepeatCountFromBase (base h) user
       replicateM_ count (sendMessage h msg)
-    Command t -> do
+    Service t -> do
       Handlers.Logger.logMessage
         logHandle
         Debug
         "Bot. The received message is command message"
       case t of
-        "/help" -> sendMessage h (msg {mData = Msg $ helpMessage h})
-        "/repeat" -> changeRepeatCountForUser h user
-        _ -> void $ Handlers.Logger.logMessage logHandle Error "Bot. The received command isn't command message"
+        Help -> sendMessage h (msg {mData = Msg $ helpMessage h})
+        Repeat -> changeRepeatCountForUser h user
     Query (DataFromButton i) -> do
       Handlers.Logger.logMessage
         logHandle
         Debug
         "Bot. The received message is query message for change number of repeats for user"
       Handlers.Base.updateUser (base h) user (RepeatCount i)
-    KeyboardMenu -> pure ()
+    _ -> pure ()
   where
     dataMsg = mData msg
     user = mUser msg
@@ -71,7 +70,7 @@ changeRepeatCountForUser h user = do
   let logHandle = logger h
   Handlers.Logger.logMessage logHandle Debug "Bot. Get number of repeats for user from the database"
   count <- Handlers.Base.giveRepeatCountFromBase (base h) user
-  let msg = defaultMessage {mUser = user}
+  let msg = Message {mUser = user, mID = ID (-1), mData = NoMsg}
   sendMessage h (msg {mData = Msg $ repeatMessage h <> T.pack (show count)})
   sendMessage h (msg {mData = KeyboardMenu})
   answer <- getMessage h user

@@ -13,7 +13,7 @@ import Test.Hspec (context, describe, hspec, it, shouldBe, shouldNotBe)
 import Test.Hspec.QuickCheck (modifyMaxSuccess)
 import Test.QuickCheck (property)
 import Text.Read (readMaybe)
-import Types (Data (..), DataFromButton (..), ID (..), LastMessage, Log (..), Message (..), RepeatCount (..), User (..))
+import Types (Data (..), DataFromButton (..), ID (..), LastMessage, Log (..), Message (..), RepeatCount (..), User (..), Command(..))
 
 main :: IO ()
 main = hspec $ do
@@ -110,7 +110,7 @@ main = hspec $ do
     context "Correct text in answer on:" $ do
       it "/help" $ do
         property $ \helpMessage -> do
-          let testMessage = Message {mData = Command "/help", mID = ID 1, mUser = User 2}
+          let testMessage = Message {mData = Service Help, mID = ID 1, mUser = User 2}
 
           let logHandle =
                 Handlers.Logger.Handle
@@ -140,7 +140,7 @@ main = hspec $ do
       it "/repeat" $ do
         property $ \repeatMessage -> do
           let testUser = User 2 :: User
-          let testMessage = Message {mData = Command "/repeat", mID = ID 1, mUser = testUser}
+          let testMessage = Message {mData = Service Repeat, mID = ID 1, mUser = testUser}
           let repeatCount = RepeatCount 5 :: RepeatCount
 
           let logHandle =

@@ -1,5 +1,7 @@
 *.cfg
+*.html
 .stack-work/
 .vscode
 .history
 *.db
+quickfix
