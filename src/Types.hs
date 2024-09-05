@@ -13,8 +13,11 @@ newtype User = User {userId :: Int}
   deriving anyclass (ToJSON, FromJSON)
 
 newtype RepeatCount = RepeatCount Int
-  deriving stock (Show, Eq, Generic, Ord)
+  deriving stock (Eq, Generic, Ord)
   deriving anyclass (ToJSON, FromJSON)
+
+instance Show RepeatCount where
+  show (RepeatCount n) = show n
 
 newtype ID = ID {giveId :: Int}
   deriving stock (Show, Eq, Generic)

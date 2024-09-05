@@ -1,0 +1,658 @@
+[33mcommit a5b9b69a2069fe46362169dd05a2e0dfb16bfc0c[m[33m ([m[1;36mHEAD -> [m[1;32mReworkHandlePattern[m[33m, [m[1;31morigin/ReworkHandlePattern[m[33m)[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Sep 4 12:31:05 2024 +0300
+
+    resolve conflict
+
+[33mcommit 04f948113e1ece0fa2a480e6d078cc298ba171b1[m
+Merge: 1162ce1 c6fb724
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Sep 4 12:25:07 2024 +0300
+
+    Resolve merge conflict
+
+[33mcommit 1162ce1ee13ca66fcf6eacd13d35243c1d9544fa[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Sep 4 12:12:23 2024 +0300
+
+    fixing issue #9. Correct handle pattern
+
+[33mcommit c6fb72419f33d8d73058e7adbd256056a61eb1f9[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Merge: cdc9e4b cec0381
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Fri Aug 30 16:51:18 2024 +0300
+
+    Merge pull request #8 from gKrokod/67
+    
+    Fixing issues #6 and #7
+
+[33mcommit cec0381d01f7ed73d081571de74ec6702480320b[m[33m ([m[1;31morigin/67[m[33m)[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Fri Aug 30 06:48:01 2024 -0700
+
+    splushim
+
+[33mcommit cdc9e4b176384b1abff9658129a46b7ccba90c59[m
+Merge: 691a413 f1aa032
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Fri Aug 23 01:42:18 2024 +0300
+
+    Merge pull request #5 from gKrokod/1234
+    
+    fixing issues #1 #2 #3 #4
+
+[33mcommit f1aa032d9f6cad5b1503393a040919e36d7a57e7[m[33m ([m[1;31morigin/1234[m[33m)[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Aug 21 16:58:38 2024 +0300
+
+    fixing issues #1 #2 #3 #4
+
+[33mcommit 09df26db7ffb37e228821d5ba0b1d6728694fbef[m[33m ([m[1;31morigin/saveRayan[m[33m, [m[1;32msaveRayan[m[33m)[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Aug 21 16:50:54 2024 +0300
+
+    test #1 #2 #3 #4
+
+[33mcommit 691a413b78f9e61665d01ac33b016aee809a6e74[m[33m ([m[1;32mmain[m[33m)[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Aug 21 16:38:02 2024 +0300
+
+    Revert "fixing issue #3"
+    
+    This reverts commit 1146c6b9d161908681295d38dcb46f7604d09855.
+
+[33mcommit 7ac8a978fe4d6eb7239350d11476ff7bd4bd83a5[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Aug 21 16:38:01 2024 +0300
+
+    Revert "fixing issue #3"
+    
+    This reverts commit 7714caa56ceb515622f06abd7bd21488ef519d3a.
+
+[33mcommit 5ed40bd1737edb39de623d5cd999602cf2c82902[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Aug 21 16:38:01 2024 +0300
+
+    Revert "fixing issue #3"
+    
+    This reverts commit eaa50f769fc3359906db85d9c48eeabb03a8b50d.
+
+[33mcommit ef327f5c47a980d241f1640b8df8c34a3a655b6a[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Aug 21 16:38:00 2024 +0300
+
+    Revert "go ahead fixing"
+    
+    This reverts commit b823782e6ec46bcc22ed4ecd1c43e99f6b02220b.
+
+[33mcommit 5c5f755c7763c8a4ff68413d10679d20b52188cb[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Aug 21 16:38:00 2024 +0300
+
+    Revert "go ahead fixing"
+    
+    This reverts commit ac7d0bbfd6a5f11df65ebe03c87900413b9e80dc.
+
+[33mcommit 16d3ee99d571720c93c24b5a4fbf76e59a74778e[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Aug 21 16:37:58 2024 +0300
+
+    Revert "fixing issue #2 and #4"
+    
+    This reverts commit 8128ec6ae83e5753f0009affeba874adf7362150.
+
+[33mcommit ae8113459ba20eec1893785cbab258de2176b602[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Aug 21 16:37:56 2024 +0300
+
+    Revert "Revert "remove report""
+    
+    This reverts commit 28716d2f1952d84afd21e63373e731a1be661d06.
+
+[33mcommit 881dc0cd4612b3fb79f2fd085631c3deddf0fec1[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Aug 21 16:37:47 2024 +0300
+
+    Revert "revert"
+    
+    This reverts commit 92269f458604ccffb2eebae97f5db13a1651ce89.
+
+[33mcommit 92269f458604ccffb2eebae97f5db13a1651ce89[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Aug 21 16:30:45 2024 +0300
+
+    revert
+
+[33mcommit 28716d2f1952d84afd21e63373e731a1be661d06[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Aug 21 16:27:46 2024 +0300
+
+    Revert "remove report"
+    
+    This reverts commit 16886db9408fb343098095c8aa887f5e9f99359c.
+
+[33mcommit 8128ec6ae83e5753f0009affeba874adf7362150[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Aug 21 16:24:02 2024 +0300
+
+    fixing issue #2 and #4
+
+[33mcommit ac7d0bbfd6a5f11df65ebe03c87900413b9e80dc[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Aug 21 16:04:16 2024 +0300
+
+    go ahead fixing
+
+[33mcommit b823782e6ec46bcc22ed4ecd1c43e99f6b02220b[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Tue Aug 20 18:05:23 2024 +0300
+
+    go ahead fixing
+
+[33mcommit eaa50f769fc3359906db85d9c48eeabb03a8b50d[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Tue Aug 20 15:08:05 2024 +0300
+
+    fixing issue #3
+
+[33mcommit 7714caa56ceb515622f06abd7bd21488ef519d3a[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Tue Aug 20 15:05:58 2024 +0300
+
+    fixing issue #3
+
+[33mcommit 1146c6b9d161908681295d38dcb46f7604d09855[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Tue Aug 20 14:56:07 2024 +0300
+
+    fixing issue #3
+
+[33mcommit aeba7a12ceaacf90a98e6581849b7e7a1d2a2127[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Mon Aug 19 16:51:08 2024 +0300
+
+    fixing issue #1
+
+[33mcommit 16886db9408fb343098095c8aa887f5e9f99359c[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Aug 7 14:32:50 2024 +0300
+
+    remove report
+
+[33mcommit 5d902d9d2ccb0de5e8a96087c75e74f1cf7a055d[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Aug 7 14:12:04 2024 +0300
+
+    check
+
+[33mcommit eb9c3d50305eb6e7810682ef938111b9d066510f[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Aug 7 14:07:20 2024 +0300
+
+    check
+
+[33mcommit 8986747d06e9c1a51ef028a7df8529c682c6feba[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Thu Mar 2 15:41:14 2023 +0300
+
+    + try from control.exception
+
+[33mcommit a18c4f30c32fd2a89420d2a7104d67d19beaa8cb[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Fri Feb 17 15:16:48 2023 +0300
+
+    *update readme.md
+
+[33mcommit 650a261c9e2a093576f2fb01eb8e5b06cb104749[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Fri Feb 17 15:00:01 2023 +0300
+
+    *update readMe.txt. todo check readMe.md
+
+[33mcommit 0abefcbbb4b928e9d8063d4f4b236f31144427c1[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Thu Feb 16 16:11:26 2023 +0300
+
+    *update bot.cfg
+
+[33mcommit b6c106dcee38a1bc16bf68b2277b8ab13ba53f19[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Thu Feb 16 15:18:26 2023 +0300
+
+    *update template.
+
+[33mcommit ff230ed89ab94256c5541328190865f5ddf4c9da[m[33m ([m[1;31morigin/ormolu[m[33m)[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Thu Feb 16 17:35:28 2023 +0300
+
+    *defaultMessage + ormolu. todo merge
+
+[33mcommit 5bf5f180546d25ae703e946f848521878afd4777[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Feb 15 23:23:36 2023 +0300
+
+    undone. todo defaultmessage
+
+[33mcommit aef819732cd993a322d0e3c2da1f21f602a4a3a6[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Feb 15 22:24:08 2023 +0300
+
+    refactoring for -wall, ormulu. todo merge
+
+[33mcommit ecb179c495f985dd7c47c0778574a8fc59765579[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Feb 15 19:29:20 2023 +0300
+
+    parse -Wall + ormolu. todo defaultMessage and ormulu
+
+[33mcommit 1dbfe0254d8bfa09fd71713aa5a6f7f8a8adef87[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Tue Feb 14 20:43:59 2023 +0300
+
+    todo -Wall and -Werror. todo Parsing again
+
+[33mcommit 7c20de2893e3c69c7a74f8ce517f098c510bb903[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Mon Feb 13 21:39:38 2023 +0300
+
+    ormolu. todo refactoring?
+
+[33mcommit 1357c037dab4c3780ac0b839812383eb790b486a[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Sun Feb 12 00:22:34 2023 +0300
+
+    *done read.me. todo check another requirements
+
+[33mcommit e7f86526142a3dcf823bdcd2d1ab5213e794ee22[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Sat Feb 11 23:50:51 2023 +0300
+
+    update readme
+    
+    todo translate
+
+[33mcommit f926e5bda3425c2a3160095d093ac54b1778e904[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Sat Feb 11 16:50:26 2023 +0300
+
+    *update readme. todo translate
+
+[33mcommit 80e917fad023863710f0395d51ef354c602a96cc[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Sat Feb 11 13:56:42 2023 +0300
+
+    update readme
+
+[33mcommit d5bbbf275bf5f214960248c043abf875187ed25a[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Sat Feb 11 13:34:36 2023 +0300
+
+    *rename MessageDataBase -> StackMessage. todo readme
+
+[33mcommit bf3518f341478072b9d5a9f09f7b092ad71c9888[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Sat Feb 11 13:23:11 2023 +0300
+
+    *rename VK -> TM. todo readme
+
+[33mcommit 804c9d3b374b1cef1ed8df5c07c7a6fa7cdb9789[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Sat Feb 11 13:15:10 2023 +0300
+
+    *update struct
+
+[33mcommit ec001ba67ca3cf95280708edf32d3ba41159d049[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Sat Feb 11 13:14:09 2023 +0300
+
+    update ReadMe
+
+[33mcommit 71f1f8fcd5c2fe9c40896cd734448a278fc099ec[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Sat Feb 11 12:37:29 2023 +0300
+
+    update struct
+
+[33mcommit 3d9c0ecd724b8e643c9f0284f61e173d45d535e5[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Sat Feb 11 12:37:02 2023 +0300
+
+    update
+
+[33mcommit e76a1ea0b39bd8e4271e3725ebcfdc9b080208c2[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Sat Feb 11 12:29:30 2023 +0300
+
+    delete files
+
+[33mcommit 05605d95f5ade07894c2f92efa8331002c0bb13a[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Sat Feb 11 12:28:25 2023 +0300
+
+    update struct
+
+[33mcommit 426b703058feb2c7e53a650cef97608c736f2590[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Sat Feb 11 12:27:55 2023 +0300
+
+    update readme
+
+[33mcommit 340a1f2d0313185a8a62ff996e93a1f31f96c5a0[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Sat Feb 11 12:04:49 2023 +0300
+
+    + struct
+
+[33mcommit d32e66a999ebc2002a1a18da99d7f21294fd6723[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Sat Feb 11 12:01:50 2023 +0300
+
+    *
+
+[33mcommit ec262552d3f3f64424fc50a139978d59d0d7d65a[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Sat Feb 11 12:01:15 2023 +0300
+
+    update srtuct
+
+[33mcommit 9aca9e6325cc49cde20358520184bbbc64913bf1[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Sat Feb 11 12:00:14 2023 +0300
+
+    update struct
+
+[33mcommit 33d47a99b49e05c74ab9e685c59eb600cbf6b2c9[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Sat Feb 11 11:46:19 2023 +0300
+
+    code clarity
+
+[33mcommit 95b0e2a7f70971fc080c2e3a9e4dda7a8d35a9a6[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Sat Feb 11 00:24:34 2023 +0300
+
+    update readme
+    
+    todo struct and translate
+
+[33mcommit 04a948d656c3ddb3c108f495cc046eae6ec40cc1[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Sat Feb 11 00:21:39 2023 +0300
+
+    add files
+
+[33mcommit f979e95e54c950b7ddde2e08ecf03434d47cb503[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Thu Feb 9 11:55:51 2023 +0300
+
+    *update readme
+
+[33mcommit 644e64d99afe07bebf944f8c7cef730dd193ebe6[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Wed Feb 8 19:17:05 2023 +0300
+
+    *Update readme
+    
+    todo readme
+
+[33mcommit 9856772e4a5c44cff30c7d30666fb682e52229aa[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Wed Feb 8 18:16:38 2023 +0300
+
+    *readme
+
+[33mcommit e04237f91de68d448a8be6b6395ee212079736aa[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Wed Feb 8 18:16:15 2023 +0300
+
+    *
+
+[33mcommit 6f850c0831db26cae98ea3b57aea5668d3e0c28a[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Wed Feb 8 18:15:36 2023 +0300
+
+    *update readme
+
+[33mcommit c0d76b35785b25478ab4bbaafd77335995763be0[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Wed Feb 8 18:14:01 2023 +0300
+
+    +add photo for example
+
+[33mcommit 8bad013cbdd5fe48a5f836cc8b8976f83f8b05cd[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Wed Feb 8 16:51:15 2023 +0300
+
+    *update readme
+    
+    todo documentation
+
+[33mcommit b8964615d9b14ceafcfaca68329e70f4706ee1b9[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Wed Feb 8 16:36:28 2023 +0300
+
+    *update read.me
+    
+    todo Documentation
+
+[33mcommit 406e75b3990402a4dff386d2761436bb03e2a123[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Wed Feb 8 16:10:06 2023 +0300
+
+    *
+
+[33mcommit 88d402e295689ca1df67cb9a767331b34290238a[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Wed Feb 8 16:06:33 2023 +0300
+
+    Create README.md
+
+[33mcommit f79d35f2cb458ccf3de1ff5e15bf22bac03ecfcb[m
+Author: gKrokod <110671484+gKrokod@users.noreply.github.com>
+Date:   Wed Feb 8 15:46:31 2023 +0300
+
+    *make Reade.md
+
+[33mcommit 70b887c4508b99fe1b22921bd9a561d6e0a7e329[m[33m ([m[1;31morigin/translate[m[33m)[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Tue Feb 7 21:37:53 2023 +0300
+
+    *translate. todo describe
+
+[33mcommit d3fc90e0a745c50d1e4611a8d4895918543f45d8[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Tue Feb 7 18:45:36 2023 +0300
+
+    *refactoring. todo translate
+
+[33mcommit 4cc33e495bf9268b59ca7984facdca3f8cd98afd[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Mon Feb 6 20:55:23 2023 +0300
+
+    *refactoring. todo translate
+
+[33mcommit f5b1ea180186041d61281e0ec4dd5d0c6f1a9db4[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Mon Feb 6 17:58:11 2023 +0300
+
+    little fix
+
+[33mcommit 6838ce1e85ca05feb5c9128b3d89b8d042b60f36[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Sun Feb 5 17:24:42 2023 +0300
+
+    fix unknown message. todo refactoring fetch, translate
+
+[33mcommit d858a66b9ac4f8ee5d51a718276accd2cc2944d4[m[33m ([m[1;31morigin/vk_client[m[33m)[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Sun Feb 5 14:24:59 2023 +0300
+
+    *refactoring, opa Keyboard. todo real test and translate
+
+[33mcommit f064a9bf03b6c16364159422d86f3b31353eba64[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Sat Feb 4 23:40:08 2023 +0300
+
+    *sendMessage and logic Dispatcher. todo opa Keyboard
+
+[33mcommit f4a3c7236a6fa378b80a2a1135504751376145c9[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Sat Feb 4 15:26:51 2023 +0300
+
+    *client_vk. todo refactoring sendMEssage and check opa keyboard
+
+[33mcommit 5f67d9a5b6f20291c3f4b0ed7afe2619fb98e1db[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Fri Feb 3 21:18:29 2023 +0300
+
+    * doing fetch, todo fetch
+
+[33mcommit 8b0d509360fe4b4d41914b5c4695788c5b80aed9[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Thu Feb 2 20:20:04 2023 +0300
+
+    + make parser. todo build request
+
+[33mcommit 452c98a01c54f110203831c32e135f2515cc3db5[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Tue Jan 31 21:20:16 2023 +0300
+
+     make client vk
+
+[33mcommit 18787b16e7ef2b5da2ff5f61cfe2f3e27ea08b6d[m[33m ([m[1;31morigin/addTest[m[33m)[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Tue Jan 31 15:41:12 2023 +0300
+
+    + add some test
+
+[33mcommit dd721dedc11532cf88428411e78c119aa571cf37[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Mon Jan 30 21:40:07 2023 +0300
+
+    add test
+
+[33mcommit f1261de628eada9af64f7621c23f9b5fe1f8737c[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Sun Jan 29 00:23:14 2023 +0300
+
+    add some test
+
+[33mcommit a4ec31ce7810abde2360dd333b4b0f08fdf26edd[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Sat Jan 28 16:02:09 2023 +0300
+
+    add some test
+
+[33mcommit 9e08f5d615e269f333e33298aef9d6b442af5c9c[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Sat Jan 28 14:00:27 2023 +0300
+
+    add some test
+
+[33mcommit 96dd98f6cfd7110f10326a06683c43b24d9f140f[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Sat Jan 28 00:12:44 2023 +0300
+
+    add some test (logger)
+
+[33mcommit cd1fba25ae9bdf8d37d25df3c57233d380031ca1[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Fri Jan 27 20:05:50 2023 +0300
+
+    add some test and some cosmetic fix
+
+[33mcommit 0b4b1ae57593fa0f5d2826716d3f51ce5811db1a[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Jan 25 20:50:09 2023 +0300
+
+    do test
+
+[33mcommit afb71d97ae0d33e7bcd70f32babd874c2dc7393b[m[33m ([m[1;31morigin/addLogger[m[33m)[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Jan 25 18:39:08 2023 +0300
+
+    add some test examples
+
+[33mcommit b47b5c8a73786044b025b5a09ae3acaccbe2c8ad[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Tue Jan 24 21:29:10 2023 +0300
+
+    make logger
+
+[33mcommit 7a3a4a7dc2a1cfdb6c4a840159384a85d8f4ea59[m[33m ([m[1;31morigin/goodTry[m[33m)[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Mon Jan 23 21:32:17 2023 +0300
+
+    It work
+
+[33mcommit fc75edd5f0ace0c2cf02f96f2d187406e11d29ad[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Mon Jan 23 19:30:33 2023 +0300
+
+    new branch
+
+[33mcommit 8d9c153e240bbdf31b7d2f85b11c2ccabada865f[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Mon Jan 23 19:27:19 2023 +0300
+
+    WOrk version
+
+[33mcommit fc12e39d1a52f9208ccb83de4c58e3caf754dca4[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Fri Jan 20 23:44:58 2023 +0300
+
+    done Fork only main(((
+
+[33mcommit dd8407fc8d055a380247ad5f8ef9faa464cf5049[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Fri Jan 20 22:05:43 2023 +0300
+
+    new lag handle
+
+[33mcommit f8d74d4e9df9b8853dcbc6d415ae4b524bff04c1[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Thu Jan 19 21:51:43 2023 +0300
+
+    + handlers and fork
+
+[33mcommit 1f3d4aa2ec9246135250b9cb322b599836a5dcdd[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Jan 18 21:01:57 2023 +0300
+
+    + some logic. ToDo dispatcher getMessage
+
+[33mcommit 71c6d16c1a065e20711de8e4d6faa596bb6532b3[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Tue Jan 17 21:22:27 2023 +0300
+
+    + client, dispatcher
+
+[33mcommit 578dba6d5a94dfa2c48185aabca0c6bdb6998db4[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Sun Jan 15 21:34:10 2023 +0300
+
+    id for console
+
+[33mcommit 08d7ad7d1574d11007f5605db99dac53518c02ba[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Dec 28 20:16:07 2022 +0300
+
+    rm empty file
+
+[33mcommit ccd3058069416b0dc1db23d5c13907f61ef60638[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Wed Dec 28 20:13:51 2022 +0300
+
+    + config and rebuilt handles
+
+[33mcommit 2285e8f60c455335220da181cc9d09410beb0e9c[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Tue Dec 27 22:14:30 2022 +0300
+
+    second
+
+[33mcommit 833eb2c6a45358dd9240559628fc6b2fa60087d9[m
+Author: gKrokod <t9013054362@gmail.com>
+Date:   Tue Dec 27 22:11:49 2022 +0300
+
+    first commit
