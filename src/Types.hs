@@ -8,13 +8,16 @@ import Data.Aeson (FromJSON (..), ToJSON (..))
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 
-newtype User = User {giveUser :: Int}
+newtype User = User {userId :: Int}
   deriving stock (Show, Eq, Generic, Ord)
   deriving anyclass (ToJSON, FromJSON)
 
 newtype RepeatCount = RepeatCount Int
-  deriving stock (Show, Eq, Generic, Ord)
+  deriving stock (Eq, Generic, Ord)
   deriving anyclass (ToJSON, FromJSON)
+
+instance Show RepeatCount where
+  show (RepeatCount n) = show n
 
 newtype ID = ID {giveId :: Int}
   deriving stock (Show, Eq, Generic)

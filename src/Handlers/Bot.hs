@@ -1,26 +1,26 @@
-module Handlers.Bot (Handle (..), doWork, changeRepeatCountForUser, isCorrectRepeatCount, makeReaction) where
+module Handlers.Bot (Handle (..), doWork, changeRepeatCountForUser, isCorrectRepeatCount, makeReaction, getMessage) where
 
 import Control.Monad (replicateM_)
 import qualified Data.Text as T (Text, pack, unpack)
 import qualified Handlers.Base
+import qualified Handlers.Client
 import qualified Handlers.Logger
 import Text.Read (readMaybe)
 import Types (Data (..), DataFromButton (..), ID (..), Log (..), Message (..), RepeatCount (..), User, Command(..))
 
 data Handle m = Handle
-  { getMessage :: m Message,
-    sendMessage :: Message -> m (),
-    base :: Handlers.Base.Handle m,
+  { base :: Handlers.Base.Handle m,
+    client :: Handlers.Client.Handle m,
     helpMessage :: T.Text,
     repeatMessage :: T.Text,
     logger :: Handlers.Logger.Handle m
   }
 
-doWork :: (Monad m) => Handle m -> m ()
-doWork h = do
+doWork :: (Monad m) => Handle m -> User -> m ()
+doWork h user = do
   let logHandle = logger h
   Handlers.Logger.logMessage logHandle Debug "Bot. Run the bot logic: get message -> make reaction"
-  message <- getMessage h
+  message <- getMessage h user
   makeReaction h message
 
 ---------------------------------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ changeRepeatCountForUser h user = do
   let msg = Message {mUser = user, mID = ID (-1), mData = NoMsg}
   sendMessage h (msg {mData = Msg $ repeatMessage h <> T.pack (show count)})
   sendMessage h (msg {mData = KeyboardMenu})
-  answer <- getMessage h
+  answer <- getMessage h user
   if not (isCorrectRepeatCount answer)
     then do
       Handlers.Logger.logMessage
@@ -103,3 +103,49 @@ isCorrectRepeatCount m = case mData m of
     checkText :: String -> Bool
     checkText [h] = h `elem` ("12345" :: String)
     checkText _ = False
+
+--
+--
+-- in order for fork Bot to work with the one user
+getMessage :: (Monad m) => Handle m -> User -> m Message
+getMessage h user = do
+  let logHandle = logger h
+  let baseHandle = base h
+  -- input : message database / desired (Just msg, _)
+  (mbMessage, _) <- Handlers.Base.readStackMessage baseHandle
+  case mbMessage of
+    Just msg ->
+      if mUser msg == user
+        then do
+          -- desired result: (Nothing, Just msg)
+          Handlers.Base.eraseMessage baseHandle msg
+          Handlers.Logger.logMessage
+            logHandle
+            Debug
+            ( mconcat
+                [ "Bot. Message received for user: ",
+                  T.pack $ show user,
+                  " from the database"
+                ]
+            )
+          pure msg
+        else getMessage h user
+    Nothing -> getMessage h user
+
+--
+-- in order for fork Bot to write log
+sendMessage :: (Monad m) => Handle m -> Message -> m ()
+sendMessage h msg = do
+  let logHandle = logger h
+  let clientHandle = client h
+  Handlers.Logger.logMessage
+    logHandle
+    Debug
+    ( mconcat
+        [ "Bot. A message has been sent to user: ",
+          T.pack $ show $ mUser msg,
+          "\n content: \n",
+          T.pack $ show $ mData msg
+        ]
+    )
+  Handlers.Client.carryAway clientHandle msg

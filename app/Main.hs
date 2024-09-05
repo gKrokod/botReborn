@@ -15,7 +15,7 @@ import qualified Handlers.Dispatcher
 import qualified Handlers.Logger
 import qualified Logger
 import System.IO (BufferMode (..), hSetBuffering, stdin, stdout)
-import Types (Data (..), ID (..), Message (..), RepeatCount (..), User (..))
+import Types (RepeatCount (..))
 
 main :: IO ()
 main = do
@@ -44,16 +44,6 @@ main = do
             Handlers.Base.logger = logHandle
           }
 
-  let botHandle =
-        Handlers.Bot.Handle
-          { Handlers.Bot.base = baseHandle,
-            Handlers.Bot.helpMessage = cTextMenuHelp cfg,
-            Handlers.Bot.repeatMessage = cTextMenuRepeat cfg,
-            Handlers.Bot.getMessage = pure (Message {mID = ID (-1), mUser = User (-1), mData = NoMsg}),
-            Handlers.Bot.sendMessage = \_ -> pure (),
-            Handlers.Bot.logger = logHandle
-          }
-
   let clientHandle =
         Handlers.Client.Handle
           { Handlers.Client.fetch =
@@ -69,10 +59,18 @@ main = do
             Handlers.Client.logger = logHandle
           }
 
+  let botHandle =
+        Handlers.Bot.Handle
+          { Handlers.Bot.base = baseHandle,
+            Handlers.Bot.helpMessage = cTextMenuHelp cfg,
+            Handlers.Bot.repeatMessage = cTextMenuRepeat cfg,
+            Handlers.Bot.client = clientHandle,
+            Handlers.Bot.logger = logHandle
+          }
+
   let handle =
         Handlers.Dispatcher.Handle
           { Handlers.Dispatcher.forkForUser = Dispatcher.forkForUser,
-            Handlers.Dispatcher.client = clientHandle,
             Handlers.Dispatcher.bot = botHandle,
             Handlers.Dispatcher.logger = logHandle
           }

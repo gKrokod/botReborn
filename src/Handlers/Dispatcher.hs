@@ -1,15 +1,14 @@
-module Handlers.Dispatcher (Handle (..), dispatcher, watcherForNewMessage, getMessage) where
+module Handlers.Dispatcher (Handle (..), dispatcher, watcherForNewMessage) where
 
 import qualified Data.Text as T
 import qualified Handlers.Base
 import qualified Handlers.Bot
 import qualified Handlers.Client
 import qualified Handlers.Logger
-import Types (Log (..), Message (..), User)
+import Types (Log (..), Message (..))
 
 data Handle m = Handle
-  { client :: Handlers.Client.Handle m,
-    bot :: Handlers.Bot.Handle m,
+  { bot :: Handlers.Bot.Handle m,
     logger :: Handlers.Logger.Handle m,
     forkForUser :: m () -> m ()
   }
@@ -50,14 +49,9 @@ dispatcher h = do
                   " save in the database"
                 ]
             )
-          let forUserBotHandle =
-                botHandle
-                  { Handlers.Bot.getMessage = getMessage h user,
-                    Handlers.Bot.sendMessage = sendMessage h
-                  }
           forkForUser
             h
-            (Handlers.Bot.doWork forUserBotHandle)
+            (Handlers.Bot.doWork botHandle user)
           Handlers.Logger.logMessage
             logHandle
             Debug
@@ -71,7 +65,7 @@ watcherForNewMessage :: (Monad m) => Handle m -> m ()
 watcherForNewMessage h = do
   let logHandle = logger h
   let baseHandle = Handlers.Bot.base (bot h)
-  let clientHandle = client h
+  let clientHandle = Handlers.Bot.client (bot h)
   -- input : message database / desired (Nothing, _)
   (mbMessage, lastMsg) <- Handlers.Base.readStackMessage baseHandle
   case mbMessage of
@@ -89,45 +83,3 @@ watcherForNewMessage h = do
           case fetchedMessage of
             Nothing -> loop
             Just msg -> Handlers.Base.saveMessage baseHandle msg
-
--- in order for fork Bot to work with the one user
-getMessage :: (Monad m) => Handle m -> User -> m Message
-getMessage h user = do
-  let logHandle = logger h
-  -- input : message database / desired (Just msg, _)
-  (mbMessage, _) <- Handlers.Base.readStackMessage (Handlers.Bot.base $ bot h)
-  case mbMessage of
-    Just msg ->
-      if mUser msg == user
-        then do
-          -- desired result: (Nothing, Just msg)
-          Handlers.Base.eraseMessage (Handlers.Bot.base $ bot h) msg
-          Handlers.Logger.logMessage
-            logHandle
-            Debug
-            ( mconcat
-                [ "Dispatcher. Message received for user: ",
-                  T.pack $ show user,
-                  " from the database"
-                ]
-            )
-          pure msg
-        else getMessage h user
-    Nothing -> getMessage h user
-
--- in order for fork Bot to write log
-sendMessage :: (Monad m) => Handle m -> Message -> m ()
-sendMessage h msg = do
-  let logHandle = logger h
-  let clientHandle = client h
-  Handlers.Logger.logMessage
-    logHandle
-    Debug
-    ( mconcat
-        [ "Dispatcher. A message has been sent to user: ",
-          T.pack $ show $ mUser msg,
-          "\n content: \n",
-          T.pack $ show $ mData msg
-        ]
-    )
-  Handlers.Client.carryAway clientHandle msg
