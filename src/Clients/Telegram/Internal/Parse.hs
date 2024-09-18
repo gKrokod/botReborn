@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeApplications #-}
 
-module ClientTM.Parse (Keyboard, justKeyBoard, UnknownMessage (..), BoxMessage (..)) where
+module Clients.Telegram.Internal.Parse (Keyboard, justKeyBoard, UnknownMessage (..), BoxMessage (..)) where
 
 import Data.Aeson (FromJSON, ToJSON, Value (..), encode, parseJSON, (.:), (.:?))
 import Data.Aeson.Types (parseFail, prependFailure, typeMismatch)
