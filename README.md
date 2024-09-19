@@ -16,7 +16,7 @@ Place to get the latest botReborn:
 ## Installation ##
 
 This project uses The Haskell Tool Stack. Go check it out if you don't have it locally installed https://docs.haskellstack.org/en/stable/ .
-Once you have installed The Haskell Tool stack, you need to make a configuration file `/config/bot.cfg`  (the repository has a template file for this `/config/readMe.txt`). 
+Once you have installed The Haskell Tool stack, you need to make a configuration file `/config/bot.cfg`  (the repository has a template file for this `/config/bot.template.cfg`). 
 
 <details><summary>template configuration file</summary>
     
@@ -50,7 +50,7 @@ $ stack exec botReborn-exe
 
 ## Documentation ##
 
-<details><summary>Structure of botReborn</summary> <image src="config/botReborn.svg" alt="structure"></details>
+<details><summary>Structure of botReborn</summary> <image src="readme/botReborn.svg" alt="structure"></details>
 
 <details><summary>Idea of organizing the program</summary>
   

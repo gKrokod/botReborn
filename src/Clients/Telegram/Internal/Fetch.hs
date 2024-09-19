@@ -1,16 +1,13 @@
-module ClientTM (fetch, carryAway) where
+module Clients.Telegram.Internal.Fetch (fetch) where
 
-import ClientTM.HttpMessage
+import Clients.Telegram.Internal.HttpMessage
   ( buildGetRequest,
-    buildGifSendRequest,
-    buildKeyboardSendRequest,
-    buildTextSendRequest,
   )
-import ClientTM.Parse (BoxMessage (..), UnknownMessage (..))
+import Clients.Telegram.Internal.Parse (BoxMessage (..), UnknownMessage (..))
 import Config (Config (..))
 import Control.Concurrent (threadDelay)
 import Control.Exception (SomeException, try)
-import Control.Monad (void, when)
+import Control.Monad (when)
 import Data.Aeson (eitherDecode)
 import qualified Data.Text as T (pack)
 import qualified Data.Text.IO as TIO
@@ -40,10 +37,3 @@ fetch cfg lm = do
         _ -> do
           threadDelay 1000000
           pure Nothing
-
-carryAway :: Config -> Message -> IO ()
-carryAway cfg msg = case mData msg of
-  Msg _ -> void $ httpLBS (buildTextSendRequest cfg msg)
-  Gif _ -> void $ httpLBS (buildGifSendRequest cfg msg)
-  KeyboardMenu -> void $ httpLBS (buildKeyboardSendRequest cfg msg)
-  _ -> void $ TIO.putStrLn "carry away wrong message"

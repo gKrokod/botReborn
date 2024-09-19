@@ -6,7 +6,7 @@ import qualified Handlers.Base
 import qualified Handlers.Client
 import qualified Handlers.Logger
 import Text.Read (readMaybe)
-import Types (Data (..), DataFromButton (..), ID (..), Log (..), Message (..), RepeatCount (..), User, Command(..))
+import Types (Command (..), Data (..), DataFromButton (..), ID (..), Log (..), Message (..), RepeatCount (..), User)
 
 data Handle m = Handle
   { base :: Handlers.Base.Handle m,

@@ -1,6 +1,6 @@
-module ClientTM.HttpMessage (buildTextSendRequest, buildGetRequest, buildGifSendRequest, buildKeyboardSendRequest) where
+module Clients.Telegram.Internal.HttpMessage (buildTextSendRequest, buildGetRequest, buildGifSendRequest, buildKeyboardSendRequest) where
 
-import ClientTM.Parse (justKeyBoard)
+import Clients.Telegram.Internal.Parse (justKeyBoard)
 import Config (Config (..))
 import qualified Data.ByteString as B (ByteString)
 import qualified Data.ByteString.Char8 as BC (pack)

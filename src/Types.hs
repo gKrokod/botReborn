@@ -2,7 +2,7 @@
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE FlexibleInstances #-}
 
-module Types (Message (..), Log (..), LastMessage, User (..), RepeatCount (..), Data (..), DataFromButton (..), ID (..), Messages (..), Command(..)) where
+module Types (Message (..), Log (..), LastMessage, User (..), RepeatCount (..), Data (..), DataFromButton (..), ID (..), Messages (..), Command (..)) where
 
 import Data.Aeson (FromJSON (..), ToJSON (..))
 import qualified Data.Text as T

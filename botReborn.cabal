@@ -27,10 +27,14 @@ source-repository head
 library
   exposed-modules:
       Base
-      ClientConsole
-      ClientTM
-      ClientTM.HttpMessage
-      ClientTM.Parse
+      Clients.Console
+      Clients.Console.Internal.CarryAway
+      Clients.Console.Internal.Fetch
+      Clients.Telegram
+      Clients.Telegram.Internal.CarryAway
+      Clients.Telegram.Internal.Fetch
+      Clients.Telegram.Internal.HttpMessage
+      Clients.Telegram.Internal.Parse
       Config
       Dispatcher
       Handlers.Base
@@ -38,6 +42,7 @@ library
       Handlers.Client
       Handlers.Dispatcher
       Handlers.Logger
+      Initialization
       Logger
       Types
   other-modules:

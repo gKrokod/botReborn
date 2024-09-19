@@ -13,7 +13,7 @@ import Test.Hspec (context, describe, hspec, it, shouldBe, shouldNotBe)
 import Test.Hspec.QuickCheck (modifyMaxSuccess)
 import Test.QuickCheck (property)
 import Text.Read (readMaybe)
-import Types (Data (..), DataFromButton (..), ID (..), LastMessage, Log (..), Message (..), RepeatCount (..), User (..), Command(..))
+import Types (Command (..), Data (..), DataFromButton (..), ID (..), LastMessage, Log (..), Message (..), RepeatCount (..), User (..))
 
 main :: IO ()
 main = hspec $ do
