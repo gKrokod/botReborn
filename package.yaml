@@ -4,7 +4,7 @@ github:              "github/gKrokod/botReborn"
 license:             BSD3
 author:              "gKrokod"
 maintainer:          "@ofspb"
-copyright:           "2023 gKrokod"
+copyright:           "2024 gKrokod"
 
 extra-source-files:
 - README.md
@@ -30,14 +30,6 @@ dependencies:
 ghc-options:
 - -Wall
 - -Werror
-- -Wcompat
-- -Widentities
-- -Wincomplete-record-updates
-- -Wincomplete-uni-patterns
-- -Wmissing-export-lists
-- -Wmissing-home-modules
-- -Wpartial-fields
-- -Wredundant-constraints
 
 library:
   source-dirs: src
